@@ -1,0 +1,36 @@
+---
+export interface Props {
+  title: string;
+  url: string;
+  pubDate: Date;
+  cover?: string;
+  category?: string;
+}
+
+const {
+  title,
+  url,
+  pubDate,
+  cover = '/images/default-cover.svg',
+  category = 'airport',
+} = Astro.props;
+
+const formattedDate = new Intl.DateTimeFormat('zh-CN', {
+  month: '2-digit',
+  day: '2-digit',
+}).format(pubDate);
+---
+
+<a href={url} class="group flex items-center gap-3.5 p-2.5 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-200">
+  <div class="w-16 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100 relative">
+    <img src={cover} alt={title} class="w-full h-full object-cover group-hover:scale-105 transition" />
+  </div>
+  <div class="flex-grow min-w-0">
+    <h4 class="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition line-clamp-2 leading-snug">
+      {title}
+    </h4>
+    <span class="text-xs text-slate-400 mt-1 block">
+      {formattedDate}
+    </span>
+  </div>
+</a>

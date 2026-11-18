@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1120"/>
+      <stop offset="50%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Decorative Grid -->
+  <g stroke="#334155" stroke-opacity="0.3" stroke-width="1">
+    <line x1="100" y1="0" x2="100" y2="630"/>
+    <line x1="300" y1="0" x2="300" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="900" y1="0" x2="900" y2="630"/>
+    <line x1="1100" y1="0" x2="1100" y2="630"/>
+    <line x1="0" y1="150" x2="1200" y2="150"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="480" x2="1200" y2="480"/>
+  </g>
+  <!-- Logo Badge -->
+  <rect x="100" y="100" width="80" height="80" rx="20" fill="url(#accent)"/>
+  <path d="M142 120L118 148H138V168L162 140H142V120Z" fill="#FFFFFF"/>
+  <!-- Text -->
+  <text x="210" y="152" font-family="-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif" font-size="32" font-weight="bold" fill="#F8FAFC">v2rayn节点 • 网络可观测评测实验室</text>
+  <text x="100" y="270" font-family="-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif" font-size="52" font-weight="900" fill="#FFFFFF">2026 中文代理机场推荐与全景数据库</text>
+  <text x="100" y="340" font-family="-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif" font-size="28" fill="#94A3B8">30+ 品牌晚高峰实测数据 • AI 与流媒体解锁矩阵 • Clash Verge / v2rayN 教程</text>
+  
+  <rect x="100" y="420" width="220" height="48" rx="12" fill="#2563EB"/>
+  <text x="210" y="452" font-family="-apple-system, BlinkMacSystemFont, PingFang SC, sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF" text-anchor="middle">v2raynjiedian.blog</text>
+</svg>

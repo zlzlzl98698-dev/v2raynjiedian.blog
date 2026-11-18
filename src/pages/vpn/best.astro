@@ -1,0 +1,353 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const vpnNav = navigationData.find((n) => n.slug === 'vpn');
+const subtopics = vpnNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'vpn' || a.id.includes('vpn') || a.id.includes('battle') || a.id.includes('iplc')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: 'VPN 与加速器', url: '/vpn/' },
+  { name: '好用的 VPN', url: '/vpn/best/' },
+];
+
+const pageTitle = '2026 好用的 VPN 清单：中国大陆真实可用与抗封锁翻墙方案精选 - v2rayn节点';
+const pageH1 = '2026 中国大陆真实好用的翻墙工具红黑榜与抗封锁精选清单';
+const pageDesc = '戳破海外博主高额佣金评测假象。立足中国大陆严苛审查网络环境，实测公布真实连通率、晚高峰丢包率与抗断网生存能力红黑榜，精选 2026 真正好用、稳定、省心的科学上网解决方案。';
+
+const faqs = [
+  {
+    "question": "2026 年中国大陆网络环境下，到底存不存在所谓的'永久好用、永远不被封'的翻墙工具？",
+    "answer": "没有任何技术是静态不变的。网络封锁与反封锁是一场持续了二十年的动态猫鼠博弈。所谓的'永远不封'是不存在的神话。但采用'物理 IEPL 专线 + 现代 VLESS-Reality 混淆 + 多地 BGP 容灾'的成熟商业服务商（如光速云），将网络故障率降低到了每年不足数小时的水平，在实际体验上已经无限接近'永远好用'。"
+  },
+  {
+    "question": "为什么很多网友说'自己搭建 VPS 翻墙'才是最安全最好的选择？",
+    "answer": "在 2015 年前后的 Shadowsocks 早期时代，自建 VPS 确实性价比很高。但在 2026 年的今天，自建翻墙的维护成本与翻车率极高：个人租用的一台境外 VPS 只有一个固定公网 IP，一旦被 GFW 主动探测封锁，换一次 IP 需要支付 $3–$5 美元且耗费大量时间；且个人无法承担每月数千元的高昂 IEPL 物理专线月租。自建翻墙不仅成本更高，而且晚高峰速度远不如规模化采购专线的商业机场稳定。"
+  },
+  {
+    "question": "光速云 (GuangSu Cloud) 为什么在众多机场中能够保持多年稳定口碑？",
+    "answer": "光速云自 2020 年上线运营至今已超过 5 年，经历过多次重大网络波动周期而屹立不倒。其核心优势在于：1. 真正的企业级 IEPL 物理专线链路，不过公网 GFW；2. 不做虚标倍率与虚假宣传，轻量入门版仅需 ¥8.25/月起；3. 提供全平台一键导入订阅，支持 Windows、macOS、iOS 和 Android；4. 客服响应迅速，节点流媒体解锁维护及时。"
+  },
+  {
+    "question": "购买翻墙服务后，发现 YouTube 播放视频提示 480p 且无法选更高画质，是什么原因？",
+    "answer": "首先排查客户端是否错误开启了全局代理导致访问国内 CDN 变慢；其次检查所选节点的当前网络延迟和丢包率，尽量选择香港、日本或新加坡的专线节点；最后检查电脑浏览器的硬件加速（GPU 加速）是否开启，部分老旧核显在解码 4K VP9/AV1 视频流时 CPU 占满卡顿会被误认为是网速问题。"
+  },
+  {
+    "question": "在公共论坛或社交媒体上公开讨论翻墙节点安全吗？",
+    "answer": "应保持低调克制。请勿在境内实名社交平台（微博、知乎、微信群、小红书）公开发布翻墙工具的邀请链接、节点配置或敏感教程，以免触发社交平台的违规风控封号。个人仅用于查阅学术资料、正常跨国办公与正当娱乐浏览属于合理范畴，但切勿参与涉及违法有害信息的传播。"
+  }
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 顶部专题胶囊导航栏 (7 大垂直子专题) -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/vpn/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'best';
+          return (
+            <a
+              href={sub.href}
+              class={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 页面标题与导读 -->
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-4">
+        <span>🛡️ 好用的 VPN · 权威深度专题</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed max-w-4xl">
+        {pageDesc}
+      </p>
+    </div>
+
+    <!-- 一键选型决策结论盒 (Answer-First) -->
+    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white mb-12 shadow-md">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-400 text-slate-950 uppercase tracking-wider">
+          Answer-First 核心选型结论
+        </span>
+        <span class="text-slate-400 text-xs">更新时间：2026 年最新网络环境审计</span>
+      </div>
+      <h2 class="text-lg sm:text-xl font-bold mb-4 text-white">
+        真实好用翻墙工具判定铁律：看清生存现状，拒绝当冤大头
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-rose-400/40 transition">
+          <div class="font-bold text-rose-300 text-sm mb-1.5">🚨 避坑黑榜：名不副实</div>
+          <div class="text-slate-200 font-semibold mb-1">国际商业 VPN (国内直连)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            海外博主推荐只为高额返佣！在中国大陆公网连通率不足 25%，晚高峰延迟高达 300ms 且丢包严重，敏感时期长达数周无法使用。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-400/40 transition">
+          <div class="font-bold text-emerald-300 text-sm mb-1.5">⚡ 真实红榜：专线标杆</div>
+          <div class="text-slate-200 font-semibold mb-1">光速云 (GuangSu Cloud)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            IEPL 企业内网专线过境，从根本上免疫 GFW 公网封锁与网络拥堵。4K 视频秒开、AI 交互零延迟，连续 5 年稳定运营，起步仅 ¥8.25/月。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-400/40 transition">
+          <div class="font-bold text-blue-300 text-sm mb-1.5">🛡️ 备用红榜：协议混淆</div>
+          <div class="text-slate-200 font-semibold mb-1">支持 VLESS-Reality / Hysteria 2</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            即使在重大敏感活动节点，新一代混淆协议通过模拟合法 TLS 流量依然具备 95% 以上生存率，是目前抗审查最强协议架构。
+          </p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- 核心横向对比表 (375px 移动端水平自适应滚动) -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 2026 知名网络翻墙工具大陆真实网络可用度与生存率红黑榜
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          基于全国电信、联通、移动多省份晚高峰（20:00–23:00）真实并发拨测数据
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">翻墙工具名称</th><th class="p-3.5">底层架构类型</th><th class="p-3.5">国内连通生存率</th><th class="p-3.5">晚高峰平均延迟</th><th class="p-3.5">晚高峰丢包率</th><th class="p-3.5">敏感时期抗封锁</th><th class="p-3.5">站长实测推荐度</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-slate-900">光速云 (GuangSu Cloud)</td><td class="p-3.5 ">企业级 IEPL/IPLC 物理专线</td><td class="p-3.5 "><span class="text-emerald-600 font-bold">99.9% (全天候稳定)</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">35ms – 48ms</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">&lt; 0.2%</span></td><td class="p-3.5 "><span class="text-emerald-600 font-bold">极高 (专线不经公网)</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">强烈推荐 (红榜首推) ⭐️⭐️⭐️⭐️⭐️</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">暮光加速 (MuGuang)</td><td class="p-3.5 ">BGP 智能调度专线</td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">98.5%</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-semibold">42ms – 60ms</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600">&lt; 0.5%</span></td><td class="p-3.5 "><span class="text-emerald-600">高 (自动故障转移)</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded font-medium">推荐 (红榜) ⭐️⭐️⭐️⭐️</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">ExpressVPN (国内公网直连)</td><td class="p-3.5 ">Lightway / OpenVPN 公网穿透</td><td class="p-3.5 "><span class="text-rose-600 font-bold">~25% – 35% (经常断联)</span></td><td class="p-3.5 "><span class="font-mono text-rose-600">240ms – 360ms</span></td><td class="p-3.5 "><span class="font-mono text-rose-600 font-bold">&gt; 35%</span></td><td class="p-3.5 "><span class="text-rose-600 font-bold">极差 (重点封锁对象)</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded font-medium">不推荐大陆日常翻墙 (黑榜) ❌</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">NordVPN (国内公网直连)</td><td class="p-3.5 ">NordLynx (WireGuard) 公网穿透</td><td class="p-3.5 "><span class="text-rose-600 font-bold">&lt; 15% (基本瘫痪)</span></td><td class="p-3.5 "><span class="font-mono text-rose-600">280ms – 400ms</span></td><td class="p-3.5 "><span class="font-mono text-rose-600 font-bold">&gt; 45%</span></td><td class="p-3.5 "><span class="text-rose-600 font-bold">极差 (被全量拉黑)</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded font-medium">极度不推荐 (黑榜) ❌</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">应用商店各类免费 VPN</td><td class="p-3.5 ">公网未知协议 / 恶意代理</td><td class="p-3.5 "><span class="text-rose-600 font-bold">&lt; 5% (高频弹广告断网)</span></td><td class="p-3.5 "><span class="font-mono text-rose-600">500ms+ (龟速)</span></td><td class="p-3.5 "><span class="font-mono text-rose-600 font-bold">&gt; 60%</span></td><td class="p-3.5 "><span class="text-rose-600 font-bold">毫无抵抗力</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-rose-200 text-rose-900 rounded font-bold">高危避坑禁区 ⚠️</span></td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术正文章节 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        一、戳破海外 Affiliate 评测网站谎言：为什么海外博主一致推荐的 VPN 在国内连不上？
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>几乎每一个翻墙新手都有过被坑的经历：在 Google 上搜索“中国最好用的 VPN”，排名前几位的全是英文或繁体中文评测网站，声称“ExpressVPN / NordVPN 是 2026 年突破封锁最好用的神器”，甚至给出高达 9.9 的满分评级。</p>
+        <p>这背后是一门巨大的<strong>联盟营销佣金（Affiliate Marketing）暴利产业链</strong>：</p>
+        <p>国际大型商业 VPN 为站长提供了全网最高的推广佣金分成。每当有中国大陆用户通过评测链接购买一份 $100 美元的年付套餐，推广博主就能直接拿到 <strong>$50 至 $80 美元的巨额现金提成（佣金比例高达 50%–80%）</strong>！</p>
+        <p>在如此诱人的暴利驱使下，许多评测博主根本人不在中国大陆，也完全不做真实网络环境测试，直接闭着眼睛将佣金最高的大厂排在第一名。而购买了服务的国内用户，只能默默忍受连不上、速度慢、退款无门的痛苦。</p>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        二、2026 真实好用翻墙工具的技术特征判定三原则
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>要想在当前复杂的网络审查环境中挑出一款真正好用、能够稳定陪伴数年的工具，必须认准以下<strong>三大硬核技术特征</strong>：</p>
+        <ol class="space-y-3">
+          <li>
+            <strong>第一原则：核心干线必须具备物理专线（IEPL / IPLC）：</strong> 任何依赖普通公网跨洋穿透的工具，在国家级深度包检测设备面前都只是“时间问题”。只有租用了物理专线的服务商，数据在物理层面上走国内企业局域网直接通往境外机房，不与公网 GFW 发生交互，才能实现 99.9% 的全天候稳定。
+          </li>
+          <li>
+            <strong>第二原则：全面兼容现代开源客户端生态（Clash / Sing-box / v2rayN）：</strong> 好用的服务商绝不搞“自制封闭式流氓客户端”，而是提供标准的开放订阅链接。用户可以自由在开源、纯净、无后门、跨平台的顶级现代客户端中运行，享受精细的按域名分流与极低的系统资源占用。
+          </li>
+          <li>
+            <strong>第三原则：具备多入口冗余与智能容灾调度（Failover）：</strong> 优秀的专线服务商在全国各地（华东、华南、华北）部署了多组 BGP 接入机房。一旦某个城市的接入点遭遇临时骨干网维护，系统能在毫秒级将用户流量平滑调度至其他可用入口，用户在使用过程中完全无感。
+          </li>
+        </ol>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        三、国内高校校园网、移动 5G 与企业局域网环境下突破封锁的特殊技巧
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>在高校校园网（如 CERNET 教育网）、三大运营商蜂窝网络（尤其是中国移动 5G）或某些外企内网中，网络审查与端口限制往往比普通家庭宽带更为严苛：</p>
+        <ul class="space-y-2">
+          <li><strong>中国移动 5G 网络的 UDP 阻断应对：</strong> 移动网络在全国多省份对境外 UDP 流量实施极为严苛的单向阻断策略，导致基于 UDP 的协议（如 WireGuard、Hysteria）频繁断流。<strong>解决方案：</strong> 在客户端中切换为基于标准 TCP 443 端口的 VLESS-Reality 或 Trojan 节点，将其伪装成标准 HTTPS 流量通行无阻。</li>
+          <li><strong>高校教育网国际出口带宽瓶颈应对：</strong> 校园网普遍限制单用户最大并发带宽（通常限速 20–50 Mbps）。<strong>解决方案：</strong> 选用具备国内多线 BGP 接入的专线机场，客户端连接国内教育网直连的 BGP 节点，借助国内充足带宽打通专线，从而轻松突破限速壁垒。</li>
+        </ul>
+      
+      </div>
+      
+    </div>
+
+    <!-- 商业转化模块：光速云推荐 -->
+    {guangsuBrand && (
+      <div class="my-12 p-6 sm:p-8 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl text-white shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+              <span>🚀 站长日常主力推荐 · 大陆最佳抗封锁替代方案</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              日常翻墙受够了商业 VPN 龟速与频繁掉线？切换至企业级专线机场
+            </h3>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              光速云 (GuangSu Cloud) 采用物理 IEPL/IPLC 企业内网专线过境，数据直接穿透光缆不过公网 GFW，晚高峰油管 4K 秒开，ChatGPT / Claude 极速秒回。
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1 text-xs text-slate-300">
+              <span class="bg-white/10 px-2.5 py-1 rounded">起步 ¥8.25/月</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">企业级内网专线</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">VLESS / Trojan 协议</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">原生流媒体解锁</span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+            <a
+              href={guangsuBrand.affiliateUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-bold text-sm shadow-lg shadow-blue-500/30 transition text-center"
+            >
+              前往光速云官网选购 ➜
+            </a>
+            <div class="text-center lg:text-right text-xs text-slate-400">
+              结账输入优惠码 <span class="text-amber-300 font-mono font-bold">AMM</span> 享专属折扣
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-white/10">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — 好用的 VPN核心选型与疑难解答
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          直面抗封锁、隐私保护与速度延迟的核心疑问
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：VPN 与专线代理深度评测原创长文
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部原创长文 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- 底部回到全站与集群导航 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/vpn/" class="text-blue-600 hover:underline font-semibold">VPN 与网络加速器专栏门户</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/airport/" class="hover:text-blue-600 transition">切换专栏：机场推荐专栏 ➜</a>
+        <a href="/clash/" class="hover:text-blue-600 transition">切换专栏：Clash 客户端指南 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

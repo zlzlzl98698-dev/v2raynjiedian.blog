@@ -1,0 +1,37 @@
+---
+export interface HeadingItem {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+export interface Props {
+  headings: HeadingItem[];
+}
+
+const { headings = [] } = Astro.props;
+const filteredHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{filteredHeadings.length > 0 && (
+  <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 mb-8">
+    <div class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+      <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+      </svg>
+      <span>本文快速导读目录</span>
+    </div>
+    <nav class="space-y-1.5 text-xs text-slate-600">
+      {filteredHeadings.map((h) => (
+        <a
+          href={`#${h.slug}`}
+          class={`block hover:text-blue-600 transition truncate leading-relaxed ${
+            h.depth === 3 ? 'pl-4 text-slate-500' : 'font-medium text-slate-800'
+          }`}
+        >
+          {h.text}
+        </a>
+      ))}
+    </nav>
+  </div>
+)}

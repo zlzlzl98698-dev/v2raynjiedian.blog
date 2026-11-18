@@ -1,0 +1,349 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const airportNav = navigationData.find((n) => n.slug === 'airport');
+const subtopics = airportNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'airport' || a.id.includes('airport') || a.id.includes('ladder') || a.id.includes('guangsu')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '机场推荐专栏', url: '/airport/' },
+  { name: '新手指南', url: '/airport/guide/' },
+];
+
+const pageTitle = '2026 科学上网新手选购指南 | 协议、线路与防踩坑大百科 - v2rayn节点';
+const pageH1 = '2026 科学上网零基础新手入门选购大百科：从原理到实操';
+const pageDesc = '面向完全零基础小白用户的全景扫盲大百科。从零讲透机场、节点、协议与客户端的关系。手把手指导挑选套餐、避免消费陷阱、以及电脑与手机端导入配置极速 SOP。';
+
+const faqs = [
+  {
+    "question": "为什么我打开了代理软件后，微信国内软件突然打不开了？",
+    "answer": "这是因为你错误地开启了'全局模式（Global）'，导致原本应该直连访问国内腾讯机房的微信流量，被强行绕道到海外服务器再返回，触发了运营商的防欺诈阻断。解决办法是在客户端中将模式由'Global'切换为'Rule（规则模式）'，国内应用即可秒速恢复直连。"
+  },
+  {
+    "question": "买完机场后，发现很多网站提示'检测到代理请关闭'怎么办？",
+    "answer": "国内主流网银、税务或政务 App 具有严格的地理防伪装 SDK。如果检测到系统存在虚拟网卡或代理，会主动拦截。解决办法是在手机中将这些 App 加入代理客户端的'分流排除列表（Direct 直连）'，或者在办理核心银行业务时临时关闭代理开关。"
+  },
+  {
+    "question": "在国外出差或者去香港旅游，还需要使用机场吗？",
+    "answer": "如果你身处海外或中国香港当地的 Wi-Fi 网络下，访问 Google、YouTube 等海外网站是完全不需要代理的；但此时如果你需要看国内爱奇艺、腾讯视频或听网易云音乐，反而会因为海外 IP 受到版权区域限制，需要使用'回国反向加速器'接入国内 IP。"
+  },
+  {
+    "question": "电脑开机后经常连不上网，必须要打开代理软件才能上网，怎么修复？",
+    "answer": "这是因为上次关机时非正常退出代理软件，导致 Windows 系统设置中的'系统代理服务器'未被正确复原清除。解决办法：进入 Windows 设置 ➜ 网络和 Internet ➜ 代理，将'使用代理服务器'开关手动关闭，或者重新打开 Clash 软件后再正常点击退出。"
+  },
+  {
+    "question": "如果家里有老人家用电视看电视直播，装了软路由会影响他们吗？",
+    "answer": "完全不会。软路由内置的智能分流规则会自动识别国内央视、地方卫视、爱优腾等流媒体流量，让电视盒子以 100% 满速通过本地宽带直连播放；只有针对海外被封锁域名才会介入代理，全家人完全各取所需、互不打扰。"
+  }
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 顶部专题胶囊导航栏 (7 大垂直子专题) -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/airport/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'guide';
+          return (
+            <a
+              href={sub.href}
+              class={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 页面标题与导读 -->
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-4">
+        <span>🚀 新手指南 · 权威深度专题</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed max-w-4xl">
+        {pageDesc}
+      </p>
+    </div>
+
+    <!-- 一键选型决策结论盒 (Answer-First) -->
+    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white mb-12 shadow-md">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-400 text-slate-950 uppercase tracking-wider">
+          Answer-First 核心选型结论
+        </span>
+        <span class="text-slate-400 text-xs">更新时间：2026 年最新网络环境审计</span>
+      </div>
+      <h2 class="text-lg sm:text-xl font-bold mb-4 text-white">
+        新手入门三步走：认清原理，选对工具，拒绝踩坑
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-amber-400/40 transition">
+          <div class="font-bold text-amber-300 text-sm mb-1.5">第 1 步：买对正规专线</div>
+          <div class="text-slate-200 font-semibold mb-1">光速云 (GuangSu Cloud)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            拒绝各种永久免费和年付 9.9 陷阱。新手首选中短期月付，花几块钱直接选用 IEPL 专线，从源头杜绝连不上和频繁断网问题。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-400/40 transition">
+          <div class="font-bold text-blue-300 text-sm mb-1.5">第 2 步：下载正版客户端</div>
+          <div class="text-slate-200 font-semibold mb-1">Clash Verge Rev / Shadowrocket</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            电脑首选开源纯净的 Clash Verge Rev（内置中文），苹果手机使用美区 Apple ID 获取 Shadowrocket（小火箭），安卓使用 Clash Meta。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-400/40 transition">
+          <div class="font-bold text-emerald-300 text-sm mb-1.5">第 3 步：一键导入与规则分流</div>
+          <div class="text-slate-200 font-semibold mb-1">开启规则模式 (Rule)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            在机场后台一键复制订阅链接导入客户端，将路由模式设为“规则模式”。国内软件走本地直连，海外网站走代理，全自动智能分流。
+          </p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- 核心横向对比表 (375px 移动端水平自适应滚动) -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 全平台主流翻墙开源客户端核心特性与下载选型一览表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          整理自 GitHub 官方开源仓库，完全免费、无后门、支持全协议
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">操作系统</th><th class="p-3.5">推荐官方客户端</th><th class="p-3.5">开源内核架构</th><th class="p-3.5">新手友好度</th><th class="p-3.5">核心特色优势</th><th class="p-3.5">官方下载渠道</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-slate-900">Windows 10 / 11</td><td class="p-3.5 "><span class="font-bold text-slate-900">Clash Verge Rev</span></td><td class="p-3.5 ">Mihomo (Go 语言重构)</td><td class="p-3.5 ">⭐️⭐️⭐️⭐️⭐️ (极简中文)</td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">Tauri 架构极省内存，一键开启 TUN 模式</span></td><td class="p-3.5 ">GitHub 官方 Release</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-slate-900">macOS (苹果电脑)</td><td class="p-3.5 "><span class="font-bold text-slate-900">Clash Verge Rev (Mac版)</span></td><td class="p-3.5 ">Mihomo (适配 Apple Silicon)</td><td class="p-3.5 ">⭐️⭐️⭐️⭐️⭐️ (优雅界面)</td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">原生适配 M1/M2/M3/M4 芯片，极低功耗</span></td><td class="p-3.5 ">GitHub 官方 Release</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">Android (安卓手机)</td><td class="p-3.5 "><span class="font-bold text-slate-900">Clash Meta for Android</span></td><td class="p-3.5 ">Mihomo 移动端移植内核</td><td class="p-3.5 ">⭐️⭐️⭐️⭐️ (操作直观)</td><td class="p-3.5 "><span class="text-blue-600">支持应用级分流绕过，支持 Material You 视觉</span></td><td class="p-3.5 ">GitHub 官方 APK</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">iOS (iPhone / iPad)</td><td class="p-3.5 "><span class="font-bold text-slate-900">Shadowrocket (小火箭)</span></td><td class="p-3.5 ">自研轻量级网络引擎</td><td class="p-3.5 ">⭐️⭐️⭐️⭐️⭐️ (一键导入)</td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">耗电极低，后台保活不掉线，支持扫码导入</span></td><td class="p-3.5 ">美区 App Store (需海外ID)</td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术正文章节 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        一、核心概念极速通俗通关：机场、节点、协议与客户端到底是什么关系？
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>很多新手面对各种技术名词往往一头雾水。我们可以用一个生动的<strong>“跨国交通出行”</strong>比喻彻底搞懂它们的分工：</p>
+        <ul class="space-y-3">
+          <li><strong>机场（服务提供商）：</strong> 相当于“高铁公司”或“航空公司”。它们负责在各地租用机房、铺设物理专线光缆、维护服务器，为你提供跨国出行的通信基础设施。</li>
+          <li><strong>节点（服务器入口与出口）：</strong> 相当于高铁线路上具体的“车站”。比如“香港 01 节点”、“日本 02 节点”，代表你的网络流量将在香港或日本机房离开隧道进入国际公网。</li>
+          <li><strong>协议（通信规则）：</strong> 相当于高铁的“车型与检票加密技术”（如 VLESS、Trojan、Shadowsocks）。它们负责给你的数据包穿上防伪装、防检查的防弹外衣。</li>
+          <li><strong>客户端（本地软件）：</strong> 相当于你手机里的“购票与导航 App”（如 Clash Verge Rev、Shadowrocket）。它运行在你的电脑或手机上，负责读取你的车票（订阅链接），并将不同软件的流量智能调度到对应的线路上。</li>
+        </ul>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        二、新手选购防踩坑五大铁律：守住底线，拒绝被割韭菜
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>在挑选购买人生中第一份机场套餐时，牢记以下五大避坑铁律：</p>
+        <ol class="space-y-2">
+          <li><strong>铁律一：坚决从“月付”开始！</strong> 无论商家宣传多么天花乱坠、年付折扣多么诱人，新手第一次购买一律只买一个月！先用一个月验证晚高峰在自己家宽带下的真实表现，好用再续费。</li>
+          <li><strong>铁律二：远离任何“永久买断/终身套餐”！</strong> 物理机房带宽每月都需要支付真金白银的租金，没有任何商业公司能靠几十元维持终身服务。所有终身套餐在数学上都是庞氏收割，随时跑路。</li>
+          <li><strong>铁律三：首选 IEPL/IPLC 物理专线！</strong> 哪怕预算有限，也尽量选择大牌的轻量版专线（如光速云 ¥8.25/月），从第一天起就享受免除 GFW 封锁与晚高峰不卡顿的高品质网络。</li>
+          <li><strong>铁律四：警惕隐形高倍率偷跑流量！</strong> 买之前确认核心节点的倍率是不是 1.0x。避免买来 1000G 却全都是 5x 节点，几天就见底。</li>
+          <li><strong>铁律五：切勿在公开不安全网络泄露订阅链接！</strong> 订阅链接就是你的账户私密密码，任何人得到它都能刷爆你的流量，切勿发在公共聊天群或论坛中。</li>
+        </ol>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        三、全平台客户端下载与订阅导入三步极速配置 SOP
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>配置科学上网其实只需要简单的 3 步，耗时不足 3 分钟：</p>
+        <ol class="space-y-2">
+          <li><strong>第一步：在官网购买并复制订阅链接：</strong> 在机场用户后台，找到“一键订阅”或“复制订阅链接”按钮，点击复制 Clash 格式的订阅 URL。</li>
+          <li><strong>第二步：打开客户端并粘贴导入：</strong> 打开 Clash Verge Rev（电脑端），点击左侧“订阅（Profiles）”，将链接粘贴在上方输入框中，点击“导入（Import）”；在 Shadowrocket（苹果手机）上点击右上角“+”号，类型选择“Subscribe”，粘贴 URL 点击完成。</li>
+          <li><strong>第三步：开启系统代理与规则模式：</strong> 在客户端主界面将路由模式切换为“规则（Rule）”，然后将系统代理开关打开为绿色。此时打开浏览器访问 Google，即可享受飞速畅游！</li>
+        </ol>
+      
+      </div>
+      
+    </div>
+
+    <!-- 商业转化模块：光速云推荐 -->
+    {guangsuBrand && (
+      <div class="my-12 p-6 sm:p-8 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl text-white shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+              <span>🚀 站长日常主力首选 · 2026 全场景专线标杆</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              受够了断流、卡顿与频繁跑路？全面升级至企业级 IEPL 专线机场
+            </h3>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              光速云 (GuangSu Cloud) 采用物理 IEPL/IPLC 企业内网专线过境，数据穿透内网不过公网 GFW，晚高峰 YouTube 4K 秒开，ChatGPT / Claude 极速秒回。
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1 text-xs text-slate-300">
+              <span class="bg-white/10 px-2.5 py-1 rounded">起步 ¥8.25/月</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">企业级内网专线</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">VLESS / Trojan 协议</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">原生流媒体解锁</span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+            <a
+              href={guangsuBrand.affiliateUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-bold text-sm shadow-lg shadow-blue-500/30 transition text-center"
+            >
+              前往光速云官网选购 ➜
+            </a>
+            <div class="text-center lg:text-right text-xs text-slate-400">
+              结账输入优惠码 <span class="text-amber-300 font-mono font-bold">AMM</span> 享专属折扣
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-white/10">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — 新手指南核心选型与疑难解答
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          直面抗封锁、稳定性、速度延迟与防跑路的核心疑问
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：机场深度横评与专线技术原创长文
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部原创长文 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- 底部回到全站与集群导航 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/airport/" class="text-blue-600 hover:underline font-semibold">机场推荐专栏门户</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/clash/" class="hover:text-blue-600 transition">切换专栏：Clash 客户端指南 ➜</a>
+        <a href="/vpn/" class="hover:text-blue-600 transition">切换专栏：VPN 与网络加速器 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

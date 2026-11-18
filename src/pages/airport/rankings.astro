@@ -1,0 +1,349 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const airportNav = navigationData.find((n) => n.slug === 'airport');
+const subtopics = airportNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'airport' || a.id.includes('airport') || a.id.includes('ladder') || a.id.includes('guangsu')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '机场推荐专栏', url: '/airport/' },
+  { name: '测速排名', url: '/airport/rankings/' },
+];
+
+const pageTitle = '2026 机场测速排名 | 晚高峰 4K 测速天梯榜与丢包率 - v2rayn节点';
+const pageH1 = '2026 全网主流机场晚高峰真实测速天梯榜与丢包率全景横评';
+const pageDesc = '拒绝虚假假测速与本地边缘缓存伪装。公开全国多省份电信、联通、移动晚高峰（20:00–23:00）真实并发拨测数据，公布带宽天梯榜、单线程吞吐与丢包率实测。';
+
+const faqs = [
+  {
+    "question": "为什么我用本地千兆宽带测速，最高只能跑到 300M 左右？",
+    "answer": "这是因为跨国网络传输受限于 TCP 窗口大小和往返延迟（RTT）。根据 BDP（带宽时延积）理论，延迟越高，单连接跑满千兆带宽所需的系统 TCP 发送/接收缓存就越大。在客户端中开启现代 BBR 拥塞控制算法，或者开启多线程下载工具，才能真正发挥千兆宽带的极限实力。"
+  },
+  {
+    "question": "测速图里的延迟（Ping）是越低越好吗？50ms 和 100ms 区别大吗？",
+    "answer": "对于日常看 4K 视频、下载文件和查资料，50ms 和 100ms 在感官上几乎完全没有区别；但对于外服 FPS 射击游戏（如 Apex、CS2），50ms 和 100ms 会带来明显的开枪命中反馈差异。打游戏追求 30-50ms 低延迟，日常看剧更看重吞吐带宽和零丢包。"
+  },
+  {
+    "question": "全网测速天梯榜多长时间更新一次？",
+    "answer": "本站监控系统每 7 天对全网主流品牌进行一次全天候拨测轮询，并在每个月末汇总生成最新的晚高峰测速天梯榜单。一旦发现某个品牌连续两周出现丢包率激增或降速，榜单会即时对其进行降级预警标注。"
+  },
+  {
+    "question": "为什么节点列表中香港节点延迟最低，而美国节点延迟通常要 150ms 以上？",
+    "answer": "这是由光速在光纤玻璃介质中的物理传播速度决定的物理铁律。从中国大陆到美国西海岸横跨太平洋，单程物理距离超过 10,000 公里，光信号在光缆中往返一次的最短理论物理时间就在 120ms 左右，加上中继路由器处理耗时，130-160ms 是完全正常的物理极限，无法被突破。"
+  },
+  {
+    "question": "如何自行在本地电脑上对节点进行科学真实测速？",
+    "answer": "推荐方法：1. 打开本地 Clash Verge Rev，选中目标节点；2. 打开浏览器无痕模式，访问 fast.com 或打开 YouTube 播放 4K 60fps 视频并打开详细统计信息；3. 连续测试 3 次取平均值，重点观察连接速率是否稳定平缓、无剧烈上下断崖式锯齿。"
+  }
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 顶部专题胶囊导航栏 (7 大垂直子专题) -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/airport/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'rankings';
+          return (
+            <a
+              href={sub.href}
+              class={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 页面标题与导读 -->
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-4">
+        <span>🚀 测速排名 · 权威深度专题</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed max-w-4xl">
+        {pageDesc}
+      </p>
+    </div>
+
+    <!-- 一键选型决策结论盒 (Answer-First) -->
+    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white mb-12 shadow-md">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-400 text-slate-950 uppercase tracking-wider">
+          Answer-First 核心选型结论
+        </span>
+        <span class="text-slate-400 text-xs">更新时间：2026 年最新网络环境审计</span>
+      </div>
+      <h2 class="text-lg sm:text-xl font-bold mb-4 text-white">
+        测速天梯榜核心结论：看清单线程真实吞吐，拒绝跑分欺骗
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-amber-400/40 transition">
+          <div class="font-bold text-amber-300 text-sm mb-1.5">🥇 晚高峰天梯榜第一名</div>
+          <div class="text-slate-200 font-semibold mb-1">光速云 (GuangSu Cloud)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            晚高峰平均吞吐高达 480 Mbps，丢包率稳定在 0.1% 以下，YouTube 4K 秒开缓冲健康度超 30 秒，全天候零卡顿霸榜第一梯队。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-400/40 transition">
+          <div class="font-bold text-blue-300 text-sm mb-1.5">🥈 综合高容灾第二名</div>
+          <div class="text-slate-200 font-semibold mb-1">暮光加速 (MuGuang)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            全国多地 BGP 入口智能路由，晚高峰平均吞吐 380 Mbps，延迟抖动标准差小于 3ms，多设备并发表现极佳。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-400/40 transition">
+          <div class="font-bold text-emerald-300 text-sm mb-1.5">🥉 优质平价第三名</div>
+          <div class="text-slate-200 font-semibold mb-1">飞猫云 / 微风云</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            优质隧道中转，晚高峰平均吞吐维持在 180–260 Mbps 之间，顺畅播放 4K 视频，在十元以内平价梯队中位列前茅。
+          </p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- 核心横向对比表 (375px 移动端水平自适应滚动) -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 2026 晚高峰（20:00–23:00）全网主流机场全国多地并发测速天梯榜
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          基于全国多节点千兆对称宽带、统一客户端内核环境真实长测统计
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">天梯排位</th><th class="p-3.5">机场品牌名称</th><th class="p-3.5">晚高峰平均下行带宽</th><th class="p-3.5">香港节点延迟</th><th class="p-3.5">晚高峰丢包率</th><th class="p-3.5">4K 秒开缓冲度</th><th class="p-3.5">干线架构类型</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-slate-900"><span class="font-bold text-amber-500">TOP 1 🥇</span></td><td class="p-3.5 ">光速云 (GuangSu Cloud)</td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">482 Mbps (满速)</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">32ms – 42ms</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">&lt; 0.1%</span></td><td class="p-3.5 "><span class="text-emerald-600 font-bold">&gt; 35 秒 (极佳)</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-medium">企业级 IEPL 物理专线</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900"><span class="font-bold text-blue-500">TOP 2 🥈</span></td><td class="p-3.5 ">暮光加速 (MuGuang)</td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-semibold">386 Mbps</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-semibold">38ms – 52ms</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600">&lt; 0.4%</span></td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">&gt; 25 秒</span></td><td class="p-3.5 ">多线 BGP 智能专线</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900"><span class="font-bold text-emerald-500">TOP 3 🥉</span></td><td class="p-3.5 ">飞猫云 (FlyCat)</td><td class="p-3.5 "><span class="font-mono text-blue-600 font-semibold">254 Mbps</span></td><td class="p-3.5 "><span class="font-mono">48ms – 65ms</span></td><td class="p-3.5 "><span class="font-mono">&lt; 1.2%</span></td><td class="p-3.5 "><span class="text-blue-600">&gt; 18 秒</span></td><td class="p-3.5 ">BGP 隧道中转优化</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900"><span class="font-bold text-slate-500">TOP 4</span></td><td class="p-3.5 ">大佬云 (DaLaoYun)</td><td class="p-3.5 "><span class="font-mono text-blue-600">240 Mbps</span></td><td class="p-3.5 "><span class="font-mono">45ms – 60ms</span></td><td class="p-3.5 "><span class="font-mono">&lt; 1.5%</span></td><td class="p-3.5 "><span class="text-blue-600">&gt; 16 秒</span></td><td class="p-3.5 ">高品质隧道大带宽</td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900"><span class="font-bold text-rose-500">垫底</span></td><td class="p-3.5 ">普通公网直连机场</td><td class="p-3.5 "><span class="font-mono text-rose-600 font-bold">18 Mbps (严重缩水)</span></td><td class="p-3.5 "><span class="font-mono text-rose-600">220ms – 350ms</span></td><td class="p-3.5 "><span class="font-mono text-rose-600 font-bold">&gt; 35.0%</span></td><td class="p-3.5 "><span class="text-rose-600 font-bold">&lt; 3 秒 (频繁卡顿)</span></td><td class="p-3.5 ">公网海缆直接穿透</td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术正文章节 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        一、跑分测速内幕大起底：为什么多线程跑分好看，看视频却卡顿？
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>很多评测博主晒出的测速图动辄“跑满 800M 甚至 1000M”，看起来赏心悦目，但实际买回来使用却完全不是一回事。这其中的技术欺骗性主要来自两点：</p>
+        <ul class="space-y-2">
+          <li><strong>多线程测速掩盖丢包：</strong> 跑分脚本（如 Speedtest-CLI）通常开启了 16 到 32 个并发 TCP 线程。如果线路有 10% 的严重丢包，多线程可以通过不断发包勉强维持一个看起来很高的瞬时总带宽；但当你看视频或打游戏时，单个应用只走单一连接，一旦遭遇丢包，画面立刻发生肉眼可见的停顿卡死。</li>
+          <li><strong>测速服务器物理距离作弊：</strong> 某些不诚信的服务商将测速节点配置在距离国内入口极近的边缘中转服务器上，测出来的其实只是“你家到国内机房的中转速度”，根本没有真正测到海外落地机房和目标网站之间的跨境吞吐能力！</li>
+        </ul>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        二、看懂 YouTube 真实压测两大数据：Connection Speed 与 Buffer Health
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>真正具有工业参考价值的科学测速，必须以<strong>海外真实大流量多媒体的单线程持续吞吐</strong>为准绳：</p>
+        <p>打开 YouTube 任意一段 4K 60fps（或 8K HDR）的高码率视频，在画面上右键点击<strong>“详细统计信息（Stats for nerds）”</strong>：</p>
+        <ol class="space-y-2">
+          <li><strong>Connection Speed（实际连接速率）：</strong> 播放 4K 60fps 视频所需的基础码率约为 35,000 Kbps（35 Mbps）。优质的专线机场（如光速云）在晚高峰能够全天候稳定在 <strong>80,000 Kbps 到 180,000 Kbps 以上</strong>，留有充沛的数倍冗余。</li>
+          <li><strong>Buffer Health（缓冲区健康度）：</strong> 视频播放器拉取数据后存放在内存中的时间裕量。顶尖机场在点击播放后 2 秒内即可将缓冲区堆叠至 <strong>30 秒以上</strong>。即使公网偶尔发生轻微波动，本地播放器依靠充足的预存缓冲也绝对不会出现画面卡顿。</li>
+        </ol>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        三、全国多省份跨运营商拨测：电信、联通、移动的测速差异应对
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>全国各大省份的宽带环境差异极大，在查看测速排名时需结合自身物理运营商对号入座：</p>
+        <ul class="space-y-2">
+          <li><strong>中国电信用户：</strong> 骨干网国际公网出口在晚高峰极其拥堵，千万不要购买任何非专线机场。电信用户测速天梯榜的首选一律是具备高规格电信 BGP 入口的 IEPL 专线（光速云），直飞内网。</li>
+          <li><strong>中国联通用户：</strong> 联通拥有的 9929 与 169 骨干网跨国互联质量在三大运营商中口碑相对较好，连接日本和香港的物理延迟极低，选用隧道中转或专线均能跑出极高跑分。</li>
+          <li><strong>中国移动用户：</strong> 移动出口受到多层 NAT 审查和 UDP QoS 丢包限制。测速时必须确保节点采用标准 TCP 混淆协议，并优先选择包含移动多线直连入口的品牌。</li>
+        </ul>
+      
+      </div>
+      
+    </div>
+
+    <!-- 商业转化模块：光速云推荐 -->
+    {guangsuBrand && (
+      <div class="my-12 p-6 sm:p-8 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl text-white shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+              <span>🚀 站长日常主力首选 · 2026 全场景专线标杆</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              受够了断流、卡顿与频繁跑路？全面升级至企业级 IEPL 专线机场
+            </h3>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              光速云 (GuangSu Cloud) 采用物理 IEPL/IPLC 企业内网专线过境，数据穿透内网不过公网 GFW，晚高峰 YouTube 4K 秒开，ChatGPT / Claude 极速秒回。
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1 text-xs text-slate-300">
+              <span class="bg-white/10 px-2.5 py-1 rounded">起步 ¥8.25/月</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">企业级内网专线</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">VLESS / Trojan 协议</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">原生流媒体解锁</span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+            <a
+              href={guangsuBrand.affiliateUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-bold text-sm shadow-lg shadow-blue-500/30 transition text-center"
+            >
+              前往光速云官网选购 ➜
+            </a>
+            <div class="text-center lg:text-right text-xs text-slate-400">
+              结账输入优惠码 <span class="text-amber-300 font-mono font-bold">AMM</span> 享专属折扣
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-white/10">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — 测速排名核心选型与疑难解答
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          直面抗封锁、稳定性、速度延迟与防跑路的核心疑问
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：机场深度横评与专线技术原创长文
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部原创长文 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- 底部回到全站与集群导航 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/airport/" class="text-blue-600 hover:underline font-semibold">机场推荐专栏门户</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/clash/" class="hover:text-blue-600 transition">切换专栏：Clash 客户端指南 ➜</a>
+        <a href="/vpn/" class="hover:text-blue-600 transition">切换专栏：VPN 与网络加速器 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

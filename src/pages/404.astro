@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/navigation/Breadcrumb.astro';
+
+const breadcrumbs = [
+  { name: '404 页面未找到', url: '/404.html' },
+];
+---
+
+<BaseLayout
+  title="404 - 页面未找到 | v2rayn节点"
+  description="抱歉，您访问的页面不存在或已被迁移。请通过全站导航或品牌数据库寻找所需内容。"
+  breadcrumbs={breadcrumbs}
+>
+  <div class="max-w-2xl mx-auto px-4 py-20 text-center">
+    <div class="w-20 h-20 rounded-3xl bg-blue-50 text-blue-600 font-extrabold text-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-blue-200">
+      404
+    </div>
+    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
+      您访问的页面未找到
+    </h1>
+    <p class="text-sm text-slate-500 mb-8 max-w-md mx-auto leading-relaxed">
+      该页面可能已被调整、合并或链接输入有误。您可以尝试返回首页，或在下方快速直达常用入口。
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a href="/" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition shadow-sm">
+        返回网站首页
+      </a>
+      <a href="/brands/" class="px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition">
+        浏览 30+ 品牌数据库
+      </a>
+      <a href="/search/" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold text-sm hover:bg-slate-200 transition">
+        站内全文搜索
+      </a>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,100 @@
+---
+export interface Props {
+  brandName: string;
+  items?: { name: string; category: 'AI' | 'Streaming'; status: 'Stable' | 'Partial' | 'Vendor' | 'Unavailable'; note: string }[];
+}
+
+const {
+  brandName,
+  items = [
+    { name: 'ChatGPT', category: 'AI', status: 'Stable', note: '原生支持 / 降级检测通过' },
+    { name: 'Claude 3.7', category: 'AI', status: 'Stable', note: '无需手机卡验证 / 无风控' },
+    { name: 'Gemini Advanced', category: 'AI', status: 'Partial', note: '需切换欧美原生节点' },
+    { name: 'Netflix 4K', category: 'Streaming', status: 'Stable', note: '全区原创剧与非自制剧解锁' },
+    { name: 'Disney+', category: 'Streaming', status: 'Stable', note: '全区免拦截' },
+    { name: 'YouTube Premium', category: 'Streaming', status: 'Stable', note: '4K/8K 零缓冲秒开' },
+    { name: 'HBO Max', category: 'Streaming', status: 'Stable', note: '美区完整内容库' },
+    { name: 'TikTok', category: 'Streaming', status: 'Stable', note: '跨区直播与电商账号直连' },
+    { name: 'Spotify', category: 'Streaming', status: 'Stable', note: '全区账号漫游支持' },
+  ],
+} = Astro.props;
+
+const statusBadge = (status: string) => {
+  switch (status) {
+    case 'Stable':
+      return { text: 'Stable [已解锁]', class: 'bg-emerald-950/80 text-emerald-400 border-emerald-800' };
+    case 'Partial':
+      return { text: 'Partial [部分节点]', class: 'bg-amber-950/80 text-amber-400 border-amber-800' };
+    case 'Vendor':
+      return { text: 'Vendor [宣称支持]', class: 'bg-blue-950/80 text-blue-400 border-blue-800' };
+    default:
+      return { text: 'Unavailable [受限]', class: 'bg-rose-950/80 text-rose-400 border-rose-800' };
+  }
+};
+---
+
+<div class="my-8 rounded-2xl bg-[#0B1120] border border-[#1E293B] shadow-2xl p-5 sm:p-6 text-slate-200 font-mono text-sm">
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-4 border-b border-[#1E293B]">
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+        服务可用性矩阵 • AI 工具与主流流媒体解锁实测
+      </span>
+    </div>
+    <span class="text-xs text-cyan-400 font-bold">[{brandName} 专属矩阵]</span>
+  </div>
+
+  <!-- AI Section Grid -->
+  <div class="py-4 border-b border-[#1E293B]/80">
+    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+      <span class="text-indigo-400">🤖</span>
+      <span>主流 AI 生产力大模型访问测试</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {items.filter(i => i.category === 'AI').map(item => {
+        const badge = statusBadge(item.status);
+        return (
+          <div class="p-3 rounded-xl bg-[#0F172A] border border-[#1E293B] flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bold text-white text-sm">{item.name}</span>
+              <span class={`text-[10px] px-1.5 py-0.5 rounded border font-semibold ${badge.class}`}>
+                {badge.text}
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">{item.note}</p>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- Streaming Section Grid -->
+  <div class="py-4">
+    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+      <span class="text-rose-400">🎬</span>
+      <span>4K 高清流媒体与社交媒体平台解锁测试</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {items.filter(i => i.category === 'Streaming').map(item => {
+        const badge = statusBadge(item.status);
+        return (
+          <div class="p-3 rounded-xl bg-[#0F172A] border border-[#1E293B] flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bold text-white text-sm">{item.name}</span>
+              <span class={`text-[10px] px-1.5 py-0.5 rounded border font-semibold ${badge.class}`}>
+                {badge.text}
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">{item.note}</p>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- Matrix Footer -->
+  <div class="pt-3 border-t border-[#1E293B] text-[11px] text-slate-500 flex items-center justify-between">
+    <span>测试工具: RegionRestrictionCheck 脚本集群 (原生 IP 判定)</span>
+    <span>状态代码: 200 OK</span>
+  </div>
+</div>

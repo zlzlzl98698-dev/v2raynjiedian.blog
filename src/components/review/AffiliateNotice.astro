@@ -1,0 +1,19 @@
+---
+export interface Props {
+  className?: string;
+}
+
+const { className = '' } = Astro.props;
+---
+
+<aside class={`my-6 p-4 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-slate-500 leading-relaxed flex items-start gap-3 ${className}`}>
+  <div class="w-5 h-5 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+  </div>
+  <div>
+    <strong class="text-slate-700 font-semibold">透明度与推广声明：</strong>
+    本文中部分注册按钮与推荐链接包含联盟推广代码。通过本站链接注册，我们可能会获得微薄佣金以支持服务器运维，但这绝不会对您的购买价格产生任何负面影响（部分品牌还可使用专享优惠码享受额外折扣）。本站评测始终保持技术客观性。
+  </div>
+</aside>

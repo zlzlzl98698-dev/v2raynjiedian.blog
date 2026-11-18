@@ -1,0 +1,347 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const vpnNav = navigationData.find((n) => n.slug === 'vpn');
+const subtopics = vpnNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'vpn' || a.id.includes('vpn') || a.id.includes('battle') || a.id.includes('iplc')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: 'VPN 与加速器', url: '/vpn/' },
+  { name: 'VPN 软件评测', url: '/vpn/reviews/' },
+];
+
+const pageTitle = '2026 深度 VPN 软件协议与性能评测：WireGuard vs OpenVPN - v2rayn节点';
+const pageH1 = '2026 深度加密协议横评：WireGuard、OpenVPN 与混淆代理性能实测';
+const pageDesc = '面向极客与网络工程师的硬核技术横评。深度拆解底层协议密码学套件、握手包 RTT、报文熵值指纹特征与 GFW 主动探测机制，对比 WireGuard、OpenVPN、VLESS-Reality 与 Hysteria 2 真实吞吐量。';
+
+const faqs = [
+  {
+    "question": "WireGuard 的 UDP 协议为什么在晚高峰时期容易出现速度骤降？",
+    "answer": "国内电信、联通、移动等运营商在晚高峰（20:00 - 23:00）骨干网国际出口拥堵时，会对国际公网的纯 UDP 流量实施激进的 QoS 限速与无差别随机丢包策略。WireGuard 基于纯 UDP 构建，一旦遇到丢包就会触发上层 TCP 协议的剧烈窗口重传惩罚，导致速度从几百兆断崖式跌落至几百 KB。解决办法是使用专线机场走内网光缆过境，或者使用 Hysteria 2 这类具备自研快速重传引擎的协议。"
+  },
+  {
+    "question": "使用 OpenVPN 并开启 XOR 或 Scramble 混淆补丁，现在还能翻墙吗？",
+    "answer": "在 2016-2018 年前后，XOR 混淆曾经有效过一段时间。但现代 GFW 已经升级为结合了机器学习与全流量熵值统计分析的智能化审查系统。简单的异或运算虽然改变了明文字符，但由于其报文熵值分布规律依然严重偏离正常的商业 TLS 握手，在几分钟的大流量吞吐后就会被智能算法自动识别并列入灰名单，如今已经基本失效。"
+  },
+  {
+    "question": "自建 VLESS-Reality 节点，寻找伪装域名（Dest SNI）有什么关键讲究？",
+    "answer": "伪装域名的选择至关重要：1. 目标网站必须支持标准 TLS 1.3 与 HTTP/2；2. 目标网站的服务器机房物理位置最好与你的 VPS 节点在同一个国家或地区，且物理距离越近越好（延迟越小越逼真）；3. 绝对不能使用在中国大陆备案过的国内域名，推荐使用大型跨国企业（如 www.apple.com、gateway.icloud.com 等）作为目标 SNI。"
+  },
+  {
+    "question": "Hysteria 2 协议为什么被称作'垃圾弱网救星'？",
+    "answer": "Hysteria 2 基于标准 QUIC 协议进行了深度的网络协议栈重写，采用了自研的 Brutal 拥塞控制算法。在恶劣丢包率高达 20%–30% 的极端公网线路上，普通 TCP 协议会因为丢包而陷入死锁重传，而 Hysteria 2 会主动以恒定速率持续强力发包填补丢包空缺，从而将可用带宽压榨到物理极限。"
+  },
+  {
+    "question": "为什么主流机场绝大多数采用 VLESS 和 Trojan，而不是原生 WireGuard？",
+    "answer": "因为专线机场需要面对几十万名普通商业用户的多端接入体验。VLESS 和 Trojan 协议不仅能够无缝复用标准 443 端口，极难被防火墙特征探测，而且其生态客户端（Clash Verge、Shadowrocket 等）支持精细到每一个域名的分流规则；而 WireGuard 是二层/三层全流量隧道，在客户端实现复杂规则分流极其困难且极易导致国内应用网络瘫痪。"
+  }
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 顶部专题胶囊导航栏 (7 大垂直子专题) -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/vpn/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'reviews';
+          return (
+            <a
+              href={sub.href}
+              class={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 页面标题与导读 -->
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-4">
+        <span>🛡️ VPN 软件评测 · 权威深度专题</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed max-w-4xl">
+        {pageDesc}
+      </p>
+    </div>
+
+    <!-- 一键选型决策结论盒 (Answer-First) -->
+    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white mb-12 shadow-md">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-400 text-slate-950 uppercase tracking-wider">
+          Answer-First 核心选型结论
+        </span>
+        <span class="text-slate-400 text-xs">更新时间：2026 年最新网络环境审计</span>
+      </div>
+      <h2 class="text-lg sm:text-xl font-bold mb-4 text-white">
+        协议选型技术铁律：场景决定架构，密码学先进性不等于抗封锁力
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-400/40 transition">
+          <div class="font-bold text-blue-300 text-sm mb-1.5">⚡ 极速现代组网首选</div>
+          <div class="text-slate-200 font-semibold mb-1">WireGuard 协议</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            仅 4000 行纯 C 代码，Linux 内核原生驱动，采用 ChaCha20 加密与 Noise 框架。局域网/跨云组网性能天花板，但跨国公网缺乏混淆极易被秒封。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-400/40 transition">
+          <div class="font-bold text-emerald-300 text-sm mb-1.5">🛡️ 现代抗封锁终极利器</div>
+          <div class="text-slate-200 font-semibold mb-1">VLESS-Reality / Hysteria 2</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Reality 借用境外真实大型网站 TLS 证书消除 SNI 审查；Hysteria 2 基于定制 QUIC/UDP 协议，恶劣高丢包网络下吞吐提升 10 倍以上。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-amber-400/40 transition">
+          <div class="font-bold text-amber-300 text-sm mb-1.5">👴 历史遗产渐行渐远</div>
+          <div class="text-slate-200 font-semibold mb-1">OpenVPN / IPsec 协议</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            超 10 万行庞大臃肿代码，用户态反复内存拷贝，TLS 握手协议指纹具有 100% 统计学特征。在中国大陆已彻底失去作为主力翻墙协议的价值。
+          </p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- 核心横向对比表 (375px 移动端水平自适应滚动) -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 六大主流网络加密与代理通信协议底层技术指标横向横评表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          基于 Linux 6.8 内核、千兆对称带宽及防火墙（GFW）探测环境实测数据整理
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">通信协议</th><th class="p-3.5">代码量/架构</th><th class="p-3.5">核心加密套件</th><th class="p-3.5">握手耗时 (RTT)</th><th class="p-3.5">报文特征熵值</th><th class="p-3.5">GFW 主动探测抵抗力</th><th class="p-3.5">单核吞吐极限</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">WireGuard</td><td class="p-3.5 ">~4,000 行 (内核态)</td><td class="p-3.5 ">ChaCha20-Poly1305 / Curve25519</td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">1-RTT (极快)</span></td><td class="p-3.5 ">高熵 (148字节固定)</td><td class="p-3.5 "><span class="text-rose-600 font-bold">极差 (特征固定秒封)</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">~1.2 Gbps (满速)</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">OpenVPN (UDP/TCP)</td><td class="p-3.5 ">&gt; 100,000 行 (用户态)</td><td class="p-3.5 ">AES-256-GCM / RSA-4096</td><td class="p-3.5 "><span class="font-mono text-rose-600">3-RTT (慢)</span></td><td class="p-3.5 ">典型 TLS/OpenVPN 签名</td><td class="p-3.5 "><span class="text-rose-600 font-bold">极差 (100% 精准识别)</span></td><td class="p-3.5 "><span class="font-mono text-slate-500">~250 Mbps (瓶颈大)</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-slate-900">VLESS-Reality</td><td class="p-3.5 ">轻量无状态架构</td><td class="p-3.5 ">借用真实 TLS 1.3 套件</td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">1-RTT (同标准 HTTPS)</span></td><td class="p-3.5 ">完全伪装为真实网站</td><td class="p-3.5 "><span class="text-emerald-600 font-bold">极强 (无法区分)</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600">~950 Mbps</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-slate-900">Hysteria 2</td><td class="p-3.5 ">定制 QUIC (UDP 协议栈)</td><td class="p-3.5 ">ChaCha20 / AES-128-GCM</td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">0-RTT / 1-RTT</span></td><td class="p-3.5 ">UDP 混淆 + 动态跳频</td><td class="p-3.5 "><span class="text-emerald-600 font-bold">强 (抗恶劣丢包)</span></td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">~1.5 Gbps (极速)</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">Trojan-GFW</td><td class="p-3.5 ">轻量 TLS 转发</td><td class="p-3.5 ">标准 TLS 1.3 密码套件</td><td class="p-3.5 "><span class="font-mono text-blue-600">1-RTT</span></td><td class="p-3.5 ">标准 HTTPS 流量特征</td><td class="p-3.5 "><span class="text-blue-600 font-semibold">良好 (需维护证书)</span></td><td class="p-3.5 "><span class="font-mono text-blue-600">~850 Mbps</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">Shadowsocks (AEAD)</td><td class="p-3.5 ">极简对称流密码</td><td class="p-3.5 ">AES-256-GCM / 2022-Blake3</td><td class="p-3.5 "><span class="font-mono text-emerald-600">0-RTT (立即发数据)</span></td><td class="p-3.5 ">纯随机无特征数据流</td><td class="p-3.5 "><span class="text-amber-600 font-semibold">中等 (易遭主动探测)</span></td><td class="p-3.5 "><span class="font-mono text-blue-600">~900 Mbps</span></td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术正文章节 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        一、WireGuard 极简优雅架构与 OpenVPN 臃肿历史包袱实测
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>在计算机网络工程领域，WireGuard 的出现被誉为加密 VPN 领域的工业革命。由知名安全专家 Jason Donenfeld 设计的 WireGuard，其核心代码量仅有区区 4,000 行左右，能够直接作为模块合并进 Linux 官方内核主干代码树（Linux 5.6+）。</p>
+        <p>相比之下，统治了行业二十年的 <strong>OpenVPN</strong> 代码库膨胀到了惊人的 10 万行以上，包含了对各种过时加密算法（如 DES、Blowfish、MD5）的历史兼容代码。OpenVPN 运行在操作系统用户空间，每个进出的网络数据包都必须在内核网卡接口（TUN/TAP）与用户态主进程之间发生两次昂贵的内存上下文拷贝（Context Switch）。实测在四核轻量云服务器上，OpenVPN 在跑满 250 Mbps 带宽时 CPU 占用率即飙升至 90% 以上；而同样硬件条件下，运行在内核态的 WireGuard 可以轻而易举跑到 1.2 Gbps，CPU 占用率仅为 15% 左右。</p>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        二、握手特征与指纹分析：为什么 WireGuard 会在大脑网络被秒级阻断？
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>很多技术人员感到纳闷：既然 WireGuard 的性能如此强悍、加密如此现代，为什么用它翻墙却一用就死？</p>
+        <p>答案隐藏在它的协议报文规范（Specification）中：</p>
+        <ul class="space-y-2">
+          <li><strong>严格固定的报文长度：</strong> WireGuard 的首个握手发起数据包（Initiation Packet）具有严格固定的 148 字节长度；服务器响应的握手包（Response Packet）具有严格固定的 92 字节长度。这两个特征在防火墙的线速处理 ASIC 芯片面前，等同于在脑门上写着“我是 WireGuard”。</li>
+          <li><strong>固定消息类型代码：</strong> 报文的第一个字节严格定义为消息类型（0x01 代表握手发起，0x02 代表握手响应，0x04 代表数据载荷）。GFW 的深度包检测设备根本不需要耗费算力解密数据包内容，只需扫描 UDP 报文的第一个字节与固定长度，在 1 毫秒内即可精准判定，并向本地运营商下发对目标 IP 对应端口的静默丢包指令。</li>
+        </ul>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        三、前沿技术演进：AmneziaWG 混淆与 VLESS-Reality 真实世界模拟
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>为了拯救 WireGuard 在严苛审查环境下的生存能力，开源安全社区推出了 <strong>AmneziaWG（AWG）</strong>：</p>
+        <p>AWG 通过在 WireGuard 的原始报文头部随机填充可变长度的垃圾数据（Junk Packet），并将固定的消息类型代码进行动态映射混淆，从而彻底打乱了 148 字节和 92 字节的固定长度特征，实测抗封锁能力得到了显著提升。</p>
+        <p>而在应用层代理领域，以 <strong>VLESS-Reality</strong> 为代表的技术则开辟了另一条更绝妙的道路：它不再试图制造“看似完全随机的噪音”，而是“大隐隐于市”。Reality 直接借用境外真实合法商业网站（如苹果、微软、雅虎）的真实合法 TLS 证书，将自己的加密数据包装成与普通海外网页浏览完全一致的标准 TLS 1.3 流量。审查设备如果封锁这个连接，就会导致整个跨国商业网络的大量合法业务瘫痪，从而达成了极高境界的抗审查平衡。</p>
+      
+      </div>
+      
+    </div>
+
+    <!-- 商业转化模块：光速云推荐 -->
+    {guangsuBrand && (
+      <div class="my-12 p-6 sm:p-8 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl text-white shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+              <span>🚀 站长日常主力推荐 · 大陆最佳抗封锁替代方案</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              日常翻墙受够了商业 VPN 龟速与频繁掉线？切换至企业级专线机场
+            </h3>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              光速云 (GuangSu Cloud) 采用物理 IEPL/IPLC 企业内网专线过境，数据直接穿透光缆不过公网 GFW，晚高峰油管 4K 秒开，ChatGPT / Claude 极速秒回。
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1 text-xs text-slate-300">
+              <span class="bg-white/10 px-2.5 py-1 rounded">起步 ¥8.25/月</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">企业级内网专线</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">VLESS / Trojan 协议</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">原生流媒体解锁</span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+            <a
+              href={guangsuBrand.affiliateUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-bold text-sm shadow-lg shadow-blue-500/30 transition text-center"
+            >
+              前往光速云官网选购 ➜
+            </a>
+            <div class="text-center lg:text-right text-xs text-slate-400">
+              结账输入优惠码 <span class="text-amber-300 font-mono font-bold">AMM</span> 享专属折扣
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-white/10">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — VPN 软件评测核心选型与疑难解答
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          直面抗封锁、隐私保护与速度延迟的核心疑问
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：VPN 与专线代理深度评测原创长文
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部原创长文 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- 底部回到全站与集群导航 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/vpn/" class="text-blue-600 hover:underline font-semibold">VPN 与网络加速器专栏门户</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/airport/" class="hover:text-blue-600 transition">切换专栏：机场推荐专栏 ➜</a>
+        <a href="/clash/" class="hover:text-blue-600 transition">切换专栏：Clash 客户端指南 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,256 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import BrandCard from '../../components/cards/BrandCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { brandsData } from '../../data/brands';
+
+const breadcrumbs = [
+  { name: '机场品牌数据库', url: '/brands/' },
+];
+
+const seoTitle = '机场品牌数据库 (30+ 品牌) | 2026 专线机场对比、价格筛选与实测评测';
+const seoDesc = '收录 30+ 常见翻墙机场与 VPN 品牌，支持按价格、IEPL/IPLC 线路架构、VLESS 协议、AI与流媒体解锁状态多维筛选，提供晚高峰测速报告与专属优惠码。';
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="ItemList"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- Hero Header -->
+    <div class="mt-4 mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-100/70 text-blue-700 text-xs font-bold uppercase tracking-wider mb-2">
+        <span>品牌检索与对比中心</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        2026 代理机场与 VPN 品牌数据库
+      </h1>
+      <p class="text-sm sm:text-base text-slate-600 mt-2 max-w-3xl leading-relaxed">
+        全景收录 30+ 经过数据审计的翻墙服务商。所有品牌均标明运营年份、线路技术架构、真实价格档位、流媒体与 AI 工具实测可用性，拒绝虚假营销。
+      </p>
+    </div>
+
+    <!-- Filter Control Bar -->
+    <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs mb-8 space-y-4">
+      <!-- Search Input + Sort -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div class="relative flex-grow max-w-md">
+          <input
+            id="brand-search-input"
+            type="text"
+            placeholder="搜索品牌名称、拼音或英文 (如: 光速云、guangsu)..."
+            class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          />
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-500 font-medium">排序方式:</span>
+          <select
+            id="brand-sort-select"
+            class="py-2 px-3 text-xs sm:text-sm rounded-xl border border-slate-300 bg-white font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="rank">综合推荐排名</option>
+            <option value="price-asc">价格: 从低到高</option>
+            <option value="price-desc">价格: 从高到低</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Filter Tags Row -->
+      <div class="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-200/80 text-xs">
+        <span class="text-slate-400 font-medium">线路筛选:</span>
+        <button class="filter-btn active px-3 py-1.5 rounded-lg border border-blue-600 bg-blue-600 text-white font-semibold" data-type="line" data-val="all">全部</button>
+        <button class="filter-btn px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 font-medium" data-type="line" data-val="IEPL">IEPL 专线</button>
+        <button class="filter-btn px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 font-medium" data-type="line" data-val="IPLC">IPLC 专线</button>
+        <button class="filter-btn px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 font-medium" data-type="line" data-val="BGP">BGP 调度</button>
+
+        <span class="text-slate-400 font-medium ml-2">价格区间:</span>
+        <button class="filter-btn active px-3 py-1.5 rounded-lg border border-blue-600 bg-blue-600 text-white font-semibold" data-type="price" data-val="all">全部</button>
+        <button class="filter-btn px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 font-medium" data-type="price" data-val="under10">&lt; 10元/月</button>
+        <button class="filter-btn px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 font-medium" data-type="price" data-val="10to20">10 - 20元/月</button>
+        <button class="filter-btn px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 font-medium" data-type="price" data-val="over20">&gt; 20元/月</button>
+      </div>
+    </div>
+
+    <!-- Results Counter -->
+    <div class="flex items-center justify-between text-xs text-slate-500 mb-4 px-1">
+      <span>当前展示 <strong id="visible-count" class="text-slate-900">{brandsData.length}</strong> 个品牌结果</span>
+      <span>数据核实更新周期: 2026年11月</span>
+    </div>
+
+    <!-- Brands Grid -->
+    <div id="brands-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {brandsData.map((brand) => (
+        <div
+          class="brand-item-wrapper"
+          data-name={brand.name}
+          data-slug={brand.slug}
+          data-english={brand.englishName}
+          data-rank={brand.rank}
+          data-price={brand.minPriceMonthly}
+          data-lines={brand.lineTypes.join(',')}
+        >
+          <BrandCard brand={brand} />
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty State -->
+    <div id="brands-empty" class="hidden text-center py-16 px-4 rounded-2xl bg-slate-50 border border-slate-200 my-8">
+      <div class="text-3xl mb-2">🔍</div>
+      <h3 class="text-base font-bold text-slate-800">未找到符合条件的品牌</h3>
+      <p class="text-xs text-slate-500 mt-1">请尝试放宽筛选条件或清空搜索关键词。</p>
+      <button id="reset-filters-btn" class="mt-4 px-4 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition">
+        重置全部筛选
+      </button>
+    </div>
+
+    <!-- Compliance Notice -->
+    <AffiliateNotice />
+
+  </div>
+</BaseLayout>
+
+<script>
+  let activeLineFilter = 'all';
+  let activePriceFilter = 'all';
+  let searchQuery = '';
+  let sortBy = 'rank';
+
+  const searchInput = document.getElementById('brand-search-input') as HTMLInputElement;
+  const sortSelect = document.getElementById('brand-sort-select') as HTMLSelectElement;
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const wrappers = Array.from(document.querySelectorAll('.brand-item-wrapper')) as HTMLElement[];
+  const emptyState = document.getElementById('brands-empty');
+  const countEl = document.getElementById('visible-count');
+  const resetBtn = document.getElementById('reset-filters-btn');
+  const grid = document.getElementById('brands-grid');
+
+  function updateView() {
+    let visibleCount = 0;
+
+    // Filter items
+    const filtered = wrappers.map(w => {
+      const name = (w.dataset.name || '').toLowerCase();
+      const slug = (w.dataset.slug || '').toLowerCase();
+      const english = (w.dataset.english || '').toLowerCase();
+      const price = parseFloat(w.dataset.price || '0');
+      const lines = (w.dataset.lines || '');
+
+      let matchesSearch = true;
+      if (searchQuery) {
+        matchesSearch = name.includes(searchQuery) || slug.includes(searchQuery) || english.includes(searchQuery);
+      }
+
+      let matchesLine = true;
+      if (activeLineFilter !== 'all') {
+        matchesLine = lines.includes(activeLineFilter);
+      }
+
+      let matchesPrice = true;
+      if (activePriceFilter === 'under10') matchesPrice = price < 10;
+      else if (activePriceFilter === '10to20') matchesPrice = price >= 10 && price <= 20;
+      else if (activePriceFilter === 'over20') matchesPrice = price > 20;
+
+      const isVisible = matchesSearch && matchesLine && matchesPrice;
+      if (isVisible) {
+        w.style.display = '';
+        visibleCount++;
+      } else {
+        w.style.display = 'none';
+      }
+
+      return { element: w, price, rank: parseInt(w.dataset.rank || '999'), isVisible };
+    });
+
+    // Sort visible items
+    if (grid) {
+      filtered.sort((a, b) => {
+        if (sortBy === 'price-asc') return a.price - b.price;
+        if (sortBy === 'price-desc') return b.price - a.price;
+        return a.rank - b.rank;
+      });
+      filtered.forEach(item => grid.appendChild(item.element));
+    }
+
+    if (countEl) countEl.innerText = visibleCount.toString();
+    if (emptyState) {
+      if (visibleCount === 0) emptyState.classList.remove('hidden');
+      else emptyState.classList.add('hidden');
+    }
+  }
+
+  // Event Listeners
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = (e.target as HTMLInputElement).value.trim().toLowerCase();
+      updateView();
+    });
+  }
+
+  if (sortSelect) {
+    sortSelect.addEventListener('change', (e) => {
+      sortBy = (e.target as HTMLSelectElement).value;
+      updateView();
+    });
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const type = target.dataset.type;
+      const val = target.dataset.val || 'all';
+
+      if (type === 'line') {
+        activeLineFilter = val;
+        document.querySelectorAll('.filter-btn[data-type="line"]').forEach(b => {
+          b.classList.remove('active', 'bg-blue-600', 'text-white', 'border-blue-600');
+          b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+        });
+      } else if (type === 'price') {
+        activePriceFilter = val;
+        document.querySelectorAll('.filter-btn[data-type="price"]').forEach(b => {
+          b.classList.remove('active', 'bg-blue-600', 'text-white', 'border-blue-600');
+          b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+        });
+      }
+
+      target.classList.add('active', 'bg-blue-600', 'text-white', 'border-blue-600');
+      target.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+
+      updateView();
+    });
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      searchQuery = '';
+      activeLineFilter = 'all';
+      activePriceFilter = 'all';
+      sortBy = 'rank';
+      if (sortSelect) sortSelect.value = 'rank';
+
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        const val = (b as HTMLElement).dataset.val;
+        if (val === 'all') {
+          b.classList.add('active', 'bg-blue-600', 'text-white', 'border-blue-600');
+          b.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+        } else {
+          b.classList.remove('active', 'bg-blue-600', 'text-white', 'border-blue-600');
+          b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+        }
+      });
+
+      updateView();
+    });
+  }
+</script>

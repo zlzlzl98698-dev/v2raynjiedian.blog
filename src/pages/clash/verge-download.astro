@@ -1,0 +1,424 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const clashNav = navigationData.find((n) => n.slug === 'clash');
+const subtopics = clashNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'clash' || a.id.includes('download') || a.id.includes('verge')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: 'Clash 客户端', url: '/clash/' },
+  { name: 'Clash Verge 下载', url: '/clash/verge-download/' },
+];
+
+const pageTitle = 'Clash Verge Rev 官方正版下载 | GitHub 官方发布与全平台防木马安装包选型 - v2rayn节点';
+const pageH1 = 'Clash Verge Rev 官方正版下载渠道审计与全平台安装包选型指南';
+const pageDesc = '提供 2026 最新 Clash Verge Rev 官方开源下载渠道与安全辨伪指南。深度揭秘搜索引擎恶意置顶钓鱼网站与捆绑木马骗局，详细解析 Windows、macOS (Apple Silicon/Intel) 及 Linux 安装包选型与 SHA-256 哈希校验。';
+
+const faqs = [
+  {
+    question: "为什么说千万不要在百度或必应搜索结果第一页直接下载 Clash 软件？",
+    answer: "黑客团伙长期在搜索引擎购买'Clash 下载'、'Clash 官网'等高频关键词的竞价排名广告。这些钓鱼网站会制作极为逼真的伪造官网，诱导用户下载捆绑了木马病毒的改装版安装包。一旦运行，木马会静默窃取本地浏览器的 Cookie、Telegram 聊天会话以及加密货币钱包私钥。官方软件唯一可信发布源仅为 GitHub 官方 Releases 页面。",
+  },
+  {
+    question: "Windows 用户应该下载 msi、exe 还是 portable (便携版)？",
+    answer: "如果追求免安装、纯净便携且不希望在 C 盘写入注册表，推荐下载带有 `_portable.zip` 后缀的便携压缩包，解压后双击即可运行；如果需要开机自动静默启动、安装 Service Mode 系统服务以及创建桌面快捷方式，推荐下载带有 `_x64_setup.exe` 的标准安装程序。",
+  },
+  {
+    question: "苹果 Mac 用户如何确认自己的电脑是 M 系列芯片还是 Intel 芯片？",
+    answer: "点击 Mac 屏幕左上角苹果图标 ➜「关于本机」。若处理器显示为 Apple M1/M2/M3/M4，务必下载带有 `aarch64.dmg` 或 `arm64.dmg` 后缀的安装包；若处理器显示为 Intel Core i5/i7/i9，则需下载带有 `x64.dmg` 后缀的安装包。若选错会导致软件运行时通过 Rosetta 2 转译，功耗和内存占用显著增加。",
+  },
+  {
+    question: "在 macOS 上打开 Clash Verge Rev 提示「已损坏，无法打开」怎么解决？",
+    answer: "这是因为开源客户端没有向苹果官方支付昂贵的开发者签名证书费用，被 macOS Gatekeeper 安全机制拦截。解决方法非常简单：打开「终端 (Terminal)」，输入命令 `sudo xattr -r -d com.apple.quarantine /Applications/Clash\\ Verge.app` 并回车，输入开机密码即可永久解除拦截。",
+  },
+  {
+    question: "如何核对下载到的安装包是否被篡改或植入木马？",
+    answer: "在 GitHub Releases 页面的 Assets 列表最下方，作者会公布一份包含所有文件 SHA-256 哈希值的 `SHA256SUMS.txt`。在 Windows PowerShell 中运行 `Get-FileHash 文件路径`，核对其输出的 64 位字符与官方清单是否完全一致，只要完全匹配即可保证文件绝对未遭第三方篡改。",
+  },
+  {
+    question: "在 GitHub 页面无法下载安装包或下载速度极慢怎么办？",
+    answer: "由于 GitHub 的国内 CDN 经常受到干扰，如果当前完全没有翻墙网络，可以使用可信的开源 GitHub 镜像加速站（如 fastgit 或 ghproxy），或者借助手机开热点临时下载。切勿因此转而去不明第三方网盘或破解论坛下载。",
+  },
+  {
+    question: "Linux 系统（Ubuntu / Debian / Arch）应该下载哪个包？",
+    answer: "Ubuntu 和 Debian 用户推荐下载 `.deb` 包，通过 `sudo dpkg -i` 完成安装；Arch Linux 用户可直接通过 AUR 助手运行 `yay -S clash-verge-rev-bin` 进行官方编译安装；通用发行版可下载独立可执行的 `.AppImage` 文件，赋予执行权限后直接启动。",
+  },
+  {
+    question: "成功下载正版客户端后，如何最快获取稳定高速的专线节点？",
+    answer: "客户端本身不含任何节点。建议选择光速云（GuangSu Cloud）专线服务，在官网购买套餐后，后台提供专用的 Clash 一键订阅导入按钮，软件会自动同步所有 IEPL/IPLC 专线节点列表，免去手动配置的繁琐流程。",
+  },
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑与顶部导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 专题子导航胶囊栏 -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/clash/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'verge-download';
+          return (
+            <a
+              href={`/clash/${sub.slug}/`}
+              class={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 顶部专题 H1 标题区 -->
+    <div class="mb-10 text-center sm:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold tracking-wide uppercase mb-3">
+        <span>Clash 客户端垂直专题</span>
+        <span class="text-blue-300">•</span>
+        <span>官方正版下载与防骗审计</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-3 text-base sm:text-lg text-slate-600 max-w-4xl leading-relaxed">
+        {pageDesc}
+      </p>
+      <div class="mt-4 flex flex-wrap items-center gap-4 text-xs text-slate-400">
+        <span>最后修订：2026 年 11 月</span>
+        <span>•</span>
+        <span>审核机构：v2rayn节点安全合规实验室</span>
+        <span>•</span>
+        <span>官方唯一仓库：clash-verge-rev/clash-verge-rev</span>
+      </div>
+    </div>
+
+    <!-- Answer-First 决策总览盒 -->
+    <div class="bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 border border-blue-200/80 rounded-2xl p-6 sm:p-8 mb-12 shadow-xs">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="p-2 bg-blue-600 text-white rounded-lg text-lg">🛡️</span>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          正版 Clash Verge Rev 下载防骗安全铁律（Answer-First）
+        </h2>
+      </div>
+      <p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6">
+        下载代理软件的核心是保障终端系统安全。请务必牢记以下三条硬性安全法则，彻底杜绝木马感染风险：
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-blue-100 shadow-2xs">
+          <div class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
+            铁律 ①：认准 GitHub 官方源
+          </div>
+          <div class="text-base font-bold text-slate-900 mb-2">严禁使用搜索引擎广告</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            任何以 clashverge.com、clashforwindows.org 为域名的商业网站均为第三方仿冒。真正的官方下载地址位于 GitHub 的 <code>clash-verge-rev</code> 仓库。
+          </p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-indigo-100 shadow-2xs">
+          <div class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">
+            铁律 ②：精准匹配架构与系统
+          </div>
+          <div class="text-base font-bold text-slate-900 mb-2">选对安装包后缀</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Windows 64位电脑认准 <code>_x64_setup.exe</code>；苹果 M 系列 Mac 认准 <code>_aarch64.dmg</code>；英特尔 Mac 认准 <code>_x64.dmg</code>。
+          </p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-cyan-100 shadow-2xs">
+          <div class="text-xs font-bold text-cyan-600 uppercase tracking-wider mb-1">
+            铁律 ③：执行 SHA-256 校验
+          </div>
+          <div class="text-base font-bold text-slate-900 mb-2">核对官方哈希指纹</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            运行安装前，通过终端比对官方 <code>SHA256SUMS.txt</code> 清单，确保下载的文件没有在网络传输过程中被注入后门病毒。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 核心横评对比大表：安装包选型速查表 -->
+    <div class="mb-14">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📊 Clash Verge Rev 全平台官方安装包格式与选型速查表
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            官方 Releases 资产列表中的数十个安装包文件对应关系与系统适用范围说明
+          </p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+            <tr>
+              <th class="p-3.5">目标操作系统</th>
+              <th class="p-3.5">硬件芯片架构</th>
+              <th class="p-3.5">官方文件推荐后缀</th>
+              <th class="p-3.5">类型与安装特性</th>
+              <th class="p-3.5">适用场景建议</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-600">
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">Windows 10 / 11</td>
+              <td class="p-3.5">Intel / AMD (x64)</td>
+              <td class="p-3.5 font-mono text-blue-600 font-bold">_x64_setup.exe</td>
+              <td class="p-3.5">标准安装向导，支持开机自启与服务注册</td>
+              <td class="p-3.5 text-xs">绝大多数桌面主力 PC 用户首选</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">Windows 10 / 11</td>
+              <td class="p-3.5">Intel / AMD (x64)</td>
+              <td class="p-3.5 font-mono text-slate-800">_x64_portable.zip</td>
+              <td class="p-3.5">便携免安装版，解压即用，配置保存在本地</td>
+              <td class="p-3.5 text-xs">公司办公电脑、移动 U 盘、系统重装党</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">macOS Sonoma / Ventura</td>
+              <td class="p-3.5">Apple Silicon (M1-M4)</td>
+              <td class="p-3.5 font-mono text-emerald-600 font-bold">_aarch64.dmg</td>
+              <td class="p-3.5">原生 ARM64 编译包，极致低功耗与高性能</td>
+              <td class="p-3.5 text-xs">2020 年后发布的全部苹果 Mac 电脑</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">macOS (老款设备)</td>
+              <td class="p-3.5">Intel Core 处理器</td>
+              <td class="p-3.5 font-mono text-slate-800">_x64.dmg</td>
+              <td class="p-3.5">标准 x86_64 架构 macOS 镜像包</td>
+              <td class="p-3.5 text-xs">2020 年前发布的旧款 Intel 架构 Mac</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">Linux (Ubuntu / Debian)</td>
+              <td class="p-3.5">x86_64</td>
+              <td class="p-3.5 font-mono text-purple-600">_amd64.deb</td>
+              <td class="p-3.5">Debian 二进制安装包，深度集成系统桌面</td>
+              <td class="p-3.5 text-xs">Ubuntu, Linux Mint, Debian 开发者环境</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">Linux (通用发行版)</td>
+              <td class="p-3.5">x86_64</td>
+              <td class="p-3.5 font-mono text-slate-800">_x86_64.AppImage</td>
+              <td class="p-3.5">单文件免安装，赋予 +x 权限即可启动</td>
+              <td class="p-3.5 text-xs">Fedora, openSUSE, 临时测试环境</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术专著章节 1 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        一、黑产钓鱼链条揭秘：仿冒假官网与木马后门投毒技术
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        自原作者停止维护原版 Clash 系列项目后，代理工具领域爆发了大规模的黑产钓鱼欺诈。不法分子通过购买搜索引擎排名、抢注近似域名等手段，搭建高度相似的假冒官方下载站。
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        这些带有后门的改装客户端通常具有以下严重危害：
+      </p>
+      <ul class="text-sm text-slate-600 space-y-2 list-disc list-inside">
+        <li><strong>植入恶意反向代理劫持：</strong> 修改内核内置的分流规则，将网银、加密货币交易平台（Binance、OKX）的访问请求劫持至假冒钓鱼网关；</li>
+        <li><strong>读取浏览器会话凭证：</strong> 启动后直接遍历本地 Chrome、Edge 的 User Data 目录，提取已登录网站的 Session Cookie 并静默回传至 C2 服务器；</li>
+        <li><strong>肉鸡网络背景常驻：</strong> 利用用户的真实宽带作为黑客发起跨国分布式拒绝服务攻击（DDoS）的僵尸网络节点。</li>
+      </ul>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base mt-3">
+        <strong>防范基准：</strong> 唯一且纯净的官方开源项目地址为 <code>github.com/clash-verge-rev/clash-verge-rev</code>。除 GitHub Releases 外，切勿轻信任何声称是「官网独家首发」的下载链接。
+      </p>
+    </div>
+
+    <!-- 深度技术专著章节 2 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        二、SHA-256 哈希校验实战：如何验证文件的唯一数字指纹
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        SHA-256（安全散列算法）是一种单向密码学散列函数。任何文件哪怕只被修改了一个比特位，其计算出的 64 位十六进制哈希值就会发生彻底的雪崩变化。因此，通过比对官方发布的哈希值，可以 100% 确保安装包未被植入木马。
+      </p>
+
+      <div class="space-y-4 my-6 not-prose">
+        <div class="p-5 bg-slate-900 text-slate-200 rounded-xl font-mono text-xs">
+          <div class="text-slate-400 mb-2"># Windows 环境下使用 PowerShell 进行文件哈希校验</div>
+          <div class="text-cyan-400">Get-FileHash -Algorithm SHA256 "C:\Users\Downloads\Clash.Verge_1.7.7_x64_setup.exe"</div>
+          <div class="text-slate-400 mt-2"># 输出示例：</div>
+          <div>Algorithm       Hash</div>
+          <div>---------       ----</div>
+          <div class="text-emerald-400 font-bold">SHA256          A3F9C7D4E5B8... (核对与 GitHub 官方 SHA256SUMS.txt 是否一致)</div>
+        </div>
+
+        <div class="p-5 bg-slate-900 text-slate-200 rounded-xl font-mono text-xs">
+          <div class="text-slate-400 mb-2"># macOS 环境下使用终端核验 SHA-256</div>
+          <div class="text-cyan-400">shasum -a 256 ~/Downloads/Clash.Verge_1.7.7_aarch64.dmg</div>
+          <div class="text-emerald-400 font-bold mt-1">b4d2e8...  /Users/.../Clash.Verge_1.7.7_aarch64.dmg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 商业推荐高转化卡片（光速云） -->
+    {guangsuBrand && (
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white rounded-3xl p-6 sm:p-10 mb-12 shadow-xl border border-slate-700/60 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-3">
+            <span class="px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-amber-400 text-slate-950">
+              #1 专线品牌首选
+            </span>
+            <span class="text-xs text-slate-400">与正版 Clash Verge 深度契合</span>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400">起步轻量专线: </span>
+            <span class="text-xl sm:text-2xl font-black text-amber-400">¥8.25</span>
+            <span class="text-xs text-slate-400">/月 (年付 ¥99/年 69GB/月)</span>
+          </div>
+        </div>
+
+        <h3 class="text-xl sm:text-2xl font-bold mb-3 text-white">
+          光速云 (GuangSu Cloud) — 安装完毕后的最佳专线订阅伙伴
+        </h3>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6 max-w-3xl">
+          成功下载正版 Clash Verge Rev 之后，必须配合纯净高速的专线订阅才能建立连接。光速云 6 年稳定运营，提供全节点 VLESS 企业内网 IEPL 专线，后台支持一键自动导入客户端，彻底规避繁琐设置。
+        </p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          <div class="p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-[11px] text-slate-400">专线类型</div>
+            <div class="text-xs font-bold text-white mt-1">企业级 IEPL/IPLC</div>
+          </div>
+          <div class="text-[11px] p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-slate-400">订阅格式</div>
+            <div class="text-xs font-bold text-emerald-400 mt-1">原生 Clash 订阅</div>
+          </div>
+          <div class="text-[11px] p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-slate-400">专属特惠码</div>
+            <div class="text-xs font-bold text-amber-400 mt-1 font-mono">AMM</div>
+          </div>
+          <div class="text-[11px] p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-slate-400">永久套餐</div>
+            <div class="text-xs font-bold text-white mt-1">¥147 永久 247GB</div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <a
+            href={guangsuBrand.affiliateUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener"
+            class="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-center text-sm shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5"
+          >
+            前往光速云官网一键获取订阅 ➜
+          </a>
+          <a
+            href={`/brands/${guangsuBrand.slug}/`}
+            class="w-full sm:w-auto px-6 py-3.5 bg-white/10 hover:bg-white/20 text-slate-200 font-semibold rounded-xl text-center text-sm border border-white/10 transition"
+          >
+            查阅光速云 2026 深度实测
+          </a>
+        </div>
+        <div class="mt-4">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：客户端正版下载与配置完整攻略
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部精选文章 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — 正版下载与安装包选型避坑
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          整理自官方社区高频提问，涵盖 Windows 拦截、Mac 权限与安全校验方案
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 底部回到门户与集群索引 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/clash/" class="text-blue-600 hover:underline font-semibold">Clash 与开源代理客户端专题专栏</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/clash/verge-subscribe/" class="hover:text-blue-600 transition">下一专题：Clash Verge 订阅导入指南 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

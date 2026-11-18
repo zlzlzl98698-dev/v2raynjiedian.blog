@@ -1,0 +1,441 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const clashNav = navigationData.find((n) => n.slug === 'clash');
+const subtopics = clashNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'clash' || a.id.includes('meta') || a.id.includes('depth')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: 'Clash 客户端', url: '/clash/' },
+  { name: 'Clash Meta', url: '/clash/meta/' },
+];
+
+const pageTitle = 'Clash Meta (Mihomo) 内核全景指南 | VLESS-Reality、Hysteria 2 协议支持与规则集优化 - v2rayn节点';
+const pageH1 = 'Clash Meta (Mihomo) 内核深度指南：新一代抗封锁协议与底层性能解密';
+const pageDesc = '全面解析 2026 年现代代理基石 Mihomo (Clash.Meta) 内核。深度评测 VLESS-Reality、Hysteria 2、TUIC v5 新兴传输协议，详解 Rule-Set 高性能规则集匹配与内存调优实战。';
+
+const faqs = [
+  {
+    question: "Clash.Meta 和 Mihomo 是什么关系？为什么会有两个名字？",
+    answer: "它们是完全相同的同一个内核项目。项目最初命名为 Clash.Meta，由开源社区在原版开源 Clash 基础上衍生维护。2023 年底原版 Clash 删库事件后，为了彻底与过去的旧项目割裂并建立独立的品牌标识，核心开发团队将项目正式更名为「Mihomo（御影）」。目前所有新版客户端（如 Clash Verge Rev、Mihomo Party）中显示的 Meta 内核均指代 Mihomo。",
+  },
+  {
+    question: "Mihomo 内核相比原版 Clash Premium 最大的技术飞跃是什么？",
+    answer: "三大核心飞跃：1. 协议生态大扩容：原生支持 VLESS（含 Vision / Reality）、Hysteria 2、TUIC v5、Shadow-TLS 等现代强抗审查协议；2. 规则集革命：引入高性能 Rule-Set 体系，支持直接读取编译后的二进制规则库，数万条分流规则匹配耗时降低至 0.01ms；3. 网络堆栈升级：引入更成熟的 gVisor 与 System TUN 虚拟网卡堆栈，彻底杜绝 Windows 蓝屏与 DNS 环路泄露。",
+  },
+  {
+    question: "在网络极其恶劣的高丢包环境下，为什么首选 Hysteria 2 协议？",
+    answer: "传统的 TCP 协议（如 Shadowsocks、Trojan、Vmess）遇到网络丢包时，会强制触发拥塞控制并进行重传等待，导致可用带宽断崖式下跌。而 Hysteria 2 基于 UDP 协议与自定义拥塞控制算法开发，哪怕在跨国公网丢包率高达 30% 的极度恶劣环境下，依然能强行把带宽跑满，是晚高峰移动宽带和海外跨境直连的救星协议。",
+  },
+  {
+    question: "VLESS-Reality 协议的原理是什么？为什么防火墙极难封锁它？",
+    answer: "Reality 技术的革命性在于'借鸡生蛋'。它消除了传统代理节点必须自己申请域名和 TLS 证书的特征，而是直接借用境外大型合规网站（如 apple.com、microsoft.com）的真实 TLS 证书。中间审查设备在进行主动嗅探握手时，拿到的完全是苹果或微软的真实证书，审查设备无法在不影响正常国际经贸的前提下实施阻断。",
+  },
+  {
+    question: "什么是 Rule-Set（规则集）？相比传统 Rules 有什么优势？",
+    answer: "传统 Clash 配置把数万行域名规则硬编码在配置文件内部，导致文件体积高达几兆，每次启动或更新都要耗费大量 CPU 解析文本。Rule-Set 允许将规则解耦为独立的外部模块（通过 URL 自动远程更新），内核支持以二进制格式（Mrs）将其预编译加载，内存占用减少 60%，且规则自动跟随社区维护保持最新。",
+  },
+  {
+    question: "Mihomo 内核的 TUN 模式支持哪些网络堆栈？应该怎么选？",
+    answer: "Mihomo 提供三种 TUN 堆栈：1. `system`（系统原生网络栈）：性能最高，系统开销最小，推荐作为 90% 用户的首选；2. `gVisor`（Google 开发的用户态网络栈）：安全性最高，能完美隔绝潜在的驱动冲突；3. `mixed`（混合栈）：兼顾特定协议的兼容性。日常使用推荐保持默认的 `system` 或 `gVisor`。",
+  },
+  {
+    question: "为什么更新到最新版 Mihomo 内核后，部分旧节点无法连接了？",
+    answer: "Mihomo 内核严格遵守现代密码学安全规范，主动废弃了部分已被学术界证明不安全的过时加密算法（如部分早期的 Shadowsocks 流密码、已淘汰的废弃 Vmess 头部校验）。若遇到旧节点失效，建议联系机场管理员将节点升级为主流的 AEAD 加密或 VLESS 协议。",
+  },
+  {
+    question: "哪家机场能全面发挥 Mihomo 内核的 VLESS 与专线优势？",
+    answer: "推荐光速云（GuangSu Cloud）。光速云全线节点深度跟进 Mihomo 内核规范，全量部署企业内网 IEPL 专线与 VLESS 架构。既有专线过境的高稳定性与低延迟，又享有 VLESS 零额外封装开销的极致吞吐，晚高峰 4K 秒开，AI 问答无延迟。",
+  },
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑与顶部导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 专题子导航胶囊栏 -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/clash/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'meta';
+          return (
+            <a
+              href={`/clash/${sub.slug}/`}
+              class={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 顶部专题 H1 标题区 -->
+    <div class="mb-10 text-center sm:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold tracking-wide uppercase mb-3">
+        <span>Clash 客户端垂直专题</span>
+        <span class="text-blue-300">•</span>
+        <span>Mihomo (Clash.Meta) 内核深度指南</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-3 text-base sm:text-lg text-slate-600 max-w-4xl leading-relaxed">
+        {pageDesc}
+      </p>
+      <div class="mt-4 flex flex-wrap items-center gap-4 text-xs text-slate-400">
+        <span>最后修订：2026 年 11 月</span>
+        <span>•</span>
+        <span>审核机构：v2rayn节点内核架构研发组</span>
+        <span>•</span>
+        <span>内核基准：Mihomo Core v1.18+ (Meta)</span>
+      </div>
+    </div>
+
+    <!-- Answer-First 决策总览盒 -->
+    <div class="bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 border border-blue-200/80 rounded-2xl p-6 sm:p-8 mb-12 shadow-xs">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="p-2 bg-blue-600 text-white rounded-lg text-lg">⚙️</span>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          Mihomo 内核新一代传输协议选型结论（Answer-First）
+        </h2>
+      </div>
+      <p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6">
+        面对复杂的代理协议生态，在 Mihomo 内核环境下推荐根据以下三种典型应用场景进行精准选型：
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-blue-100 shadow-2xs">
+          <div class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
+            企业专线与长连接日常
+          </div>
+          <div class="text-base font-bold text-slate-900 mb-2">VLESS + IEPL 专线</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            轻量化无状态封装，结合专线物理过境，具有最低的握手延迟与极高的吞吐稳定性，是日常办公与学术研究的黄金标配。
+          </p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-indigo-100 shadow-2xs">
+          <div class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">
+            恶劣丢包与晚高峰公网
+          </div>
+          <div class="text-base font-bold text-slate-900 mb-2">Hysteria 2 (UDP/QUIC)</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            基于 UDP 深度定制的拥塞控制算法，无视公网 20%-40% 的丢包干扰，能瞬间跑满千兆带宽，适合 4K/8K 超高清流媒体播放。
+          </p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-cyan-100 shadow-2xs">
+          <div class="text-xs font-bold text-cyan-600 uppercase tracking-wider mb-1">
+            公网直连防封锁神器
+          </div>
+          <div class="text-base font-bold text-slate-900 mb-2">VLESS-Reality / Shadow-TLS</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            消除自签名证书特征，直接借用境外大型合规网站的真实 TLS 证书作为伪装，在敏感封锁时期具备最强生存抗封能力。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 核心协议矩阵对比表 -->
+    <div class="mb-14">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📊 Mihomo (Clash.Meta) 内核现代通信协议多维特性对比表
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            基于实验室真实丢包环境模拟，对比传输协议的抗封锁能力、丢包抗性与 CPU 开销
+          </p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+            <tr>
+              <th class="p-3.5">通信协议名称</th>
+              <th class="p-3.5">底层传输层</th>
+              <th class="p-3.5">TLS 伪装机制</th>
+              <th class="p-3.5">抗丢包能力</th>
+              <th class="p-3.5">CPU 计算开销</th>
+              <th class="p-3.5">抗封锁防护评级</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-600">
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-blue-600 font-bold">★</span>
+                  <span>VLESS-Reality</span>
+                </div>
+              </td>
+              <td class="p-3.5 font-mono text-xs">TCP</td>
+              <td class="p-3.5 text-emerald-600 font-bold">真实第三方证书借用</td>
+              <td class="p-3.5">依赖 TCP 拥塞控制</td>
+              <td class="p-3.5 text-emerald-600 font-bold">极低 (零额外开销)</td>
+              <td class="p-3.5 text-emerald-600 font-bold">★★★★★ (最高级)</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span>Hysteria 2</span>
+                </div>
+              </td>
+              <td class="p-3.5 font-mono text-xs text-purple-600 font-bold">UDP (QUIC 定制)</td>
+              <td class="p-3.5">标准 TLS 1.3 握手</td>
+              <td class="p-3.5 text-emerald-600 font-bold">极强 (30% 丢包跑满)</td>
+              <td class="p-3.5 text-slate-500">中等 (UDP 协议栈调度)</td>
+              <td class="p-3.5 text-amber-500 font-bold">★★★★☆ (强防封)</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span>TUIC v5</span>
+                </div>
+              </td>
+              <td class="p-3.5 font-mono text-xs text-purple-600 font-bold">UDP (原生 QUIC)</td>
+              <td class="p-3.5">原生标准 QUIC 证书</td>
+              <td class="p-3.5 text-emerald-600 font-bold">强 (快速重传)</td>
+              <td class="p-3.5 text-slate-500">低至中等</td>
+              <td class="p-3.5 text-amber-500 font-bold">★★★★☆ (强防封)</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span>Trojan</span>
+                </div>
+              </td>
+              <td class="p-3.5 font-mono text-xs">TCP</td>
+              <td class="p-3.5">完全伪装为 HTTPS 网站</td>
+              <td class="p-3.5">标准 TCP 拥塞控制</td>
+              <td class="p-3.5 text-emerald-600 font-bold">极低 (成熟稳定)</td>
+              <td class="p-3.5 text-blue-600 font-bold">★★★★☆ (专线首选)</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition bg-slate-50/30 text-slate-400">
+              <td class="p-3.5 font-bold text-slate-500 line-through">
+                Shadowsocks (经典版)
+              </td>
+              <td class="p-3.5 font-mono text-xs">TCP / UDP</td>
+              <td class="p-3.5 text-red-400">无伪装 (仅纯对称加密)</td>
+              <td class="p-3.5">较弱</td>
+              <td class="p-3.5 text-emerald-600">极低</td>
+              <td class="p-3.5 text-red-500 font-bold">★★☆☆☆ (公网易受阻)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术专著章节 1 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        一、Mihomo 内核演进史：从社区分支到现代开源事实标准
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        原版开源 Clash 早在 2020 年左右就基本停止了大幅度的功能演进，原作者仅在闭源的 Clash Premium 中发布少量实验性特性。由于原版内核无法支持 VLESS 协议，更无法解析 Hysteria 2 与 TUIC 等新兴传输层，开源社区开发者创建了名为 <strong>Clash.Meta</strong> 的分支项目。
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        随着原版 Clash 仓库在 2023 年底的彻底删库，Clash.Meta 顺理成章地成为了整个中文代理技术生态的支柱。为了消除历史遗留的版权与命名包袱，项目组全面将其重构并定名为 <strong>Mihomo</strong>。如今，无论是桌面端的 Clash Verge Rev、Mihomo Party，还是安卓端的 ClashMetaForAndroid，底层全部统一采用 Mihomo 内核驱动，真正实现了跨平台网络协议与分流规范的大一统。
+      </p>
+    </div>
+
+    <!-- 深度技术专著章节 2 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        二、Rule-Set（规则集）高性能架构：百万级规则毫秒匹配
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        在传统代理客户端中，如果用户希望对全网去广告、国内外流媒体、OpenAI、GitHub 等上万个域名执行细粒度分流，往往需要把长达数万行的规则直接写在 YAML 配置文件内。这会导致客户端在启动和内存遍历时产生严重的卡顿。
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        Mihomo 创新性地引入了 <strong>Rule-Set（规则集）</strong> 规范。它支持将特定类别的分流规则打包为预编译的二进制格式（<code>.mrs</code>）或结构化的 YAML 模块，并通过后台轻量定时自动同步：
+      </p>
+
+      <div class="p-4 bg-slate-900 text-slate-200 rounded-xl font-mono text-xs my-6 overflow-x-auto not-prose">
+        <div class="text-slate-400 mb-2"># Mihomo 高性能 Rule-Set 规则集引用配置范本</div>
+        <div>rule-providers:</div>
+        <div class="text-emerald-400">  # 引用社区维护的精细化 OpenAI 域名规则集</div>
+        <div>  openai:</div>
+        <div>    type: http</div>
+        <div>    behavior: domain</div>
+        <div>    url: "https://raw.githubusercontent.com/.../openai.yaml"</div>
+        <div>    path: ./ruleset/openai.yaml</div>
+        <div>    interval: 86400</div>
+        <div>    format: yaml</div>
+        <div class="text-emerald-400 mt-2"># 在分流规则中只需一条指令调用规则集</div>
+        <div>rules:</div>
+        <div class="text-cyan-400">  - RULE-SET,openai,🤖 人工智能(AI)</div>
+        <div>  - GEOIP,CN,DIRECT</div>
+        <div>  - MATCH,🐟 漏网之鱼</div>
+      </div>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        借由 Rule-Set 机制，Mihomo 将规则分流查询转变为内存哈希前缀树检索，哪怕命中包含 10 万条域名的庞大拦截库，延迟也几乎为零，且本地配置文件保持极度干净清爽。
+      </p>
+    </div>
+
+    <!-- 商业推荐高转化卡片（光速云） -->
+    {guangsuBrand && (
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white rounded-3xl p-6 sm:p-10 mb-12 shadow-xl border border-slate-700/60 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-3">
+            <span class="px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-amber-400 text-slate-950">
+              #1 Mihomo 内核认证推荐
+            </span>
+            <span class="text-xs text-slate-400">全节点支持 VLESS 与企业内网专线</span>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400">起步轻量专线: </span>
+            <span class="text-xl sm:text-2xl font-black text-amber-400">¥8.25</span>
+            <span class="text-xs text-slate-400">/月 (年付 ¥99/年 69GB/月)</span>
+          </div>
+        </div>
+
+        <h3 class="text-xl sm:text-2xl font-bold mb-3 text-white">
+          光速云 (GuangSu Cloud) — 释放 Mihomo 内核全部性能的专线标杆
+        </h3>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6 max-w-3xl">
+          光速云基础设施全面对齐 Mihomo 内核规范。企业级内网 IEPL/IPLC 双专线架构，全节点部署高效 VLESS 协议，彻底消除网络协议特征。配合自研 BGP 智能调度算法，晚高峰 4K 播放无卡顿，ChatGPT/Claude 生产力秒级响应。
+        </p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          <div class="p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-[11px] text-slate-400">核心协议</div>
+            <div class="text-xs font-bold text-emerald-400 mt-1">全节点 VLESS</div>
+          </div>
+          <div class="text-[11px] p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-slate-400">专线网络</div>
+            <div class="text-xs font-bold text-white mt-1">企业级 IEPL/IPLC</div>
+          </div>
+          <div class="text-[11px] p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-slate-400">专属特惠码</div>
+            <div class="text-xs font-bold text-amber-400 mt-1 font-mono">AMM</div>
+          </div>
+          <div class="text-[11px] p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-slate-400">永久套餐</div>
+            <div class="text-xs font-bold text-white mt-1">¥147 永久 247GB</div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <a
+            href={guangsuBrand.affiliateUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener"
+            class="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-center text-sm shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5"
+          >
+            前往光速云官网一键获取专线订阅 ➜
+          </a>
+          <a
+            href={`/brands/${guangsuBrand.slug}/`}
+            class="w-full sm:w-auto px-6 py-3.5 bg-white/10 hover:bg-white/20 text-slate-200 font-semibold rounded-xl text-center text-sm border border-white/10 transition"
+          >
+            查阅光速云 2026 深度评测
+          </a>
+        </div>
+        <div class="mt-4">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：Mihomo 内核与高级技术深度长文
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部精选文章 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — Mihomo (Meta) 内核技术与配置问答
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          整理自开源项目 Issues 与开发者工单，涵盖协议兼容性、TUN 栈选型与规则集调试
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 底部回到门户与集群索引 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/clash/" class="text-blue-600 hover:underline font-semibold">Clash 与开源代理客户端专题专栏</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/clash/tutorials/" class="hover:text-blue-600 transition">下一专题：Clash 进阶使用教程 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

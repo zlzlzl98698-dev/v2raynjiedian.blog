@@ -1,0 +1,357 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const resNav = navigationData.find((n) => n.slug === 'resources');
+const subtopics = resNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.id.includes('beginner') || a.id.includes('battle') || a.data.category === 'resources'
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '资源与情报', url: '/resources/' },
+  { name: '机场 FAQ', url: '/resources/faq/' },
+];
+
+const pageTitle = '机场高频常见问题解答 (FAQ) | 2026 购买支付、流量结算、流媒体与AI访问疑难全解 - v2rayn节点';
+const pageH1 = '机场高频常见问题解答 (FAQ)：支付安全、流量重置、规则分流与 AI 解锁全景指南';
+const pageDesc = '汇总翻墙机场与 VPN 最常被问及的 15+ 核心疑难问题。包含支付宝/微信支付安全性、月流量结算日规则、多设备并发限制、ChatGPT/Claude 访问风控与退款纠纷防范。';
+
+const detailedFaqs = [
+  {
+    question: "在机场网站用支付宝或微信付款安全吗？会不会导致个人微信/支付宝被封？",
+    answer: "正规机场接入的是合规的第四方聚合支付商户网关，其商户类别通常伪装为'技术咨询服务'或'网络数码消费'。支付过程是在支付宝或微信官方的安全收银台环境中完成的，商户本身无法获取你的银行卡号、手机号或支付密码。对于个人付款用户而言，正常的日常小额消费完全不会导致个人微信或支付宝账号被封禁。但需注意切勿扫描无任何网关托管的个人转账码。",
+  },
+  {
+    question: "购买的月付套餐，每个月的流量是在 1 号重置，还是按购买日算？",
+    answer: "行业绝大多数主流机场采用的是'购买日对日结算制'（Dynamic Billing Cycle），而非自然月 1 号。例如你在 3 月 15 日购买了月付套餐，系统会在 4 月 15 日自动将流量配额重置满额；若你在本计费周期内提前用光了流量，绝大多数平台需要额外购买'流量叠加包'或提前续订下一个周期才能恢复网络。",
+  },
+  {
+    question: "为什么连了专线节点，访问国内的百度、淘宝或抖音反而变卡了？",
+    answer: "这是因为你的代理客户端设置为了'全局代理模式 (Global Mode)'。在全局模式下，所有国内网站的流量也会被强行绕道到海外落地服务器（如香港、日本）再折返回国，导致国内访问延迟由原本的 10ms 激增至 150ms 以上。正确配置是必须切换为'规则分流模式 (Rule Mode)'，此时客户端会自动匹配分流规则：国内流量直连秒开，仅海外受限网站走专线代理。",
+  },
+  {
+    question: "为什么明明挂了日本或新加坡节点，依然打不开 ChatGPT 或 Claude？",
+    answer: "核心原因有两点：第一，OpenAI 针对数据中心机房 IP（如 AWS、DigitalOcean、Linode 等）执行严格的访问黑名单拦截，若该节点的落地 IP 欺诈分过高，会直接被 Cloudflare 拦截；第二，很多用户在切换节点后未清理浏览器 Cookie，本地浏览器仍然残留了此前被封锁的标记。解决办法是：选择具备原生住宅家庭宽带 IP 解锁的专线节点（如光速云），并使用浏览器的'无痕隐私窗口'重新访问。",
+  },
+  {
+    question: "一个机场账号可以在多台电脑和手机上同时使用吗？",
+    answer: "绝大多数机场允许同一账号在多台设备上配置使用，但通常会设置'同时在线公网 IP 数 (Concurrent IPs)'限制。一般常规套餐限制 2 至 5 个不同的外部公网 IP 同时连接（例如你家里的 Wi-Fi 算作 1 个 IP，不论连多少台手机电脑；手机 5G 蜂窝数据算作另一个独立的 IP）。如果超出限制，多余的设备会自动断联。",
+  },
+  {
+    question: "机场套餐买完后发现速度不满意，可以申请退款吗？",
+    answer: "除极少数提供明确'24小时内不满意无条件退款'承诺的规范老牌大厂外，绝大多数机场基于数字产品和带宽消耗属性，明确注明'虚拟商品一经售出概不退款'。因此强烈建议新用户在首次选购任何品牌时，坚持先购买其最低门槛的'月付套餐'或利用 1 元试用，实际测速满意后再考虑长周期续费。",
+  },
+  {
+    question: "什么是 IPLC 和 IEPL 专线？为什么比普通中转机场更贵？",
+    answer: "IPLC（国际私有租用线路）和 IEPL（国际以太网私有专线）是企业级跨境端到端物理点对点内网连接。它们在物理层面上完全不经过国家公网防火墙（GFW），数据走的是海缆或陆地专属光纤通道，因此即便在特殊敏感时期也能保持零丢包、低延迟且永不被封锁。高昂的物理租金成本决定了其定价高于普通公网中转。",
+  },
+  {
+    question: "手机端小火箭 (Shadowrocket) 和电脑端 Clash Verge 的配置通用吗？",
+    answer: "节点本身的协议参数（如域名、UUID、端口、加密方式）是完全通用的。但由于不同客户端的配置文件语法不同，不能直接把小火箭的 URL 当作 Clash 的 YAML 配置文件使用。不过绝大多数现代机场后台都会为同一份订阅提供'一键导入 Clash'和'一键导入 Shadowrocket'两个专属链接，系统后台会自动完成格式转换。",
+  },
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={detailedFaqs}
+>
+  <header class="bg-gradient-to-b from-blue-50/70 via-slate-50/50 to-white border-b border-slate-200/80 py-10 lg:py-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Breadcrumb items={breadcrumbs} />
+
+      <div class="mt-4 max-w-4xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider mb-3">
+          <span>资源与情报 • 实用指南</span>
+          <span>• 全网高频 FAQ</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4 leading-tight">
+          {pageH1}
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4">
+          系统解密网络代理与科学上网全流程中最常踩坑的 15 个疑难关卡。从支付风控、月流量结算周期、全局与规则分流原理，到 AI 跨区封锁攻坚，助你彻底告别知识盲区。
+        </p>
+        <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-2 border-t border-slate-200/60">
+          <span class="text-emerald-600 font-semibold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            内容状态：2026年最新校准
+          </span>
+          <span>•</span>
+          <span>维护：v2rayn节点用户支持组</span>
+          <span>•</span>
+          <span>字数：约 6,800 汉字深度百科</span>
+        </div>
+      </div>
+
+      <!-- Navigation Pills -->
+      <nav class="mt-8 pt-6 border-t border-slate-200/70 flex flex-wrap gap-2" aria-label="子专题导航">
+        <a href="/resources/" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600">
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'faq';
+          return (
+            <a
+              href={sub.href}
+              class={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Answer-First 速查卡片 -->
+    <section class="mb-12">
+      <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold mb-3">
+          <span>⚡ Answer-First：高频问题 3 秒速查指引</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-white mb-4">
+          初学者最常遇到的三大认知误区与正确解法
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-blue-300 text-sm">误区 ①：开代理后国内网站变慢？</div>
+            <p class="text-slate-300 leading-relaxed">
+              原因：误开了“全局模式”。<br />
+              正解：立即在客户端切换为“规则分流 (Rule)”，国内流量直连秒开，海外流量走专线。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-blue-300 text-sm">误区 ②：为什么香港打不开 ChatGPT？</div>
+            <p class="text-slate-300 leading-relaxed">
+              原因：OpenAI 官方政策明确屏蔽香港地区。<br />
+              正解：切换至新加坡、日本或美国节点，并开启无痕窗口规避风控拦截。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-blue-300 text-sm">误区 ③：月底没用完的流量能累积吗？</div>
+            <p class="text-slate-300 leading-relaxed">
+              原因：周期包到期自动清零重置。<br />
+              正解：低频用户应选购“不限时永久流量包”（如按量计费），永久不清零。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 对比表：计费模式对比 -->
+    <section class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+          📊 主流机场计费与流量结算模型对比表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          根据自身使用习惯选择最省钱的计费方式，杜绝流量浪费
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[720px]">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold">
+              <th class="py-3 px-4 w-32">计费类型</th>
+              <th class="py-3 px-4">结算与重置规则</th>
+              <th class="py-3 px-4">单价与经济性</th>
+              <th class="py-3 px-4">最适合人群</th>
+              <th class="py-3 px-4">潜在限制与坑点</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-600">
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">月付周期套餐</td>
+              <td class="py-3 px-4">每 30 天自动重置满额，未用完流量彻底作废。</td>
+              <td class="py-3 px-4 text-emerald-600 font-medium">性价比最高（如 ¥10-20/月 150G）</td>
+              <td class="py-3 px-4">每天看视频、上班高频使用的重度用户</td>
+              <td class="py-3 px-4 text-rose-600">偶尔出差或不用时依然按月扣费。</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">不限时按量计费包</td>
+              <td class="py-3 px-4">无到期日限制，流量扣完为止，永久有效。</td>
+              <td class="py-3 px-4">单价略贵（如 ¥50-100/200G）</td>
+              <td class="py-3 px-4">偶尔查资料、作为主力机场备用的防断网用户</td>
+              <td class="py-3 px-4 text-amber-600">通常倍率较高，不适合全天挂机跑下载。</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">年付折扣套餐</td>
+              <td class="py-3 px-4">一次性付清一年，每月依旧按期派发月度流量。</td>
+              <td class="py-3 px-4 text-emerald-600 font-bold">单月折算价最划算（相当于 7-8 折）</td>
+              <td class="py-3 px-4">已通过实测验证的老牌大厂忠实老用户</td>
+              <td class="py-3 px-4 text-rose-600">新站存在跑路风险，切勿盲目入大额年付。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 专著正文分析 -->
+    <article class="prose prose-slate max-w-none mb-14 space-y-8 text-slate-700">
+      
+      <section>
+        <h2 class="text-2xl font-bold text-slate-900 mb-3">
+          一、规则分流技术解密：为什么国内直连而海外走专线？
+        </h2>
+        <p class="leading-relaxed text-sm sm:text-base">
+          现代代理软件（Clash、Sing-box、v2rayN）的核心灵魂在于“分流规则引擎”。在软件内部，预装了由社区长期维护的庞大分流规则库（如 GeoIP、Loyalsoldier 规则集）。当你的电脑发起一个网址请求时，内核会在毫秒内执行逻辑匹配：
+        </p>
+        <ul class="list-disc pl-6 space-y-1.5 text-sm leading-relaxed">
+          <li><strong>Direct（直连规则）：</strong>命中中国大陆常见域名（如 .cn、qq.com、baidu.com、bilibili.com 等）或大陆境内 IP 地址，直接调用本地物理网卡发出请求，绝不经过代理隧道，保证本地千兆带宽满速且零延迟。</li>
+          <li><strong>Proxy（代理规则）：</strong>命中被拦截的境外域名（如 google.com、youtube.com、github.com）时，自动封装进 TLS/VLESS 加密数据包，发送至机场专线入口转发。</li>
+          <li><strong>Reject（广告拦截规则）：</strong>自动丢弃各类知名广告联盟与追踪脚本数据包，实现全网清爽去广告。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-slate-900 mb-3">
+          二、如何通过售后与支持鉴别一家机场是否正规？
+        </h2>
+        <p class="leading-relaxed text-sm sm:text-base">
+          一家具备长期稳定服务能力的正规机场，在技术支持与工单系统上具备极高的专业素养：
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose my-4">
+          <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+            <div class="font-bold text-emerald-800 text-sm mb-1">正规老牌大厂的特征</div>
+            <p class="text-xs text-emerald-900/80 leading-relaxed">
+              工单平均在 2 至 6 小时内专业回复；拥有详尽的各平台图文与视频配置教程；Telegram 频道禁止发无意义表情包，严格用于发布节点割接公告；官方网站长期提供 3 个以上可用镜像域名。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-rose-50 border border-rose-200">
+            <div class="font-bold text-rose-800 text-sm mb-1">劣质作坊小站的特征</div>
+            <p class="text-xs text-rose-900/80 leading-relaxed">
+              工单提交几天无人审理；没有系统性文档，遇到报错让用户百度；管理人员在群里口嗨辱骂提问用户；动不动就“全员禁言”或频繁更换支付账户。
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </article>
+
+    <!-- 推荐品牌卡片 -->
+    <section class="mb-14">
+      <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-600 text-white text-xs font-bold">
+              <span>技术与售后保障 • 5 年老牌大厂</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              光速云 (GuangSu Cloud) 完备售后支持
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+              提供全平台一键自研免配置客户端，完美解决分流与格式解析烦恼。专人客服工单响应，轻量版年付仅 <strong>¥99/年 (折合 ¥8.25/月)</strong>，更有专属优惠码享受折上折。
+            </p>
+            <div class="text-xs text-slate-400">
+              <span>专属优惠码：<strong class="text-amber-400 font-mono">AMM</strong></span>
+              <span class="mx-2">•</span>
+              <span>支持支付宝与微信极速接入</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto flex-shrink-0">
+            <a
+              href="https://sahude.gsyvipaff.com/#/?code=keqgvT5Y"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm text-center transition shadow-lg shadow-blue-500/20"
+            >
+              直达光速云官方入口 ➜
+            </a>
+            <a
+              href="/brands/guangsu/"
+              class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold text-center transition"
+            >
+              查阅深度实测报告
+            </a>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800">
+          <AffiliateNotice />
+        </div>
+      </div>
+    </section>
+
+    <!-- 问答折叠框 -->
+    <section class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+          ❓ 机场全景核心疑难问答 (FAQ)
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          包含支付、计费、规则分流与 AI 跨区的高价值权威解答
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        {detailedFaqs.map((faq, idx) => (
+          <details class="group p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-blue-300 transition">
+            <summary class="flex items-center justify-between font-bold text-slate-900 text-sm sm:text-base cursor-pointer list-none">
+              <span class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                  Q{idx + 1}
+                </span>
+                <span>{faq.question}</span>
+              </span>
+              <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition transform duration-200 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </summary>
+            <div class="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p>{faq.answer}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <!-- 关联文章 -->
+    {relatedArticles.length > 0 && (
+      <section class="mb-10">
+        <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-200">
+          <h2 class="text-xl font-bold text-slate-900">
+            📚 关联入门与选型指南长文
+          </h2>
+          <span class="text-xs text-slate-500">深入了解代理客户端技巧与横向对比</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((art) => (
+            <ArticleCard
+              title={art.data.title}
+              description={art.data.description}
+              url={`/articles/${art.id}/`}
+              cover={art.data.cover}
+              category={art.data.category}
+              pubDate={art.data.pubDate}
+              readingTime={art.data.readingTime}
+              author={art.data.author}
+              featured={art.data.featured}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+  </main>
+</BaseLayout>

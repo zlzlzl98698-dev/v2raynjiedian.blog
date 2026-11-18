@@ -1,0 +1,186 @@
+---
+import { navigationData } from '../../data/navigation';
+import { siteConfig } from '../../data/site';
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 lg:h-20">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2.5 group">
+          <img
+            src="/images/logo.png"
+            alt={siteConfig.name}
+            class="w-10 h-10 rounded-xl shadow-md shadow-blue-500/20 group-hover:scale-105 transition transform object-cover"
+          />
+          <div>
+            <span class="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition">
+              {siteConfig.name}
+            </span>
+            <span class="hidden sm:inline-block ml-1.5 px-1.5 py-0.5 text-[11px] font-semibold tracking-wider text-blue-700 bg-blue-50 border border-blue-200 rounded">
+              2026 评测库
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Desktop Primary Navigation (Strictly 4 categories) -->
+      <nav class="hidden lg:flex items-center space-x-1" aria-label="全站主要导航">
+        {navigationData.map((item) => {
+          const isActive = currentPath.startsWith(item.href);
+          return (
+            <div class="relative group">
+              <a
+                href={item.href}
+                class={`px-3.5 py-2 rounded-lg text-[15px] font-medium flex items-center gap-1 transition ${
+                  isActive
+                    ? 'text-blue-600 bg-blue-50/80 font-semibold'
+                    : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+                }`}
+              >
+                <span>{item.title}</span>
+                <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 group-hover:rotate-180 transition transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </a>
+
+              <!-- Dropdown menu -->
+              <div class="absolute left-0 mt-1 w-64 rounded-xl bg-white shadow-xl border border-slate-100 p-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition duration-200 z-50">
+                <div class="px-3 py-2 border-b border-slate-100 mb-1">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    {item.title} 专题分类
+                  </span>
+                </div>
+                <div class="space-y-0.5">
+                  {item.children.map((sub) => (
+                    <a
+                      href={sub.href}
+                      class="flex flex-col px-3 py-2 rounded-lg hover:bg-blue-50/70 group/sub transition"
+                    >
+                      <span class="text-sm font-medium text-slate-800 group-hover/sub:text-blue-600 transition">
+                        {sub.title}
+                      </span>
+                      <span class="text-xs text-slate-400 line-clamp-1">
+                        {sub.description}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        <!-- Extra Brands Entry -->
+        <a
+          href="/brands/"
+          class={`px-3.5 py-2 rounded-lg text-[15px] font-medium transition ${
+            currentPath.startsWith('/brands/')
+              ? 'text-blue-600 bg-blue-50/80 font-semibold'
+              : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50'
+          }`}
+        >
+          品牌库 (30+)
+        </a>
+      </nav>
+
+      <!-- Right Action & Search -->
+      <div class="flex items-center gap-3">
+        <!-- Search Trigger Button -->
+        <a
+          href="/search/"
+          class="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-500 bg-slate-100 hover:bg-slate-200/80 rounded-lg border border-slate-200 transition"
+          title="全文搜索文章与品牌"
+        >
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <span class="hidden sm:inline">搜索...</span>
+          <kbd class="hidden md:inline-block px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 bg-white border border-slate-300 rounded shadow-xs">
+            /
+          </kbd>
+        </a>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button
+          id="mobile-menu-toggle"
+          type="button"
+          class="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none"
+          aria-label="打开导航菜单"
+        >
+          <svg id="menu-icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <svg id="menu-icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 max-h-[85vh] overflow-y-auto">
+    <div class="space-y-2">
+      {navigationData.map((item) => (
+        <div class="border-b border-slate-100 pb-2">
+          <div class="flex items-center justify-between py-2">
+            <a href={item.href} class="text-base font-semibold text-slate-900 hover:text-blue-600">
+              {item.title}
+            </a>
+          </div>
+          <div class="grid grid-cols-2 gap-1.5 pl-2 pb-1">
+            {item.children.map((sub) => (
+              <a
+                href={sub.href}
+                class="px-2.5 py-1.5 rounded text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50"
+              >
+                {sub.title}
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div class="pt-2">
+        <a href="/brands/" class="block py-2 text-base font-semibold text-blue-600 hover:underline">
+          🏷️ 机场品牌评测库 (30+ 品牌)
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggleBtn = document.getElementById('mobile-menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+
+  if (toggleBtn && mobileMenu && iconOpen && iconClose) {
+    toggleBtn.addEventListener('click', () => {
+      const isHidden = mobileMenu.classList.contains('hidden');
+      if (isHidden) {
+        mobileMenu.classList.remove('hidden');
+        iconOpen.classList.add('hidden');
+        iconClose.classList.remove('hidden');
+      } else {
+        mobileMenu.classList.add('hidden');
+        iconOpen.classList.remove('hidden');
+        iconClose.classList.add('hidden');
+      }
+    });
+  }
+
+  // Keyboard shortcut '/' to search
+  window.addEventListener('keydown', (e) => {
+    if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
+      e.preventDefault();
+      window.location.href = '/search/';
+    }
+  });
+</script>

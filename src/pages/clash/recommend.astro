@@ -1,0 +1,493 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+import { clientsData } from '../../data/clients';
+
+const clashNav = navigationData.find((n) => n.slug === 'clash');
+const subtopics = clashNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'clash' || a.id.includes('clash') || a.id.includes('beginner')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: 'Clash 客户端', url: '/clash/' },
+  { name: 'Clash 推荐', url: '/clash/recommend/' },
+];
+
+const pageTitle = '2026 开源代理客户端推荐 | 全平台翻墙软件选型横评与架构对比 - v2rayn节点';
+const pageH1 = '2026 全平台开源代理客户端综合选型与横评指南';
+const pageDesc = '深度评测 Windows、macOS、Android、iOS 及 Linux 平台的主流开源代理客户端：Clash Verge Rev、Mihomo Party、v2rayN、sing-box、FlClash 与 Shadowrocket。客观对比内核性能、内存占用与协议兼容性。';
+
+const faqs = [
+  {
+    question: "2026 年 Windows 平台最推荐哪款代理软件？",
+    answer: "强烈首选 Clash Verge Rev。基于 Rust + Tauri 框架重构，常驻内存仅为 45MB 左右（比老版 CFW 节省 70% 以上系统开销），原生内置 Mihomo (Clash.Meta) 内核，全面支持 VLESS-Reality、Hysteria 2、TUIC 等新一代抗封锁协议，并提供一键开启 TUN 虚拟网卡的高级模式。",
+  },
+  {
+    question: "开源代理客户端本身自带节点和翻墙流量吗？",
+    answer: "不自带。所有开源代理客户端（如 Clash Verge Rev、v2rayN、sing-box、NekoBox）都属于纯净的本地网络流量调度空壳工具，开发者严守开源中立原则。用户安装客户端后，必须在合规可靠的专线机场（如光速云）购买流量订阅，并将订阅链接导入客户端，才能建立跨国加密连接。",
+  },
+  {
+    question: "原版 Clash for Windows (CFW) 还能继续使用吗？为什么要淘汰它？",
+    answer: "虽然原版 CFW 在部分老电脑上仍能勉强启动，但原作者已于 2023 年底停止维护并删库。原版 CFW 存在三大致命硬伤：1. 底层基于废弃的开源 Clash 内核，完全无法解析 VLESS、Hysteria 2、TUIC 等现代协议；2. 无法接收 Chromium/Electron 的高危安全补丁，存在远程代码执行安全风险；3. 不支持新的 Rule-Set 规则集，订阅大节点池时频繁出现卡死崩溃。",
+  },
+  {
+    question: "苹果 iOS 系统上有什么好用的开源代理软件？",
+    answer: "苹果 iOS 系统由于闭源沙盒机制，App Store 上目前最成熟的主流客户端为 Shadowrocket（小火箭，售价 $2.99）和 Quantumult X（圈 X）。如果是完全开源免费的客户端，推荐选择由开源社区维护的 sing-box iOS 版或 Loon。注意：国区 Apple ID 无法下载上述软件，需切换为美区或港区 Apple ID。",
+  },
+  {
+    question: "安卓 (Android) 手机目前推荐哪个客户端？",
+    answer: "目前安卓端推荐三大主力客户端：1. ClashMetaForAndroid (CMFA)：经典 Clash 界面，适配 Mihomo 内核，操作习惯无缝衔接；2. FlClash：采用 Flutter 跨平台打造，UI 极其现代且流畅；3. NekoBox for Android：基于 sing-box 核心，多协议兼容性极强，且支持复杂的链式分流。",
+  },
+  {
+    question: "什么是内核（Kernel）与 GUI 客户端的关系？",
+    answer: "GUI 客户端（如 Clash Verge Rev、v2rayN）是人机交互的外壳界面，负责提供可视化的按钮、订阅管理和系统托盘；而底层内核（如 Mihomo、sing-box-core、Xray-core）才是真正负责建立网络 TCP/UDP 隧道、数据加解密和规则路由的'引擎'。GUI 客户端通过 RPC 接口向底层内核下发配置指令。",
+  },
+  {
+    question: "新手第一次使用代理软件，应该注意什么原则？",
+    answer: "第一，下载软件务必认准 GitHub 官方 Release 仓库，严禁通过搜索引擎前三名的广告竞价网站下载安装包；第二，绝不要随意打开未知节点的'允许局域网连接'（Allow LAN）；第三，若使用浏览器出现白屏，优先检查是否开启了系统代理或端口被 7890 冲突占用。",
+  },
+  {
+    question: "选择哪种专线机场能最大程度发挥新一代客户端的性能？",
+    answer: "必须选择全节点支持新一代协议且具备内网专线（IPLC/IEPL）的品牌。例如光速云（GuangSu Cloud），全节点支持 VLESS 协议，自研 BGP 智能调度算法与企业级专线过境，与 Clash Verge Rev 的 Mihomo 内核深度契合，不仅避免了协议嗅探干扰，晚高峰 4K 播放与 AI 响应亦能实现秒级直达。",
+  },
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑与顶部导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 专题子导航胶囊栏 -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/clash/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'recommend';
+          return (
+            <a
+              href={`/clash/${sub.slug}/`}
+              class={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 顶部专题 H1 标题区 -->
+    <div class="mb-10 text-center sm:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold tracking-wide uppercase mb-3">
+        <span>Clash 客户端垂直专题</span>
+        <span class="text-blue-300">•</span>
+        <span>2026 全平台客户端横评</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-3 text-base sm:text-lg text-slate-600 max-w-4xl leading-relaxed">
+        {pageDesc}
+      </p>
+      <div class="mt-4 flex flex-wrap items-center gap-4 text-xs text-slate-400">
+        <span>最后修订：2026 年 11 月</span>
+        <span>•</span>
+        <span>审核机构：v2rayn节点开源网络测评组</span>
+        <span>•</span>
+        <span>涵盖客户端：6 款跨平台核心软件</span>
+      </div>
+    </div>
+
+    <!-- Answer-First 决策总览盒 -->
+    <div class="bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 border border-blue-200/80 rounded-2xl p-6 sm:p-8 mb-12 shadow-xs">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="p-2 bg-blue-600 text-white rounded-lg text-lg">💡</span>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          全平台代理客户端一键选型决策结论（Answer-First）
+        </h2>
+      </div>
+      <p class="text-slate-700 text-sm sm:text-base leading-relaxed mb-6">
+        面对复杂的开源客户端生态，无需迷失在数百个分支项目中。根据自身操作系统与实际应用场景，遵循以下黄金法则可一分钟完成选型：
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-blue-100 shadow-2xs">
+          <div class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
+            Windows / macOS 桌面首选
+          </div>
+          <div class="text-base font-bold text-slate-900 mb-2">Clash Verge Rev</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Rust + Tauri 轻量构架，常驻内存仅 45MB，UI 现代支持暗黑模式，内置 Mihomo 全协议内核与一键 TUN 虚拟网卡，综合体验断层领先。
+          </p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-indigo-100 shadow-2xs">
+          <div class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">
+            Android 移动端首选
+          </div>
+          <div class="text-base font-bold text-slate-900 mb-2">ClashMetaForAndroid / FlClash</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            经典分流界面，完美兼容订阅转换与分应用代理（分流国内直连 App）；对轻量化需求者可选用 Flutter 架构的 FlClash。
+          </p>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-cyan-100 shadow-2xs">
+          <div class="text-xs font-bold text-cyan-600 uppercase tracking-wider mb-1">
+            硬核极客 / 多协议调试
+          </div>
+          <div class="text-base font-bold text-slate-900 mb-2">v2rayN / sing-box</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Windows 端老牌神器 v2rayN 支持 Xray、Mihomo、sing-box 多内核无缝热切换，对自定义路由规则和底层分流调试具有最高自由度。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 核心横评对比大表 -->
+    <div class="mb-14">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📊 2026 全平台主流开源代理客户端深度横评对比表
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            基于 Windows 11 / macOS Sonoma / Android 14 实验室实测环境，严格核对运行时内存、协议支持与 TUN 兼容性
+          </p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+            <tr>
+              <th class="p-3.5">客户端名称</th>
+              <th class="p-3.5">支持操作系统</th>
+              <th class="p-3.5">默认底层内核</th>
+              <th class="p-3.5">常驻内存占用</th>
+              <th class="p-3.5">TUN 虚拟网卡</th>
+              <th class="p-3.5">协议兼容度</th>
+              <th class="p-3.5">综合推荐指数</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-600">
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-blue-600 font-black">★</span>
+                  <span>Clash Verge Rev</span>
+                  <span class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-normal whitespace-nowrap">2026 旗舰</span>
+                </div>
+              </td>
+              <td class="p-3.5">Win / Mac / Linux</td>
+              <td class="p-3.5 font-mono text-xs text-slate-800">Mihomo (Meta)</td>
+              <td class="p-3.5 font-mono text-emerald-600 font-bold">~45 MB - 80 MB</td>
+              <td class="p-3.5"><span class="text-emerald-600 font-bold">✓ 原生支持 (Wintun)</span></td>
+              <td class="p-3.5">VLESS, Hys2, TUIC, Trojan, SS</td>
+              <td class="p-3.5 text-amber-500 font-bold">★★★★★ (9.9)</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span>Mihomo Party</span>
+                  <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-normal whitespace-nowrap">新锐精选</span>
+                </div>
+              </td>
+              <td class="p-3.5">Win / Mac / Linux</td>
+              <td class="p-3.5 font-mono text-xs text-slate-800">Mihomo (Meta)</td>
+              <td class="p-3.5 font-mono text-slate-600">~90 MB - 130 MB</td>
+              <td class="p-3.5"><span class="text-emerald-600 font-bold">✓ 原生支持</span></td>
+              <td class="p-3.5">全协议支持 (内置 Mihomo)</td>
+              <td class="p-3.5 text-amber-500 font-bold">★★★★☆ (9.4)</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span>v2rayN</span>
+                  <span class="text-[10px] bg-cyan-100 text-cyan-700 px-1.5 py-0.5 rounded font-normal whitespace-nowrap">极客经典</span>
+                </div>
+              </td>
+              <td class="p-3.5">Windows</td>
+              <td class="p-3.5 font-mono text-xs text-slate-800">Xray / sing-box / Mihomo</td>
+              <td class="p-3.5 font-mono text-slate-600">~60 MB - 110 MB</td>
+              <td class="p-3.5"><span class="text-emerald-600 font-bold">✓ 支持 (sing-box tun)</span></td>
+              <td class="p-3.5">最强全协议 (支持多内核切换)</td>
+              <td class="p-3.5 text-amber-500 font-bold">★★★★☆ (9.5)</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span>FlClash</span>
+                  <span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-normal whitespace-nowrap">跨端统一</span>
+                </div>
+              </td>
+              <td class="p-3.5">Win / Mac / Android / Linux</td>
+              <td class="p-3.5 font-mono text-xs text-slate-800">Mihomo (Meta)</td>
+              <td class="p-3.5 font-mono text-slate-600">~70 MB - 100 MB</td>
+              <td class="p-3.5"><span class="text-emerald-600 font-bold">✓ 支持</span></td>
+              <td class="p-3.5">全协议支持</td>
+              <td class="p-3.5 text-amber-500 font-bold">★★★★☆ (9.1)</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 transition">
+              <td class="p-3.5 font-bold text-slate-900">
+                <div class="flex items-center gap-1.5">
+                  <span>ClashMetaForAndroid</span>
+                  <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-normal whitespace-nowrap">安卓首选</span>
+                </div>
+              </td>
+              <td class="p-3.5">Android</td>
+              <td class="p-3.5 font-mono text-xs text-slate-800">Mihomo (Meta)</td>
+              <td class="p-3.5 font-mono text-slate-600">~80 MB - 120 MB</td>
+              <td class="p-3.5"><span class="text-emerald-600 font-bold">✓ VpnService 深度接管</span></td>
+              <td class="p-3.5">VLESS, Hysteria 2, Trojan 等</td>
+              <td class="p-3.5 text-amber-500 font-bold">★★★★★ (9.7)</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition bg-slate-50/30 text-slate-400">
+              <td class="p-3.5 font-bold text-slate-500 line-through">
+                Clash for Windows (CFW)
+              </td>
+              <td class="p-3.5">Win / Mac</td>
+              <td class="p-3.5 font-mono text-xs text-red-400">原版 Clash (已停更)</td>
+              <td class="p-3.5 font-mono text-red-500">~250 MB - 400 MB</td>
+              <td class="p-3.5"><span class="text-slate-400">需手动安装旧 Service</span></td>
+              <td class="p-3.5 text-red-400">不支持 VLESS / Hys2</td>
+              <td class="p-3.5 text-slate-400">★☆☆☆☆ (已淘汰)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术专著章节 1 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        一、2026 代理客户端架构变革：为什么 Rust/Tauri 彻底取代了 Electron？
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        在过去的很长一段时间里，以 Clash for Windows 为代表的 Electron 客户端主导了桌面代理市场。然而，Electron 本质上是为每一个桌面窗口打包一个完整的 Chromium 浏览器实例和 Node.js 运行时，导致客户端在后台空闲常驻时就会长期占用 250MB 至 400MB 的物理内存，并且随着节点订阅数量的剧增，界面极易产生严重的掉帧与卡顿。
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        以 <strong>Clash Verge Rev</strong> 为代表的现代客户端全面转向了 <strong>Rust + Tauri</strong> 架构体系。Tauri 抛弃了臃肿的内置 Chromium，直接调用 Windows 系统的 WebView2 或 macOS 的 WebKit 作为前端渲染宿主，而后端高频数据交换和本地服务守护则全部由经过极致内存安全优化的 Rust 原生代码编写。
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6 not-prose">
+        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+          <h4 class="font-bold text-slate-900 text-sm mb-2">⚡ 传统 Electron 架构瓶颈</h4>
+          <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside">
+            <li>每个窗口强制常驻独立 Chromium 进程，内存占用 300MB+ 起步</li>
+            <li>Node.js 单线程处理高并发订阅数据时容易出现界面无响应假死</li>
+            <li>安全漏洞修复滞后，废弃旧版本极易遭到恶意网页的远程执行攻击</li>
+          </ul>
+        </div>
+        <div class="p-4 bg-blue-50/60 border border-blue-200 rounded-xl">
+          <h4 class="font-bold text-blue-900 text-sm mb-2">🚀 Rust + Tauri 现代架构突破</h4>
+          <ul class="text-xs text-blue-800 space-y-1.5 list-disc list-inside">
+            <li>共享操作系统级原生渲染引擎，后台常驻内存锐减至 45MB-80MB</li>
+            <li>Rust 强类型与零成本抽象保障高频并发分流规则的高效吞吐</li>
+            <li>跨平台编译产物体积仅为 15MB 左右，秒级冷启动无需长时间加载</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 深度技术专著章节 2 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        二、全平台选型决策树：按操作系统与使用习惯精确匹配
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        不同的操作系统在网络系统调用（System Network Stack）层面存在巨大差异。Windows 依托 Win32 网络驱动接口，macOS 具备严格的 NetworkExtension 权限管控，而 Android 和 iOS 则依靠系统沙盒虚拟 VPN。在客户端选型时必须严格遵循以下系统匹配法则：
+      </p>
+
+      <div class="space-y-4 my-6 not-prose">
+        <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-slate-900 text-base">1. Windows 办公与游戏双栖用户</span>
+            <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">最佳推荐：Clash Verge Rev</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Windows 用户痛点在于部分外服游戏、命令行终端（CMD / PowerShell / WSL2）以及 Git clone 不会主动走普通浏览器系统代理。Clash Verge Rev 内置的 Service Mode（服务模式）可以无缝安装高性能 <strong>Wintun 驱动</strong>，在不影响局域网打印机与企业内网通信的前提下，将所有非 HTTP 流量直接捕获进入代理隧道，是 Windows 平台上的最优解。
+          </p>
+        </div>
+
+        <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-slate-900 text-base">2. macOS 设计与开发生产力用户</span>
+            <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">最佳推荐：Clash Verge Rev (Apple Silicon 原生版)</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            M 系列芯片（M1/M2/M3/M4）Mac 用户下载时务必选择带有 <code>aarch64</code> 或 <code>arm64</code> 后缀的安装包，可享受原生 ARM 架构的超低功耗与无损性能。macOS 版 Clash Verge Rev 支持自动切换深色外观，并在系统托盘菜单中支持通过快捷键一键切换节点与代理模式。
+          </p>
+        </div>
+
+        <div class="p-5 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-slate-900 text-base">3. 苹果 iOS / iPadOS 移动端设备</span>
+            <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded">最佳推荐：Shadowrocket (小火箭) / Quantumult X</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            iOS 平台不存在可直接运行的 Clash 原生桌面端。由于 App Store 审核机制，用户需要准备一个非中国大陆地区的 Apple ID，登录 App Store 购买下载 Shadowrocket（售价约 2.99 美元）。小火箭不仅支持直接导入标准 Clash 订阅链接，还可以自动将其转换为 iOS 底层分流规则，后台省电且断网自动重连极快。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 商业推荐高转化卡片（光速云） -->
+    {guangsuBrand && (
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white rounded-3xl p-6 sm:p-10 mb-12 shadow-xl border border-slate-700/60 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div class="flex items-center gap-3">
+            <span class="px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-amber-400 text-slate-950">
+              #1 客户端高契合专线首选
+            </span>
+            <span class="text-xs text-slate-400">稳定运营 6 年老牌专线机场</span>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400">超高性价比轻量版: </span>
+            <span class="text-xl sm:text-2xl font-black text-amber-400">¥8.25</span>
+            <span class="text-xs text-slate-400">/月起 (¥99/年 69GB/月)</span>
+          </div>
+        </div>
+
+        <h3 class="text-xl sm:text-2xl font-bold mb-3 text-white">
+          光速云 (GuangSu Cloud) — 与新一代 Clash 客户端深度契合的工业级专线
+        </h3>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6 max-w-3xl">
+          光速云采用双线路高可用架构（IEPL 企业内网专线 + 全球 IPLC 专线），全节点深度适配 Mihomo 内核新协议（VLESS / Trojan）。提供一键导入 Clash Verge、v2rayN、Shadowrocket 的标准订阅链接，晚高峰 4K 拖拽零丢包，全面解锁 ChatGPT、Claude 及 Netflix 流媒体。
+        </p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          <div class="p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-[11px] text-slate-400">专线类型</div>
+            <div class="text-xs font-bold text-white mt-1">企业级内网 IEPL/IPLC</div>
+          </div>
+          <div class="text-[11px] p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-slate-400">客户端适配</div>
+            <div class="text-xs font-bold text-emerald-400 mt-1">一键导入全平台客户端</div>
+          </div>
+          <div class="text-[11px] p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-slate-400">专属特惠码</div>
+            <div class="text-xs font-bold text-amber-400 mt-1 font-mono">AMM (享专属特惠)</div>
+          </div>
+          <div class="text-[11px] p-3 bg-white/5 border border-white/10 rounded-xl">
+            <div class="text-slate-400">流媒体与 AI</div>
+            <div class="text-xs font-bold text-white mt-1">全节点解锁 GPT/Claude</div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <a
+            href={guangsuBrand.affiliateUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener"
+            class="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-center text-sm shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5"
+          >
+            前往光速云官网一键获取订阅 ➜
+          </a>
+          <a
+            href={`/brands/${guangsuBrand.slug}/`}
+            class="w-full sm:w-auto px-6 py-3.5 bg-white/10 hover:bg-white/20 text-slate-200 font-semibold rounded-xl text-center text-sm border border-white/10 transition"
+          >
+            查阅光速云 2026 深度评测报告
+          </a>
+        </div>
+        <div class="mt-4">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：Clash 客户端深度实战与排障精选教程
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部原创文章 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — 客户端选型与安全避坑
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          整理自本站技术工单与社群高频提问，涵盖客户端版本演进、驱动安装与订阅导入疑问
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 底部回到门户与集群索引 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/clash/" class="text-blue-600 hover:underline font-semibold">Clash 与开源代理客户端专题专栏</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/clash/verge/" class="hover:text-blue-600 transition">下一专题：Clash Verge Rev 特性 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

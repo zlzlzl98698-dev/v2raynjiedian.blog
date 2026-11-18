@@ -1,0 +1,72 @@
+# ====================================================================
+# Apache 2.4+ Configuration for v2raynjiedian.blog (Pre-launch SEO Initialized)
+# ====================================================================
+
+# 1. Basic Options
+Options -Indexes
+DirectoryIndex index.html
+
+# 2. Character Set
+AddDefaultCharset UTF-8
+
+# 3. MIME Types
+<IfModule mod_mime.c>
+  AddType text/html .html
+  AddType text/css .css
+  AddType application/javascript .js
+  AddType application/json .json
+  AddType application/xml .xml
+  AddType image/svg+xml .svg
+  AddType image/webp .webp
+  AddType image/png .png
+  AddType image/jpeg .jpg .jpeg
+</IfModule>
+
+# 4. Error Pages
+ErrorDocument 404 /404.html
+
+# 5. URL Rewriting & Canonical Domain Normalization
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 5.1 Redirect www to non-www (Enforce official naked domain)
+  RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+  RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+  # 5.2 Enforce HTTPS (Aware of reverse proxies / CDNs like Cloudflare)
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # 5.3 Sitemap XML compatibility (Rewrite /sitemap.xml to /sitemap-index.xml)
+  RewriteRule ^sitemap\.xml$ sitemap-index.xml [L]
+
+  # 5.4 Ensure clean directory access with trailing slash
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} !(.*)/$
+  RewriteRule ^(.*)$ $1/ [L,R=301]
+</IfModule>
+
+# 6. Browser Caching
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 month"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType application/xml "access plus 1 day"
+  ExpiresByType application/json "access plus 1 hour"
+</IfModule>
+
+# 7. Security Headers
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set X-XSS-Protection "1; mode=block"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

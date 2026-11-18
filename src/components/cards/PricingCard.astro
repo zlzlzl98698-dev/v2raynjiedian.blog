@@ -1,0 +1,45 @@
+---
+import type { PricingPlan } from '../../data/brands';
+
+export interface Props {
+  plan: PricingPlan;
+  isPopular?: boolean;
+}
+
+const { plan, isPopular = false } = Astro.props;
+---
+
+<div class={`rounded-2xl border p-5 flex flex-col justify-between transition ${
+  isPopular
+    ? 'border-blue-600 bg-blue-50/20 shadow-md ring-1 ring-blue-600 relative'
+    : 'border-slate-200 bg-white shadow-xs'
+}`}>
+  {isPopular && (
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+      <span class="bg-blue-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+        最受欢迎
+      </span>
+    </div>
+  )}
+
+  <div>
+    <div class="text-xs text-slate-400 font-medium mb-1">{plan.billing}</div>
+    <h4 class="text-base font-bold text-slate-900 mb-2">{plan.name}</h4>
+    <div class="text-2xl font-extrabold text-blue-600 mb-4">{plan.price}</div>
+
+    <div class="space-y-2 py-3 border-t border-slate-100 text-xs text-slate-600">
+      <div class="flex items-center justify-between">
+        <span class="text-slate-400">可用流量:</span>
+        <span class="font-semibold text-slate-800">{plan.traffic}</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-slate-400">重置周期:</span>
+        <span class="font-semibold text-slate-800">{plan.cycle}</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-slate-400">线路速率:</span>
+        <span class="font-semibold text-slate-800">最高 2.5Gbps</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/navigation/Breadcrumb.astro';
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '服务条款与免责声明', url: '/terms/' },
+];
+
+const seoTitle = '服务条款与合规免责声明 (Terms of Service) - v2rayn节点';
+const seoDesc = 'v2rayn节点 网站使用条款、技术研究免责声明、合规用途范围与知识产权约定。本站所有教程仅供合法科研与跨境技术交流。';
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDesc}
+  breadcrumbs={breadcrumbs}
+>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
+    <Breadcrumb items={breadcrumbs} />
+
+    <header class="mt-6 mb-12">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-bold uppercase tracking-wider mb-3 border border-slate-300">
+        法律免责 • 合规治理
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+        服务条款与免责声明
+      </h1>
+      <p class="text-sm text-slate-500">
+        最后更新时间：2026 年 11 月 18 日
+      </p>
+    </header>
+
+    <div class="space-y-10 text-slate-700 leading-relaxed text-sm sm:text-base">
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          1. 网站性质与学术研究宗旨
+        </h2>
+        <p>
+          v2rayn节点 是一个致力于计算机网络通信协议分析、跨国链路时延评测及开源代理客户端（如 Clash Verge Rev、v2rayN、sing-box）调优经验的技术科普分享平台。
+        </p>
+        <p>
+          <strong>本站自身不销售、不运营、不搭建任何翻墙或网络代理接入服务。</strong> 网站所展示的测速数据与配置参数，均源自网络工程师与社区测试员在受控实验环境下的客观观测记录。
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          2. 合法合规使用限制
+        </h2>
+        <p>
+          本站所发布的全部网络配置教程、协议解析与分流策略，<strong>仅供跨国企业合法办公、软件开发人员检索学术论文（如 IEEE、arXiv、Google Scholar）、开源代码拉取（如 GitHub）以及跨境电商合规运营之用途</strong>。
+        </p>
+        <p class="text-rose-600 font-semibold">
+          严禁任何组织或个人利用本站提供的技术信息从事侵犯国家网络安全、传播违法信息、窃取商业机密或任何违反所在地区法律法规的非法活动。因违反本条款而产生的一切法律后果，由使用者自行承担全部责任。
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          3. 商业推荐与佣金声明 (Affiliate Disclosure)
+        </h2>
+        <p>
+          为维持分布式物理测试探针的持续运转与自费宽带成本，本站部分页面包含指向经过严格晚高峰筛选的第三方服务商的推荐链接。当用户通过该链接完成购买时，本站可能会获得一定比例的推荐佣金。
+        </p>
+        <p>
+          此类商业转介链接均已在代码中显式注明 <code>rel="nofollow sponsored noopener"</code>，我们承诺商业合作不会干预评测数据的客观性、不会隐瞒服务商的技术缺陷与跑路风险。
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          4. 知识产权与内容转载
+        </h2>
+        <p>
+          本站所有原创专著长文、网络拓扑图谱及数据对比表格，版权均归属于 v2rayn节点 评测实验室。任何非商业性转载均须注明出处并保留指向原文的完整超链接；未经书面许可，严禁使用爬虫脚本进行未经授权的批量镜像抓取。
+        </p>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

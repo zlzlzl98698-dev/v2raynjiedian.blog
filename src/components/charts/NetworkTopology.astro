@@ -1,0 +1,83 @@
+---
+export interface Props {
+  brandName: string;
+  lineType?: string;
+  ingressRegion?: string;
+  egressRegion?: string;
+}
+
+const {
+  brandName,
+  lineType = 'IEPL / IPLC 物理专线直连',
+  ingressRegion = '华东上海 / 华南广州 BGP 入口 (隐藏真实出口)',
+  egressRegion = '香港 / 东京 / 新加坡 / 洛杉矶 原生落地',
+} = Astro.props;
+---
+
+<div class="my-8 rounded-2xl bg-[#0B1120] border border-[#1E293B] shadow-2xl p-5 sm:p-6 text-slate-200 font-mono text-sm">
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-4 border-b border-[#1E293B]">
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+        网络路径拓扑图 • 专线传输与防 QoS 防封锁架构
+      </span>
+    </div>
+    <span class="text-xs text-indigo-400 font-bold">[{brandName} 架构解析]</span>
+  </div>
+
+  <!-- Topology Flow -->
+  <div class="py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    
+    <!-- Step 1: User -->
+    <div class="w-full md:w-1/4 p-4 rounded-xl bg-[#0F172A] border border-[#1E293B] text-center space-y-1">
+      <div class="text-2xl mb-1">💻 📱</div>
+      <div class="text-xs font-bold text-white">用户终端设备</div>
+      <div class="text-[11px] text-slate-400">PC / 手机 / 软路由</div>
+      <div class="text-[10px] text-cyan-400 mt-2 bg-[#1E293B] py-0.5 px-2 rounded">
+        VLESS / Trojan 加密流
+      </div>
+    </div>
+
+    <!-- Arrow 1 -->
+    <div class="text-slate-500 font-bold rotate-90 md:rotate-0">
+      ➜
+    </div>
+
+    <!-- Step 2: Domestic Ingress -->
+    <div class="w-full md:w-1/4 p-4 rounded-xl bg-[#0F172A] border border-[#1E293B] text-center space-y-1">
+      <div class="text-2xl mb-1">🏢 ⚡</div>
+      <div class="text-xs font-bold text-white">国内中转入口</div>
+      <div class="text-[11px] text-slate-400">{ingressRegion}</div>
+      <div class="text-[10px] text-emerald-400 mt-2 bg-[#1E293B] py-0.5 px-2 rounded">
+        多线 BGP 智能分流
+      </div>
+    </div>
+
+    <!-- Line Indicator (Dedicated Line) -->
+    <div class="w-full md:w-auto flex flex-col items-center justify-center text-center px-2 py-1 bg-blue-950/60 rounded-lg border border-blue-800/80">
+      <span class="text-[10px] text-blue-300 font-bold uppercase tracking-wider">
+        {lineType}
+      </span>
+      <span class="text-[9px] text-blue-400 font-mono">
+        ═══ 不经公网 GFW ═══
+      </span>
+    </div>
+
+    <!-- Step 3: Overseas Egress -->
+    <div class="w-full md:w-1/4 p-4 rounded-xl bg-[#0F172A] border border-[#1E293B] text-center space-y-1">
+      <div class="text-2xl mb-1">🌐 🚀</div>
+      <div class="text-xs font-bold text-white">海外落地出口</div>
+      <div class="text-[11px] text-slate-400">{egressRegion}</div>
+      <div class="text-[10px] text-purple-400 mt-2 bg-[#1E293B] py-0.5 px-2 rounded">
+        原生商宽/住宅双栈 IP
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Note -->
+  <div class="pt-3 border-t border-[#1E293B] text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2">
+    <span>物理专线特点: 全程内网数据封装，抗 GFW 协议特征阻断，晚高峰零丢包</span>
+    <span class="text-[11px] text-slate-500">[网络工程可观测性图解]</span>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+源页面URL,源页面类型,目标页面URL,目标页面类型,锚文本/触发组件,内链业务逻辑与转化目的
+/airport/,Pillar,/airport/recommend/,Cluster,2026 年度精选推荐,引导用户从大分类进入核心年度榜单
+/airport/recommend/,Cluster,/articles/best-airport-2026/,Article,2026 年度十大机场深度横评,阅读长篇深度评测报告建立信任
+/articles/best-airport-2026/,Article,/brands/guangsu/,Brand Review,光速云深度评测与测速报告,将文章评测读者引导至核心品牌详情页
+/brands/guangsu/,Brand Review,https://sahude.gsyvipaff.com/#/?code=keqgvT5Y,External Affiliate,官网注册直达 (领优惠码 AMM),最终商业落地页转化
+/airport/value/,Cluster,/articles/10-20-yuan-value-airports/,Article,月均 10-20 元高性价比机场横评,解答预算与品质的折中平衡
+/articles/10-20-yuan-value-airports/,Article,/brands/weifeng/,Brand Review,微风网络详细评测,引导关注原生住宅IP与低门槛IEPL
+/airport/cheap/,Cluster,/articles/5-yuan-cheap-airports-review/,Article,5.6 元平价专线机场横测,低预算用户真实使用体验
+/articles/5-yuan-cheap-airports-review/,Article,/brands/dalaoyun/,Brand Review,大佬云详细评测,平价专线方案转化
+/airport/stable/,Cluster,/articles/iplc-iepl-tech-deep-dive/,Article,IPLC 与 IEPL 专线技术深度剖析,科普专线不过GFW原理
+/articles/iplc-iepl-tech-deep-dive/,Article,/brands/shanyue/,Brand Review,闪跃纯 IPLC 专线评测,追求稳定防封锁的高端转化
+/clash/,Pillar,/clash/verge/,Cluster,Clash Verge Rev 完整指南,指引用户选择主流桌面代理客户端
+/clash/verge/,Cluster,/clash/verge-download/,Cluster,Clash Verge 官方纯净下载,引导用户获取正版客户端安装包
+/clash/verge-download/,Cluster,/clash/verge-subscribe/,Cluster,Clash Verge 订阅导入教程,解决下载后的订阅配置
+/clash/verge-subscribe/,Cluster,/brands/guangsu/,Brand Review,光速云 (提供自研与通用Clash订阅),完成客户端与机场订阅闭环转化
+/clash/tutorials/,Cluster,/articles/clash-verge-tun-mode-guide/,Article,Clash Verge 开启 TUN 模式实战,进阶全局接管与游戏加速配置
+/clash/troubleshooting/,Cluster,/articles/clash-nodes-timeout-fix/,Article,Clash 节点全红超时自救手册,故障搜索用户自救第一课
+/articles/clash-nodes-timeout-fix/,Article,/resources/runaway-warning/,Cluster,机场跑路预警雷达,排查是否因机场跑路导致断连
+/resources/runaway-warning/,Cluster,/articles/airport-runaway-warning-radar/,Article,机场跑路前的五大反常征兆,识别跑路盘避免资金损失
+/articles/airport-runaway-warning-radar/,Article,/brands/guangsu/,Brand Review,2020年老牌稳定运营光速云,从风险页面向老牌安全机场分流
+/resources/node-check/,Cluster,/brands/,Pillar,前往机场品牌数据库,基于检测标准在品牌库中挑选
+/brands/,Pillar,/brands/[slug]/,Brand Review,查看详细评测与晚高峰测速,在品牌库筛选后进入具体单品页

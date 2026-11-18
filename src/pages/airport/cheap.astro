@@ -1,0 +1,343 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const airportNav = navigationData.find((n) => n.slug === 'airport');
+const subtopics = airportNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'airport' || a.id.includes('airport') || a.id.includes('ladder') || a.id.includes('guangsu')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '机场推荐专栏', url: '/airport/' },
+  { name: '便宜机场', url: '/airport/cheap/' },
+];
+
+const pageTitle = '2026 便宜机场推荐 | 月均 5-10 元平价机场防坑实测 - v2rayn节点';
+const pageH1 = '2026 月付 5–10 元低价平价机场深度横评与避坑防雷指南';
+const pageDesc = '全面揭底低价平价机场超售、断流与跑路内幕。拒绝虚标倍率与年付 9.9 陷阱，客观评测单月个位数依然稳定顺畅的良心低价科学上网方案。';
+
+const faqs = [
+  {
+    "question": "月付 5-10 元的机场，用来看 4K 视频会频繁卡顿吗？",
+    "answer": "看你选的是哪种架构：如果是普通直连的低价机场，晚高峰必然卡顿；但如果是选择具备优质 BGP 隧道的平价中转（如飞猫云）或专线轻量版（如光速云），即使是 8 块钱的套餐也能跑满 200-300 Mbps，晚高峰看 YouTube 4K 60fps 依然秒开不转圈。"
+  },
+  {
+    "question": "便宜机场会偷偷在我的网页里插入广告吗？",
+    "answer": "如果使用的是正规开源客户端（如 Clash Verge Rev、Shadowrocket），只要你访问的是现代标准的 HTTPS 加密网站，传输通道在应用层是完全端到端加密的，任何节点服务器都无法在密文中插入广告代码。但切记不要在手机中安装某些山寨机场专属的来路不明客户端，以免其自带内置弹窗广告。"
+  },
+  {
+    "question": "学生党平时只查学术文献和用 ChatGPT，每月多少流量够用？",
+    "answer": "非常省流量。纯文字学术搜索、Google 学术检索、GitHub 代码克隆、以及与 ChatGPT 文本交互，一整天消耗的流量通常不会超过 200MB。每月 30GB–60GB 的轻量套餐绰绰有余，完全不需要花大价钱购买几百吉字节的昂贵大流量包。"
+  },
+  {
+    "question": "为什么很多低价机场不支持支付宝和微信支付，只支持加密货币？",
+    "answer": "国内第三方支付接口（微信/支付宝商户）有严格的资质审核与风控封号机制，平价小作坊为了节省手续费成本或规避监管，可能会要求使用 USDT 等虚拟货币。但对于普通用户而言，使用虚拟币购买存在兑换滑点和操作门槛，建议优先选择支持正规合规支付网关（如支付宝扫码）的大型品牌。"
+  },
+  {
+    "question": "买完便宜机场后，如何在手机和电脑上同时使用？",
+    "answer": "只需在电脑和手机上分别安装对应的客户端（如电脑用 Clash Verge Rev，安卓用 Clash Meta for Android，iPhone 用 Shadowrocket），将同一条订阅链接导入进去即可。注意查看机场套餐的'允许同时在线设备数'（通常支持 2-3 台设备并发），不要超出限制即可。"
+  }
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 顶部专题胶囊导航栏 (7 大垂直子专题) -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/airport/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'cheap';
+          return (
+            <a
+              href={sub.href}
+              class={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 页面标题与导读 -->
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-4">
+        <span>🚀 便宜机场 · 权威深度专题</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed max-w-4xl">
+        {pageDesc}
+      </p>
+    </div>
+
+    <!-- 一键选型决策结论盒 (Answer-First) -->
+    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white mb-12 shadow-md">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-400 text-slate-950 uppercase tracking-wider">
+          Answer-First 核心选型结论
+        </span>
+        <span class="text-slate-400 text-xs">更新时间：2026 年最新网络环境审计</span>
+      </div>
+      <h2 class="text-lg sm:text-xl font-bold mb-4 text-white">
+        便宜机场终极生存铁律：警惕极端低价，坚守中短期月付
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-rose-400/40 transition">
+          <div class="font-bold text-rose-300 text-sm mb-1.5">🚨 避坑红线：年付 9.9 包邮</div>
+          <div class="text-slate-200 font-semibold mb-1">绝对禁区：年付低于 ¥30 的小作坊</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            这类作坊在数学逻辑上无法维系物理专线与带宽租金，本质是通过超售套现，极大概率在 1–3 个月内彻底跑路失联。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-400/40 transition">
+          <div class="font-bold text-emerald-300 text-sm mb-1.5">💰 良心平价：月付个位数</div>
+          <div class="text-slate-200 font-semibold mb-1">首推：飞猫云 / 二猫云 / 微风云</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            月付仅需 ¥6.6–¥9.9 元，优质隧道中转优化，支持月付无套路，满足学生党与预算有限人群的日常查文献与轻度刷推需求。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-400/40 transition">
+          <div class="font-bold text-blue-300 text-sm mb-1.5">⚡ 极致平衡：平价专线标杆</div>
+          <div class="text-slate-200 font-semibold mb-1">首推：光速云 (轻量版仅 ¥8.25/月)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            谁说便宜没好货？光速云轻量套餐用隧道的价格直接享受企业级 IEPL 物理专线待遇，晚高峰 4K 秒开，支持月付随时退订。
+          </p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- 核心横向对比表 (375px 移动端水平自适应滚动) -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 市场主流低价平价机场核心指标与超售风险评级表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          基于实测数据、月付门槛与机房成本模型综合评估
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">品牌名称</th><th class="p-3.5">起步月费</th><th class="p-3.5">干线架构类型</th><th class="p-3.5">单 GB 流量成本</th><th class="p-3.5">晚高峰稳定性</th><th class="p-3.5">跑路风险评级</th><th class="p-3.5">综合选型建议</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-slate-900">光速云 (轻量版)</td><td class="p-3.5 "><span class="font-mono text-blue-600 font-bold">¥8.25/月</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-medium">IEPL 物理专线</span></td><td class="p-3.5 "><span class="font-mono">¥0.12 / GB</span></td><td class="p-3.5 "><span class="text-emerald-600 font-bold">全天候 4K 零卡顿</span></td><td class="p-3.5 "><span class="text-emerald-600 font-bold">极低 (5年稳定运营)</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">平价专线首选 🏆</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">二猫云 (ErMao)</td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">¥6.60/月</span></td><td class="p-3.5 ">BGP 入口中转</td><td class="p-3.5 "><span class="font-mono">¥0.11 / GB</span></td><td class="p-3.5 "><span class="text-amber-600">偶尔轻微缓冲</span></td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">低 (月付无压力)</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded font-medium">极致平价 ⭐️⭐️⭐️⭐️</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">飞猫云 (FlyCat)</td><td class="p-3.5 "><span class="font-mono text-emerald-600 font-bold">¥7.00/月</span></td><td class="p-3.5 ">优质隧道优化</td><td class="p-3.5 "><span class="font-mono">¥0.10 / GB</span></td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">稳定顺畅</span></td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">低</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded font-medium">新手平价 ⭐️⭐️⭐️⭐️</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">微风云 (Weifeng)</td><td class="p-3.5 "><span class="font-mono">¥9.90/月</span></td><td class="p-3.5 ">多线 BGP 中转</td><td class="p-3.5 "><span class="font-mono">¥0.14 / GB</span></td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">良好</span></td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">低</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded">平稳实用 ⭐️⭐️⭐️</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">黑产年付 9.9 机场</td><td class="p-3.5 "><span class="font-mono text-rose-600 font-bold">¥9.9/年 (超低)</span></td><td class="p-3.5 ">直连垃圾 VPS</td><td class="p-3.5 "><span class="font-mono">虚标</span></td><td class="p-3.5 "><span class="text-rose-600 font-bold">晚高峰全线飘红</span></td><td class="p-3.5 "><span class="text-rose-600 font-bold">极高 (随时跑路)</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded font-bold">高危避坑 ❌</span></td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术正文章节 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        一、“5元 1000G”背后的数学死局：低价机场到底是如何敛财跑路的？
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>很多刚入门的用户常常被一些群组中打出的广告吸引：“9.9包年 1000G 专线不限速”。稍有常识的网络工程师只需算一笔账即可看清其本质：</p>
+        <p>正规电信运营商的一条 1Gbps 国际物理专线，每月光是机房端口租金与电力运维成本就在 <strong>2 万元到 5 万元人民币以上</strong>。即便按照极高密度的超售比（1:10 计算），每名用户每月分摊的真实物理带宽成本也不可能低于 5 元人民币！</p>
+        <p>所谓“9.9 包年”的模式在财务上只有一种结局：前期通过极低价格在贴吧、TG 群疯狂吸纳数千名年付韭菜，聚敛几万元资金；随后由于节点暴满带宽彻底塞死，运营者直接关闭官网、解散 Telegram 群组携款跑路！这类小作坊的平均存活周期仅为 45 到 90 天。</p>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        二、低价机场防雷三大铁律：如何用几块钱买到真正的良心服务
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>想要省钱并不等于当冤大头。在选购单月 5–10 元的平价机场时，坚守以下三大防雷铁律：</p>
+        <ol class="space-y-2">
+          <li><strong>绝对不买任何年付套餐：</strong> 无论年付折扣多么诱人（哪怕宣传“年付打五折”），一律选择月付或季付！每月支付 7-8 元，即使某天机场出现波动，损失也仅限于一顿早餐钱，随时可以轻松换下一家。</li>
+          <li><strong>看清节点倍率，拒绝虚假大流量：</strong> 很多便宜机场宣称给 500G 流量，但实际节点倍率全部是 2.0x 或 3.0x，实际可用流量只有不到 200G。认准以 1.0x 标准倍率为主的良心品牌。</li>
+          <li><strong>备用容灾心理预期：</strong> 平价机场在成本限制下通常无法做到全节点 7x24 小时极致运维。建议搭配一个按量付费不限时的轻量备用包，确保在主干网络临时维护时不影响突发工作。</li>
+        </ol>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        三、平价专线黑马：光速云轻量版为什么能做到“平价与专线兼顾”？
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>很多用户以为只有每月花费三四十元才能用上 IEPL 专线。其实，像<strong>光速云</strong>这类拥有数十万用户规模的大型平台，凭借巨大的规模化采购优势（批量采购数百 Gbps 专线带宽），能够有效摊薄单用户成本。</p>
+        <p>光速云专门为广大学生产业人员定制了<strong>“轻量版专线套餐”</strong>：起步价格仅为 ¥8.25/月，每月配备 69GB 企业级专线流量。对于不天天疯狂下载大型游戏、仅查阅论文、日常刷社交媒体与写代码的轻度用户而言，69GB 完全足够使用，并且享受与百元高端套餐同等的晚高峰 4K 零缓冲秒开待遇，是真正的平价之王。</p>
+      
+      </div>
+      
+    </div>
+
+    <!-- 商业转化模块：光速云推荐 -->
+    {guangsuBrand && (
+      <div class="my-12 p-6 sm:p-8 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl text-white shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+              <span>🚀 站长日常主力首选 · 2026 全场景专线标杆</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              受够了断流、卡顿与频繁跑路？全面升级至企业级 IEPL 专线机场
+            </h3>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              光速云 (GuangSu Cloud) 采用物理 IEPL/IPLC 企业内网专线过境，数据穿透内网不过公网 GFW，晚高峰 YouTube 4K 秒开，ChatGPT / Claude 极速秒回。
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1 text-xs text-slate-300">
+              <span class="bg-white/10 px-2.5 py-1 rounded">起步 ¥8.25/月</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">企业级内网专线</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">VLESS / Trojan 协议</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">原生流媒体解锁</span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+            <a
+              href={guangsuBrand.affiliateUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-bold text-sm shadow-lg shadow-blue-500/30 transition text-center"
+            >
+              前往光速云官网选购 ➜
+            </a>
+            <div class="text-center lg:text-right text-xs text-slate-400">
+              结账输入优惠码 <span class="text-amber-300 font-mono font-bold">AMM</span> 享专属折扣
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-white/10">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — 便宜机场核心选型与疑难解答
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          直面抗封锁、稳定性、速度延迟与防跑路的核心疑问
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：机场深度横评与专线技术原创长文
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部原创长文 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- 底部回到全站与集群导航 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/airport/" class="text-blue-600 hover:underline font-semibold">机场推荐专栏门户</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/clash/" class="hover:text-blue-600 transition">切换专栏：Clash 客户端指南 ➜</a>
+        <a href="/vpn/" class="hover:text-blue-600 transition">切换专栏：VPN 与网络加速器 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

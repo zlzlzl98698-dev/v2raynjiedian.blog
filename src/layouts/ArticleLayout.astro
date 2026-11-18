@@ -1,0 +1,256 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumb from '../components/navigation/Breadcrumb.astro';
+import TableOfContents from '../components/review/TableOfContents.astro';
+import AffiliateNotice from '../components/review/AffiliateNotice.astro';
+import BrandCTA from '../components/review/BrandCTA.astro';
+import FAQSection from '../components/review/FAQSection.astro';
+import RelatedArticles from '../components/review/RelatedArticles.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  category: string;
+  tags?: string[];
+  cover?: string;
+  author?: string;
+  brandSlug?: string;
+  faq?: { question: string; answer: string }[];
+  headings?: { depth: number; slug: string; text: string }[];
+  breadcrumbs?: { name: string; url: string }[];
+  relatedArticles?: { id: string; title: string; url: string; pubDate: Date; cover?: string }[];
+  sources?: string[];
+}
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  category,
+  tags = [],
+  cover = '/images/default-cover.svg',
+  author = 'v2rayn节点编辑部',
+  brandSlug,
+  faq = [],
+  headings = [],
+  breadcrumbs = [],
+  relatedArticles = [],
+  sources = [],
+} = Astro.props;
+
+const categoryNames: Record<string, { name: string; url: string }> = {
+  airport: { name: '机场推荐', url: '/airport/' },
+  vpn: { name: 'VPN 与加速器', url: '/vpn/' },
+  clash: { name: 'Clash 客户端', url: '/clash/' },
+  resources: { name: '资源与情报', url: '/resources/' },
+};
+
+const categoryInfo = categoryNames[category] || { name: '专题分类', url: '/' };
+
+const defaultBreadcrumbs = [
+  { name: categoryInfo.name, url: categoryInfo.url },
+  { name: title, url: Astro.url.pathname },
+];
+
+const finalBreadcrumbs = breadcrumbs.length > 0 ? breadcrumbs : defaultBreadcrumbs;
+
+const formattedDate = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(pubDate);
+
+const formattedUpdateDate = updatedDate ? new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(updatedDate) : null;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  type="article"
+  image={cover}
+  pubDate={pubDate}
+  updatedDate={updatedDate}
+  author={author}
+  breadcrumbs={finalBreadcrumbs}
+  schemaType="Article"
+  faq={faq}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+    <!-- Breadcrumbs -->
+    <Breadcrumb items={finalBreadcrumbs} />
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mt-4">
+      
+      <!-- Left: Article Content -->
+      <article class="lg:col-span-8">
+        
+        <!-- Header Section -->
+        <header class="mb-8">
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <a
+              href={categoryInfo.url}
+              class="px-3 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200/80 hover:bg-blue-100 transition"
+            >
+              {categoryInfo.name}
+            </a>
+            {tags.map((tag) => (
+              <span class="px-2.5 py-0.5 rounded-lg text-xs bg-slate-100 text-slate-600">
+                #{tag}
+              </span>
+            ))}
+          </div>
+
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight tracking-tight mb-4">
+            {title}
+          </h1>
+
+          <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-500 pb-6 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <img
+                src="/images/avatar.png"
+                alt={author}
+                class="w-6 h-6 rounded-full object-cover border border-slate-200"
+              />
+              <span class="font-medium text-slate-700">{author}</span>
+            </div>
+            <span>•</span>
+            <time datetime={pubDate.toISOString()}>发布日期: {formattedDate}</time>
+            {formattedUpdateDate && (
+              <>
+                <span>•</span>
+                <span class="text-blue-600 font-medium">最近核实更新: {formattedUpdateDate}</span>
+              </>
+            )}
+          </div>
+        </header>
+
+        <!-- Executive Summary (Answer-First GEO Optimization) -->
+        <div class="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-blue-50/80 to-indigo-50/40 border-l-4 border-blue-600 mb-8 shadow-xs">
+          <div class="text-xs font-bold uppercase tracking-wider text-blue-900 mb-2 flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>核心结论与速览 (Answer-First)</span>
+          </div>
+          <p class="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
+            {description}
+          </p>
+        </div>
+
+        <!-- Featured Cover Image -->
+        {cover && (
+          <div class="rounded-2xl overflow-hidden aspect-[16/9] mb-8 bg-slate-100 border border-slate-200 shadow-xs">
+            <img src={cover} alt={title} class="w-full h-full object-cover" />
+          </div>
+        )}
+
+        <!-- Table of Contents -->
+        {headings.length > 0 && <TableOfContents headings={headings} />}
+
+        <!-- Article Prose Body -->
+        <div class="prose-content max-w-none">
+          <slot />
+        </div>
+
+        <!-- In-article Brand CTA -->
+        <BrandCTA brandSlug={brandSlug} />
+
+        <!-- Affiliate Disclosure -->
+        <AffiliateNotice />
+
+        <!-- FAQ Section -->
+        {faq.length > 0 && <FAQSection faqs={faq} />}
+
+        <!-- Sources Section -->
+        {sources.length > 0 && (
+          <div class="my-8 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500">
+            <div class="font-bold text-slate-700 mb-1.5">资料与数据来源:</div>
+            <ul class="list-disc pl-4 space-y-1">
+              {sources.map((s) => (
+                <li>{s}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <!-- Related Articles -->
+        {relatedArticles.length > 0 && <RelatedArticles articles={relatedArticles} />}
+
+      </article>
+
+      <!-- Right: Sidebar -->
+      <aside class="lg:col-span-4 space-y-6">
+        
+        <!-- Author / Editorial Box -->
+        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="flex items-center gap-3 mb-3">
+            <img
+              src="/images/avatar.png"
+              alt={author}
+              class="w-12 h-12 rounded-xl object-cover shadow-sm border border-slate-200"
+            />
+            <div>
+              <div class="font-bold text-slate-900 text-base">{author}</div>
+              <div class="text-xs text-slate-500">网络工程与协议实测组</div>
+            </div>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            专注于海外专线网络、中继节点、Clash Verge 客户端调优与主流 AI / 流媒体跨区解锁测评。定期进行晚高峰丢包与速率排查。
+          </p>
+        </div>
+
+        <!-- Top Recommended Brand Widget -->
+        <div class="p-6 rounded-2xl bg-white border border-blue-200 shadow-sm relative overflow-hidden">
+          <div class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">
+            2026 年度主力推荐
+          </div>
+          <h4 class="text-lg font-bold text-slate-900 mb-1">光速云 (老牌专线)</h4>
+          <p class="text-xs text-slate-500 mb-4">
+            IEPL + 企业内网专线架构，全节点 VLESS 协议，自研客户端与 Clash 双兼容，低至 ¥8/月起。
+          </p>
+          <a
+            href="https://sahude.gsyvipaff.com/#/?code=keqgvT5Y"
+            target="_blank"
+            rel="nofollow sponsored noopener"
+            class="block w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-center text-xs font-bold transition shadow-xs"
+          >
+            领优惠码 AMM 官网直达
+          </a>
+        </div>
+
+        <!-- Category Links -->
+        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <h4 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">
+            相关专题栏目
+          </h4>
+          <div class="space-y-2 text-xs">
+            <a href="/airport/recommend/" class="block py-1.5 px-2.5 rounded bg-white border border-slate-200 text-slate-700 hover:text-blue-600 hover:border-blue-400 transition font-medium">
+              👉 2026 机场推荐与排行榜
+            </a>
+            <a href="/airport/value/" class="block py-1.5 px-2.5 rounded bg-white border border-slate-200 text-slate-700 hover:text-blue-600 hover:border-blue-400 transition font-medium">
+              👉 月均 5-15 元高性价比机场
+            </a>
+            <a href="/clash/verge/" class="block py-1.5 px-2.5 rounded bg-white border border-slate-200 text-slate-700 hover:text-blue-600 hover:border-blue-400 transition font-medium">
+              👉 Clash Verge Rev 完整图文教程
+            </a>
+            <a href="/resources/runaway-warning/" class="block py-1.5 px-2.5 rounded bg-white border border-slate-200 text-slate-700 hover:text-rose-600 hover:border-rose-300 transition font-medium">
+              🚨 机场跑路预警雷达与自保
+            </a>
+            <a href="/brands/" class="block py-1.5 px-2.5 rounded bg-white border border-slate-200 text-slate-700 hover:text-blue-600 hover:border-blue-400 transition font-medium">
+              🏷️ 30+ 机场品牌结构化数据库
+            </a>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+  </div>
+</BaseLayout>

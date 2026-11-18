@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/navigation/Breadcrumb.astro';
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '网络评测与数据核实标准体系', url: '/methodology/' },
+];
+
+const seoTitle = '网络评测与数据核实标准体系 (Methodology) - v2rayn节点 实验室';
+const seoDesc = '公开 v2rayn节点 评测实验室的网络性能采样、晚高峰骨干网压测、流媒体与 AI 解锁识别脚本以及品牌排名算法的完整评估体系。';
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDesc}
+  breadcrumbs={breadcrumbs}
+>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
+    <Breadcrumb items={breadcrumbs} />
+
+    <header class="mt-6 mb-12">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3 border border-indigo-200">
+        科学实测 • 方法论透明化
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+        网络评测与数据核实标准体系
+      </h1>
+      <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+        每一项测速数据、倍率核算与流媒体解锁指标均遵循标准化测试流（SOP），杜绝感性臆断，确保评测结论具备工程级可复现性。
+      </p>
+    </header>
+
+    <div class="space-y-12 text-slate-700 leading-relaxed text-sm sm:text-base">
+      <!-- 维度 1: 延迟与丢包 -->
+      <section class="space-y-4">
+        <h2 class="text-2xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          一、延迟（RTT）与骨干网丢包率测试标准
+        </h2>
+        <p>
+          客户端界面上的简单 Ping 测速仅反映本地到入口服务器的 ICMP 握手，无法代表真实的端到端网络体验。我们的物理探针采用以下基准执行测试：
+        </p>
+        <ul class="list-disc pl-6 space-y-2">
+          <li><strong>MTR 路由追踪</strong>：使用 <code>mtr -r -c 100 --tcp -P 443</code> 连续发送 100 个 TCP SYN 探测包，穿透入口中转机、跨国物理专线（IEPL/IPLC）直至落地机房。</li>
+          <li><strong>测试时段界定</strong>：严格分为“闲时基准值（03:00 - 06:00）”与“晚高峰抗压值（20:30 - 22:30）”，重点考核晚高峰时段由于骨干网 QoS 限速导致的丢包率增量（要求优秀专线丢包率 &lt; 0.5%）。</li>
+          <li><strong>三大运营商独立采样</strong>：电信 163 (AS4134)、联通 169 (AS4837)、移动 CMI (AS58453) 分别采集独立样本，杜绝以单一良好线路代表全局。</li>
+        </ul>
+      </section>
+
+      <!-- 维度 2: 流媒体与 AI 解锁 -->
+      <section class="space-y-4">
+        <h2 class="text-2xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          二、流媒体解锁与 AI 服务欺诈分检测 SOP
+        </h2>
+        <p>
+          并非“能打开网页”就叫作解锁。我们对流媒体与前沿 AI 服务的可用性进行细颗粒度分级：
+        </p>
+        <div class="overflow-x-auto my-4">
+          <table class="w-full text-left border border-slate-200 text-xs sm:text-sm">
+            <thead class="bg-slate-100 text-slate-800 font-bold">
+              <tr>
+                <th class="p-3 border-b">测试项目</th>
+                <th class="p-3 border-b">及格标准 (Pass)</th>
+                <th class="p-3 border-b">优秀标准 (Full Unlock)</th>
+                <th class="p-3 border-b">检测脚本与工具</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr>
+                <td class="p-3 font-semibold">Netflix</td>
+                <td class="p-3">仅可观看自制剧 (Originals Only)</td>
+                <td class="p-3 text-emerald-600 font-bold">全区解锁非自制剧（如绝命毒师/老友记）</td>
+                <td class="p-3"><code>RegionRestrictionCheck</code></td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold">Disney+</td>
+                <td class="p-3">可打开主页但提示地区受限</td>
+                <td class="p-3 text-emerald-600 font-bold">完整加载 4K HDR 视频流并免验验证码</td>
+                <td class="p-3">专用流媒体探测器</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold">OpenAI / Claude</td>
+                <td class="p-3">Web 登录免 Cloudflare 拦截</td>
+                <td class="p-3 text-emerald-600 font-bold">Stripe 信用卡绑定通过，Scamalytics &lt; 15</td>
+                <td class="p-3">MaxMind GeoIP + Scamalytics API</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 维度 3: 综合天梯榜算法 -->
+      <section class="space-y-4">
+        <h2 class="text-2xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          三、服务商综合排名的加权算法模型
+        </h2>
+        <p>
+          全站品牌综合天梯榜采用五维加权评分模型，各维度权重如下：
+        </p>
+        <ul class="list-disc pl-6 space-y-2">
+          <li><strong>晚高峰专线抗压与 SLA 履约率 (35%)</strong>：考察 20:00 - 23:00 的有效带宽达成率及故障恢复速度。</li>
+          <li><strong>IP 纯净度与流媒体解锁覆盖率 (25%)</strong>：原生家庭住宅 IP 比例、非自制剧解锁与 AI 绑卡免风控表现。</li>
+          <li><strong>节点倍率与实际使用成本透明度 (20%)</strong>：抵制 3x/5x 隐形倍率，以“真实单 GB 到手成本”作为核心性价比衡量标准。</li>
+          <li><strong>客户端多端协同与协议先进性 (10%)</strong>：是否支持 Clash Verge Rev、Mihomo、VLESS-Reality、Hysteria 2、自研免配置客户端。</li>
+          <li><strong>运营稳定性与跑路安全冗余 (10%)</strong>：运营年限（优先 3 年以上品牌）、月付支持力度、客服工单响应时效。</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

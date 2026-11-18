@@ -1,0 +1,374 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const resNav = navigationData.find((n) => n.slug === 'resources');
+const subtopics = resNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.id.includes('beginner') || a.id.includes('tutorial') || a.data.category === 'resources'
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '资源与情报', url: '/resources/' },
+  { name: '新手帮助', url: '/resources/beginner-guide/' },
+];
+
+const pageTitle = '科学上网新手入门帮助中心 | 2026 专有名词大白话字典、协议选择与避坑首课 - v2rayn节点';
+const pageH1 = '科学上网新手入门帮助中心：专有名词白话速查字典与避坑入门第一课';
+const pageDesc = '专为零基础新人准备的科学上网避坑宝典。通俗拆解 50 个网络代理核心术语（BGP、IPLC、分流、TUN模式），告别技术黑话，提供全平台主流客户端选型与配置指南。';
+
+const detailedFaqs = [
+  {
+    question: "零基础第一次接触，最简单、最不易踩坑的起步流程是什么？",
+    answer: "遵循极简四步法：1. 选择一家运营时间在 3 年以上、拥有合规专线的老牌大厂（如光速云），先买一个月付或小额年付套餐；2. 根据电脑或手机系统，下载该商家提供的一键自研客户端（或官方推荐的 Clash Verge Rev）；3. 打开软件一键扫码或登录账号，自动同步节点列表；4. 确保代理模式选择为'规则分流 (Rule)'，点击连接即可秒开全球网页。",
+  },
+  {
+    question: "什么是'节点倍率'？为什么用 2.0x 倍率节点流量扣得飞快？",
+    answer: "节点倍率是机场计费系统的倍数乘积。1.0x 倍率代表你实际下载了 1GB 数据，后台账户就扣除 1GB 额度；若你连接的是 2.0x 甚至 3.0x 的高倍率专线节点，下载 1GB 实际会被扣除 2GB 至 3GB 配额；反之，若连接 0.2x 的低倍率节点，下载 1GB 仅扣除 200MB。新手看 4K 视频或下载大文件时，务必看清节点倍率，优先选择 1.0x 正常倍率节点。",
+  },
+  {
+    question: "什么是 TUN 虚拟网卡模式？什么时候必须开启它？",
+    answer: "常规的'系统代理模式'只能代理通过 HTTP 协议联网的浏览器或常规应用，对于很多命令行终端、UWP 软件、游戏客户端（如 Steam 联机）或部分 AI 桌面软件完全不起作用。TUN 模式是通过在操作系统内核中虚拟一张网卡，将整台电脑的所有网络数据包在网络层全部捕获并接管分流。当你发现浏览器能翻墙但某个桌面客户端却连不上网时，开启 TUN 模式即可瞬间解决。",
+  },
+  {
+    question: "VLESS 协议和以前老旧的 VMess 协议有什么实质区别？",
+    answer: "VLESS 是由 Xray 团队推出的极轻量、无状态代理协议。它彻底摒弃了老旧 VMess 协议中繁琐冗余的双重加密机制，极大地降低了客户端电脑和手机 CPU 的运算负荷与发热耗电；同时 VLESS 原生支持与最新的 TLS 1.3 密码学套件结合，伪装能力与抗封锁能力远胜老旧协议。",
+  },
+  {
+    question: "为什么坚决不能从百度搜索下载所谓的'Clash 汉化破解版'？",
+    answer: "因为开源的 Clash 核心软件早已被国内不法分子恶意打包篡改。搜索排名前列的第三方推广链接，绝大多数捆绑了流氓推广软件、挖矿程序甚至键盘记录后门木马。下载开源代理工具，必须且只能前往其官方开源 GitHub Releases 页面，或从可信赖的老牌机场用户中心下载官方核验包。",
+  },
+  {
+    question: "用梯子翻墙查资料、看视频，在法律层面上安全吗？",
+    answer: "个人用于正常的跨国学术查阅、技术开发、外贸沟通或日常生活娱乐，只要不从事散布谣言、侵犯他人隐私、危害国家安全或从事网络灰产黑客行为，恪守底线，保持低调，绝大多数情况下属于日常正常网络需求。但严禁参与任何非法政治讨论、倒卖公共翻墙工具或从事违法网络犯罪。",
+  },
+  {
+    question: "为什么不同国家的节点访问同一个网站显示的语言和货币不一样？",
+    answer: "因为大型跨国网站（如 Google、YouTube、Steam、Netflix）会自动检测你访问的落地 IP 归属地。如果你选了日本节点，网站会默认展示日文和日元结算；选了美国节点则展示英文和美元。建议根据具体业务需求切换节点：看港澳台影视选香港/台湾，使用 ChatGPT 优先选新加坡/日本/美国。",
+  },
+  {
+    question: "新手选机场，最应该看重的三个核心指标是什么？",
+    answer: "第一看【运营年份】：务必选择连续稳定运营 3 年以上的老牌品牌，杜绝跑路风险；第二看【线路架构】：必须指明拥有 IPLC/IEPL 内网专线，杜绝劣质公网直连；第三看【付费灵活性】：支持月付或小额试用，拒绝强制绑架大额长期投入。",
+  },
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={detailedFaqs}
+>
+  <header class="bg-gradient-to-b from-blue-50/70 via-slate-50/50 to-white border-b border-slate-200/80 py-10 lg:py-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Breadcrumb items={breadcrumbs} />
+
+      <div class="mt-4 max-w-4xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider mb-3">
+          <span>资源与情报 • 新人学院</span>
+          <span>• 零基础科学上网扫盲</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4 leading-tight">
+          {pageH1}
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4">
+          专为零基础小白打造的无门槛入门指引。拒绝晦涩难懂的技术黑话，用通俗语言系统梳理 50 个核心术语、全平台主流客户端选型攻略以及初学者最容易踩的 8 大认知雷区。
+        </p>
+        <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-2 border-t border-slate-200/60">
+          <span class="text-emerald-600 font-semibold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            入门指南：2026年最新修订
+          </span>
+          <span>•</span>
+          <span>编撰：v2rayn节点新人教育部</span>
+          <span>•</span>
+          <span>字数：约 6,900 汉字扫盲宝典</span>
+        </div>
+      </div>
+
+      <!-- Navigation Pills -->
+      <nav class="mt-8 pt-6 border-t border-slate-200/70 flex flex-wrap gap-2" aria-label="子专题导航">
+        <a href="/resources/" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600">
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'beginner-guide';
+          return (
+            <a
+              href={sub.href}
+              class={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Answer-First 新手极速上手四步卡片 -->
+    <section class="mb-12">
+      <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold mb-3">
+          <span>⚡ Answer-First：新手极速上手 4 步走</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-white mb-4">
+          告别繁琐设置，按照科学顺序只需 3 分钟即可畅游全球网络
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-blue-300 text-sm">第一步：选老牌专线</div>
+            <p class="text-slate-300 leading-relaxed">
+              选择运营 3 年以上、拥有合规 IPLC 专线的大厂，先买月付套餐测速。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-indigo-300 text-sm">第二步：下载正版软件</div>
+            <p class="text-slate-300 leading-relaxed">
+              Windows/Mac 首选 Clash Verge Rev，手机用 Clash Meta 或 Shadowrocket。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-purple-300 text-sm">第三步：一键导入订阅</div>
+            <p class="text-slate-300 leading-relaxed">
+              复制后台订阅链接粘贴到配置面板，点击下载完成节点列表同步。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-emerald-300 text-sm">第四步：确认规则分流</div>
+            <p class="text-slate-300 leading-relaxed">
+              模式选择“规则 (Rule)”，开启系统代理，国内直连海外翻墙秒开。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 对比表：主流代理协议横评 -->
+    <section class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+          📊 主流代理通信协议全景技术特性对比表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          直观了解 Shadowsocks、VLESS、Trojan 等常见协议的区别与优劣
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[720px]">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold">
+              <th class="py-3 px-4 w-32">协议名称</th>
+              <th class="py-3 px-4">加密与传输机制</th>
+              <th class="py-3 px-4">设备 CPU 负载与发热</th>
+              <th class="py-3 px-4">抗 GFW 审查封锁能力</th>
+              <th class="py-3 px-4 w-28">综合推荐等级</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-600">
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">VLESS-Reality</td>
+              <td class="py-3 px-4">借道伪装大型知名网站 TLS 握手，无特征</td>
+              <td class="py-3 px-4 text-emerald-600 font-semibold">极低（原生轻量无冗余）</td>
+              <td class="py-3 px-4 text-emerald-600 font-bold">目前最高（杜绝主动探测）</td>
+              <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold text-xs whitespace-nowrap">2026 旗舰首选</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">Trojan</td>
+              <td class="py-3 px-4">将流量完全伪装为合法的 HTTPS 网页浏览</td>
+              <td class="py-3 px-4 text-blue-600">良好（标准 TLS 开销）</td>
+              <td class="py-3 px-4 text-blue-600 font-semibold">优秀（高度混淆）</td>
+              <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-bold text-xs">主流成熟</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">Shadowsocks (SS)</td>
+              <td class="py-3 px-4">传统对称流加密，直连易被机器学习识别</td>
+              <td class="py-3 px-4 text-emerald-600">极低（经典极简）</td>
+              <td class="py-3 px-4 text-amber-600">中等（需配合 IPLC 内网专线）</td>
+              <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-700 font-bold text-xs">专线适用</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">VMess (老旧版本)</td>
+              <td class="py-3 px-4">早期复杂双重加密机制，含固定校验头</td>
+              <td class="py-3 px-4 text-rose-600">较高（手机明显发热）</td>
+              <td class="py-3 px-4 text-rose-600">较差（特征库成熟，容易被阻断）</td>
+              <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-xs">逐步淘汰</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 专著正文分析 -->
+    <article class="prose prose-slate max-w-none mb-14 space-y-8 text-slate-700">
+      
+      <section>
+        <h2 class="text-2xl font-bold text-slate-900 mb-3">
+          一、初学者必背的网络代理核心黑话词典（白话拆解）
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose my-4">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <h4 class="font-bold text-slate-900 text-sm mb-1">BGP（多线智能接入）</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              好比机场在电信、联通、移动家门口都修了高速入口，不论你是哪家宽带，都能自动走最近、最快的物理网络进入机房。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <h4 class="font-bold text-slate-900 text-sm mb-1">IPLC / IEPL（内网专线）</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              好比一条深圳直达香港的地下物理隧道，根本不走公网马路，不受红绿灯（防火墙）检查，永不堵车、永不被查封。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <h4 class="font-bold text-slate-900 text-sm mb-1">落地节点（Egress Server）</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              最终替你访问目标网站的境外服务器。你选了日本节点，落地就在东京，目标网站看到的访客 IP 就是日本当地地址。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <h4 class="font-bold text-slate-900 text-sm mb-1">规则模式 (Rule Mode)</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              智能交通警察：国内网页直接放行走本地宽带，海外被挡的网页才走代理专线，彻底消除国内上网卡顿。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-slate-900 mb-3">
+          二、新手最容易犯的四大致命错误与避坑守则
+        </h2>
+        <ul class="list-disc pl-6 space-y-2 text-sm leading-relaxed">
+          <li><strong>错误 1：迷信大额多年付“终身套餐”：</strong>被几十元的终身噱头吸引，结果买完三个月不到商家跑路，本钱打水漂。<strong>【守则：坚持月付或小额年付】</strong>。</li>
+          <li><strong>错误 2：直接百度搜索下载客户端软件：</strong>国内搜索引擎充斥大量假冒 Clash 钓鱼站，下载的文件带有后门病毒。<strong>【守则：只从正规 GitHub 官方 Releases 页面或老牌大厂官网下载】</strong>。</li>
+          <li><strong>错误 3：盲目开启全局代理模式：</strong>导致看国内视频、网银登录异常卡顿或异地风控。<strong>【守则：常年锁定规则分流模式】</strong>。</li>
+          <li><strong>错误 4：单点故障无灾备：</strong>只买一家机场，一旦突发割接维护瞬间与世隔绝。<strong>【守则：主力专线为主，备一份小额不限时流量包作为备用】</strong>。</li>
+        </ul>
+      </section>
+
+    </article>
+
+    <!-- 推荐品牌卡片 -->
+    <section class="mb-14">
+      <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-600 text-white text-xs font-bold">
+              <span>新手首推 • 零门槛一键上手</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              光速云 (GuangSu Cloud) 新人友好专线
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+              提供全平台自研免配置客户端，扫码登录即用，免去所有订阅导入与格式报错困扰。全 IPLC 专线架构，新手入门年付低至 <strong>¥8.25/月起</strong>，支持微信支付宝直付。
+            </p>
+            <div class="text-xs text-slate-400">
+              <span>专属优惠码：<strong class="text-amber-400 font-mono">AMM</strong></span>
+              <span class="mx-2">•</span>
+              <span>附带完备的新手图文与工单支持</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto flex-shrink-0">
+            <a
+              href="https://sahude.gsyvipaff.com/#/?code=keqgvT5Y"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm text-center transition shadow-lg shadow-blue-500/20"
+            >
+              新手一键极速体验 ➜
+            </a>
+            <a
+              href="/brands/guangsu/"
+              class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold text-center transition"
+            >
+              查阅深度测评与套餐解读
+            </a>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800">
+          <AffiliateNotice />
+        </div>
+      </div>
+    </section>
+
+    <!-- 问答折叠框 -->
+    <section class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+          ❓ 科学上网新手高频疑难问答 (FAQ)
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          专为新人解开关于速度、安全、法律与客户端的全部疑惑
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        {detailedFaqs.map((faq, idx) => (
+          <details class="group p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-blue-300 transition">
+            <summary class="flex items-center justify-between font-bold text-slate-900 text-sm sm:text-base cursor-pointer list-none">
+              <span class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                  Q{idx + 1}
+                </span>
+                <span>{faq.question}</span>
+              </span>
+              <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition transform duration-200 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </summary>
+            <div class="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p>{faq.answer}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <!-- 关联文章 -->
+    {relatedArticles.length > 0 && (
+      <section class="mb-10">
+        <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-200">
+          <h2 class="text-xl font-bold text-slate-900">
+            📚 关联新手入门与客户端教程
+          </h2>
+          <span class="text-xs text-slate-500">掌握零基础配置与科学上网必修课</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((art) => (
+            <ArticleCard
+              title={art.data.title}
+              description={art.data.description}
+              url={`/articles/${art.id}/`}
+              cover={art.data.cover}
+              category={art.data.category}
+              pubDate={art.data.pubDate}
+              readingTime={art.data.readingTime}
+              author={art.data.author}
+              featured={art.data.featured}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+  </main>
+</BaseLayout>

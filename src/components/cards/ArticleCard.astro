@@ -1,0 +1,99 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+  url: string;
+  cover?: string;
+  category: string;
+  pubDate: Date;
+  readingTime?: string;
+  author?: string;
+  featured?: boolean;
+}
+
+const {
+  title,
+  description,
+  url,
+  cover = '/images/default-cover.svg',
+  category,
+  pubDate,
+  readingTime = '6 分钟阅读',
+  author = 'v2rayn节点编辑部',
+  featured = false,
+} = Astro.props;
+
+const categoryLabels: Record<string, { label: string; class: string }> = {
+  airport: { label: '机场推荐', class: 'bg-blue-50 text-blue-700 border-blue-200' },
+  vpn: { label: 'VPN评测', class: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  clash: { label: '客户端教程', class: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+  resources: { label: '情报与资源', class: 'bg-amber-50 text-amber-700 border-amber-200' },
+};
+
+const categoryInfo = categoryLabels[category] || { label: '知识库', class: 'bg-slate-50 text-slate-700 border-slate-200' };
+
+const formattedDate = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).format(pubDate);
+---
+
+<article class="group bg-white rounded-2xl border border-slate-200/80 overflow-hidden card-hover flex flex-col h-full shadow-sm">
+  <!-- Article Cover -->
+  <a href={url} class="relative block overflow-hidden aspect-[16/9] bg-slate-100">
+    <img
+      src={cover}
+      alt={title}
+      loading="lazy"
+      class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300"
+    />
+    <div class="absolute top-3 left-3">
+      <span class={`px-2.5 py-1 text-xs font-semibold rounded-lg border shadow-xs ${categoryInfo.class}`}>
+        {categoryInfo.label}
+      </span>
+    </div>
+  </a>
+
+  <!-- Content Body -->
+  <div class="p-5 flex flex-col flex-grow">
+    <!-- Meta info -->
+    <div class="flex items-center gap-3 text-xs text-slate-400 mb-2.5">
+      <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+      <span>•</span>
+      <span>{readingTime}</span>
+    </div>
+
+    <!-- Title -->
+    <h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition line-clamp-2 leading-snug mb-2">
+      <a href={url}>
+        {title}
+      </a>
+    </h3>
+
+    <!-- Description -->
+    {description && (
+      <p class="text-sm text-slate-500 line-clamp-2 leading-relaxed mb-4 flex-grow">
+        {description}
+      </p>
+    )}
+
+    <!-- Author & Action Footer -->
+    <div class="pt-3 border-t border-slate-100 mt-auto flex items-center justify-between text-xs text-slate-400">
+      <div class="flex items-center gap-1.5">
+        <img
+          src="/images/avatar.png"
+          alt={author}
+          class="w-5 h-5 rounded-full object-cover border border-slate-200"
+        />
+        <span class="text-slate-600">{author}</span>
+      </div>
+      <a href={url} class="text-blue-600 font-medium group-hover:translate-x-0.5 transition flex items-center gap-0.5">
+        <span>阅读全文</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</article>

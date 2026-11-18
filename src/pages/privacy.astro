@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/navigation/Breadcrumb.astro';
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '隐私保护政策', url: '/privacy/' },
+];
+
+const seoTitle = '隐私保护政策 (Privacy Policy) | 零日志与数据透明准则 - v2rayn节点';
+const seoDesc = '了解 v2rayn节点 对访客隐私权的严格保护承诺：本站采用纯静态无服务端托管架构，不记录访客 IP、不收集个人数据、不植入跨站追踪 Cookie。';
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDesc}
+  breadcrumbs={breadcrumbs}
+>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
+    <Breadcrumb items={breadcrumbs} />
+
+    <header class="mt-6 mb-12">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-3 border border-emerald-200">
+        合规治理 • 数据透明与安全
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+        隐私保护政策
+      </h1>
+      <p class="text-sm text-slate-500">
+        最后生效与修订日期：2026 年 11 月 18 日
+      </p>
+    </header>
+
+    <div class="space-y-10 text-slate-700 leading-relaxed text-sm sm:text-base">
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          1. 核心承诺：纯静态架构与零日志原则
+        </h2>
+        <p>
+          v2rayn节点（以下统称“本站”或“我们”）深知隐私对网络技术人员与出海开发者的重要性。本站为 100% 静态编译（SSG）内容站点，无后台数据库、无用户注册系统、无评论区表单，因此<strong>绝不搜集、储存或共享访客的姓名、电话、密码或真实身份信息</strong>。
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          2. Cookie 与本地存储使用说明
+        </h2>
+        <p>
+          本站仅使用必要的浏览器原生本地存储（Local Storage）用于改善用户交互体验：
+        </p>
+        <ul class="list-disc pl-6 space-y-2">
+          <li><strong>Pagefind 检索索引缓存</strong>：用于在浏览器端执行零延迟的静态全文搜索，搜索历史仅保留在访客本地设备，绝不回传服务器。</li>
+          <li><strong>界面交互偏好</strong>：用于记录暗色模式或折叠手风琴面板的展开状态。</li>
+          <li><strong>无跨站追踪 Cookie</strong>：本站未接入 Google Analytics (GA4) 跨站画像分析、Meta Pixel 或任何侵入式广告跟踪探针。</li>
+        </ul>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          3. 第三方链接与商业跳转声明
+        </h2>
+        <p>
+          本站包含指向第三方服务商（如 GitHub 官方开源仓库、出海专线服务商等）的外部链接。当您点击并离开本站时，您将受该第三方网站自身的隐私政策与服务条款约束。我们强烈建议您在向任何第三方服务商提供支付信息前，详细阅读其隐私与数据存储政策。
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          4. 政策修订与知情权
+        </h2>
+        <p>
+          若本站因引入新的静态功能而需调整隐私政策，将在本页面直接更新版本号与生效时间。若您对本政策有任何疑问，可通过 GitHub 项目工单与实验室技术团队取得联系。
+        </p>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

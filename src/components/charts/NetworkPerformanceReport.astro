@@ -1,0 +1,93 @@
+---
+import type { SpeedNode } from '../../data/brands';
+
+export interface Props {
+  brandName: string;
+  testDate?: string;
+  environment?: string;
+  nodes?: SpeedNode[];
+  summaryNote?: string;
+}
+
+const {
+  brandName,
+  testDate = '2026-10-19 晚高峰 20:30',
+  environment = '中国电信千兆宽带 | Clash Verge Rev v1.7.x | Speedtest.net 测速集群',
+  nodes = [
+    { region: '香港 IEPL 01 (首选)', latency: '22ms', download: '529Mbps' },
+    { region: '新加坡 专线 02', latency: '46ms', download: '387Mbps' },
+    { region: '日本 东京 01', latency: '57ms', download: '135Mbps' },
+    { region: '台湾 原生 01', latency: '41ms', download: '114Mbps' },
+    { region: '美国 洛杉矶 优化', latency: '143ms', download: '18Mbps' },
+  ],
+  summaryNote = '平均晚高峰延迟: 48ms | 最高下载速率: 529Mbps | 晚高峰实测丢包率: 0%',
+} = Astro.props;
+---
+
+<div class="my-8 rounded-2xl bg-[#0B1120] border border-[#1E293B] shadow-2xl p-5 sm:p-6 text-slate-200 font-mono text-sm">
+  <!-- Console Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#1E293B] gap-2">
+    <div class="flex items-center gap-2.5">
+      <div class="flex gap-1.5">
+        <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+        <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+        <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+      </div>
+      <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+        网络可观测实验室 • 延迟与带宽基准报表
+      </span>
+    </div>
+    <div class="flex items-center gap-2 text-xs text-slate-400">
+      <span class="w-2 h-2 rounded-full bg-[#00E676] animate-pulse"></span>
+      <span>测试时段: {testDate}</span>
+    </div>
+  </div>
+
+  <!-- Environment Tag -->
+  <div class="py-2.5 text-xs text-slate-400 border-b border-[#1E293B]/60 flex items-center justify-between">
+    <span>测试环境: {environment}</span>
+    <span class="text-emerald-400 font-bold">[{brandName} 专线实测]</span>
+  </div>
+
+  <!-- Speed Data Nodes Grid -->
+  <div class="py-4 space-y-3.5">
+    {nodes.map((node) => {
+      // Parse download number for progress bar
+      const speedVal = parseInt(node.download) || 100;
+      const progressPercent = Math.min(Math.max((speedVal / 600) * 100, 10), 100);
+
+      return (
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs sm:text-sm">
+            <span class="text-slate-100 font-medium flex items-center gap-2">
+              <span class="text-[#00E676]">🟢</span>
+              {node.region}
+            </span>
+            <div class="flex items-center gap-4">
+              <span class="text-slate-400">延迟: <strong class="text-cyan-300">{node.latency}</strong></span>
+              <span class="text-slate-400">速率: <strong class="text-emerald-400">{node.download}</strong></span>
+            </div>
+          </div>
+          <!-- Progress bar -->
+          <div class="w-full bg-[#0F172A] rounded-full h-2 overflow-hidden border border-[#1E293B]">
+            <div
+              class="h-full rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-[#00E676] transition-all duration-500"
+              style={`width: ${progressPercent}%;`}
+            ></div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+
+  <!-- Summary Footer -->
+  <div class="pt-3 border-t border-[#1E293B] flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 gap-2">
+    <div class="flex items-center gap-2 text-emerald-400">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span>{summaryNote}</span>
+    </div>
+    <span class="text-slate-500 text-[11px]">[v2rayn 评测实验室独立测试]</span>
+  </div>
+</div>

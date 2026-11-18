@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/navigation/Breadcrumb.astro';
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '关于我们与评测实验室', url: '/about/' },
+];
+
+const seoTitle = '关于我们与网络评测实验室 | 独立第三方技术测评准则 - v2rayn节点';
+const seoDesc = '了解 v2rayn节点 独立网络评测实验室的成立背景、多运营商物理测试台架、无利益绑架的客观测评宗旨与专业网络工程师团队。';
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDesc}
+  breadcrumbs={breadcrumbs}
+>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
+    <Breadcrumb items={breadcrumbs} />
+
+    <header class="mt-6 mb-12">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-3 border border-blue-200">
+        E-E-A-T 独立审计实体 • 评测实验室
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+        关于 v2rayn节点 评测实验室
+      </h1>
+      <p class="text-lg text-slate-600 leading-relaxed">
+        建立于 2024 年，由资深网络协议分析师、跨国企业网络架构师与开源代理内核贡献者共同维护，致力于为中文出海从业人员与开发者提供客观、无滤镜的真实网络环境评估。
+      </p>
+    </header>
+
+    <div class="space-y-12 text-slate-700 leading-relaxed">
+      <!-- 实验室使命 -->
+      <section class="space-y-4">
+        <h2 class="text-2xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          一、实验室的核心使命与独立原则
+        </h2>
+        <p>
+          在当前的中文出海网络服务市场中，虚假宣传、超卖跑路、隐形高倍率扣量、假专线（直连假冒 IPLC）等现象层出不穷。普通用户由于缺乏抓包工具与骨干网监测手段，极易在年付或大额充值中遭受财产损失。
+        </p>
+        <p>
+          <strong>v2rayn节点 评测实验室的底线原则：</strong>
+        </p>
+        <ul class="list-disc pl-6 space-y-2">
+          <li><strong>自费采购原则</strong>：评测所涉及的服务商套餐，绝大多数均由团队通过常规支付渠道匿名按月采购，拒绝任何“特供高速节点”的虚假样本送测。</li>
+          <li><strong>晚高峰实测为唯一基准</strong>：闲时千兆跑满并不代表专线质量。所有评测数据均以每日 20:00 - 23:00 骨干网 QoS 拥塞临界时段的压测结果为准。</li>
+          <li><strong>商业推广透明化</strong>：站内包含的少量优质服务商推荐（如光速云），均严格按行业规范标注推广标识与佣金透明度说明，且合作绝不影响评测数据的客观陈述。</li>
+        </ul>
+      </section>
+
+      <!-- 硬件设施与测试台架 -->
+      <section class="space-y-4">
+        <h2 class="text-2xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          二、多运营商物理测试环境与监控台架
+        </h2>
+        <p>
+          为了消除单一网络环境造成的评测偏差，实验室在华东（上海）、华南（广州）、华北（北京）部署了独立的分布式网络探针：
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-sm font-bold text-slate-900 mb-1">中国电信接入点</div>
+            <div class="text-xs text-slate-500">1000M FTTH • AS4134 骨干网拥塞与 AS4809 CN2 GIA 双栈对比</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-sm font-bold text-slate-900 mb-1">中国联通接入点</div>
+            <div class="text-xs text-slate-500">1000M 宽带 • AS4837 优化出口与 AS9929 A 网专线压测</div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-sm font-bold text-slate-900 mb-1">中国移动接入点</div>
+            <div class="text-xs text-slate-500">500M 宽带 • CMI (AS58453) 香港出口跨境丢包监控</div>
+          </div>
+        </div>
+        <p>
+          各探针节点配备专业软路由（Intel i226-V 2.5G 网卡、OpenWrt 固件、Mihomo / Xray 双内核），通过自动化 Python 脚本每间隔 15 分钟执行一次 MTR 跨国路由追踪与 YouTube 4K 流畅度回传，确保所有数据可复现、可核验。
+        </p>
+      </section>
+
+      <!-- 团队与联系方式 -->
+      <section class="space-y-4">
+        <h2 class="text-2xl font-bold text-slate-900 pb-2 border-b border-slate-200">
+          三、团队构成与开源贡献
+        </h2>
+        <p>
+          我们的核心撰稿人兼技术审计师均在网络安全、通信工程领域拥有 8 年以上实操经验。我们积极参与 Clash Verge Rev、Mihomo (Clash.Meta)、Sing-box 等开源客户端的文档汉化、分流规则维护以及 DNS 防泄漏方案测试。
+        </p>
+        <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-sm text-blue-900">
+          <strong>问题反馈与纠错通道：</strong> 如发现本站评测数据存在时效性误差或品牌方套餐变动，欢迎通过站内反馈或开源工单联系评测组，我们将在 24 小时内核实并更新基准库。
+        </div>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

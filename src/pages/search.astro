@@ -1,0 +1,201 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/navigation/Breadcrumb.astro';
+
+const breadcrumbs = [
+  { name: '站内全文搜索', url: '/search/' },
+];
+
+const seoTitle = '站内全文搜索 | v2rayn节点 2026 机场评测与客户端教程搜索中心';
+const seoDesc = '通过关键词快速检索本站收录的 30+ 机场品牌评测、晚高峰测速报告、Clash Verge 与 v2rayN 客户端配置教程与避坑指南。';
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDesc}
+  breadcrumbs={breadcrumbs}
+  noindex={true}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
+    <Breadcrumb items={breadcrumbs} />
+
+    <div class="mt-4 mb-8 text-center max-w-xl mx-auto">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-3">
+        <span>Pagefind 静态全文搜索</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        站内全文检索
+      </h1>
+      <p class="text-sm text-slate-500 mt-2">
+        输入品牌名（如光速云、微风网络）、客户端（如 Clash Verge、v2rayN）或技术问题（如超时、TUN模式）
+      </p>
+    </div>
+
+    <!-- Search Input Box -->
+    <div class="relative max-w-2xl mx-auto mb-8">
+      <input
+        id="pagefind-search-input"
+        type="text"
+        placeholder="搜索文章、品牌评测、教程或常见问题..."
+        class="w-full pl-12 pr-10 py-3.5 text-base rounded-2xl border border-slate-300 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        autofocus
+      />
+      <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <button
+        id="search-clear-btn"
+        class="hidden absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+        title="清空搜索"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Search Quick Suggestions -->
+    <div class="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500 mb-8">
+      <span>热搜词推荐:</span>
+      <button class="quick-tag px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition" data-query="光速云">光速云</button>
+      <button class="quick-tag px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition" data-query="Clash Verge">Clash Verge</button>
+      <button class="quick-tag px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition" data-query="TUN模式">TUN模式</button>
+      <button class="quick-tag px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition" data-query="节点超时">节点超时</button>
+      <button class="quick-tag px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition" data-query="跑路预警">跑路预警</button>
+      <button class="quick-tag px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition" data-query="性价比机场">性价比机场</button>
+    </div>
+
+    <!-- Search Results Container -->
+    <div id="search-results" class="space-y-4">
+      <div id="search-placeholder" class="text-center py-12 text-slate-400 text-sm">
+        输入关键词开始检索全站内容...
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  let pagefindInstance: any = null;
+
+  async function initPagefind() {
+    try {
+      // Dynamic import of pagefind in static build
+      const loadPagefind = new Function("return import('/pagefind/pagefind.js')");
+      const pf = await loadPagefind();
+      await pf.init();
+      pagefindInstance = pf;
+    } catch (e) {
+      console.warn('Pagefind index not found yet (runs in production build):', e);
+    }
+  }
+
+  const input = document.getElementById('pagefind-search-input') as HTMLInputElement;
+  const resultsContainer = document.getElementById('search-results');
+  const clearBtn = document.getElementById('search-clear-btn');
+  const quickTags = document.querySelectorAll('.quick-tag');
+
+  async function performSearch(query: string) {
+    if (!query) {
+      if (resultsContainer) {
+        resultsContainer.innerHTML = '<div class="text-center py-12 text-slate-400 text-sm">输入关键词开始检索全站内容...</div>';
+      }
+      if (clearBtn) clearBtn.classList.add('hidden');
+      return;
+    }
+
+    if (clearBtn) clearBtn.classList.remove('hidden');
+
+    if (!pagefindInstance) {
+      await initPagefind();
+    }
+
+    if (!pagefindInstance) {
+      if (resultsContainer) {
+        resultsContainer.innerHTML = `
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+            <p class="text-sm text-slate-600">站内索引已构建。在开发环境下请直接通过导航或品牌库浏览，生产环境构建后将直接呈现即时高亮摘要。</p>
+            <div class="mt-4 flex justify-center gap-3">
+              <a href="/brands/" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">浏览品牌数据库</a>
+              <a href="/airport/recommend/" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold">查看年度推荐</a>
+            </div>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    const search = await pagefindInstance.search(query);
+    if (!search || search.results.length === 0) {
+      if (resultsContainer) {
+        resultsContainer.innerHTML = `
+          <div class="text-center py-12 px-4 rounded-2xl bg-slate-50 border border-slate-200">
+            <div class="text-2xl mb-2">🔍</div>
+            <h4 class="text-sm font-bold text-slate-800">未找到与 “${query}” 相关的内容</h4>
+            <p class="text-xs text-slate-500 mt-1">请尝试更换同义词或精简关键词。</p>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    // Load top 10 results
+    const topResults = await Promise.all(search.results.slice(0, 10).map((r: any) => r.data()));
+
+    if (resultsContainer) {
+      resultsContainer.innerHTML = `
+        <div class="text-xs text-slate-500 mb-3 px-1">共找到 ${search.results.length} 个相关结果：</div>
+        <div class="space-y-4">
+          ${topResults.map((res: any) => `
+            <article class="p-5 rounded-2xl bg-white border border-slate-200/90 hover:border-blue-300 hover:shadow-xs transition">
+              <h3 class="text-base font-bold text-slate-900 hover:text-blue-600 transition mb-2">
+                <a href="${res.url}">${res.meta?.title || res.url}</a>
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3">
+                ${res.excerpt}
+              </p>
+              <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
+                <span class="truncate max-w-xs text-blue-600">${res.url}</span>
+                <a href="${res.url}" class="font-semibold text-blue-600 hover:underline">查看内容 ➜</a>
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      `;
+    }
+  }
+
+  // Handle URL search params on load
+  const urlParams = new URLSearchParams(window.location.search);
+  const q = urlParams.get('q');
+  if (q && input) {
+    input.value = q;
+    performSearch(q);
+  }
+
+  if (input) {
+    input.addEventListener('input', (e) => {
+      const val = (e.target as HTMLInputElement).value.trim();
+      performSearch(val);
+    });
+  }
+
+  if (clearBtn && input) {
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      performSearch('');
+      input.focus();
+    });
+  }
+
+  quickTags.forEach(tag => {
+    tag.addEventListener('click', () => {
+      const query = (tag as HTMLElement).dataset.query || '';
+      if (input) {
+        input.value = query;
+        performSearch(query);
+      }
+    });
+  });
+
+  initPagefind();
+</script>

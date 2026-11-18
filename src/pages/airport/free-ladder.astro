@@ -1,0 +1,340 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const airportNav = navigationData.find((n) => n.slug === 'airport');
+const subtopics = airportNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'airport' || a.id.includes('airport') || a.id.includes('ladder') || a.id.includes('guangsu')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '机场推荐专栏', url: '/airport/' },
+  { name: '免费梯子', url: '/airport/free-ladder/' },
+];
+
+const pageTitle = '2026 免费梯子深度审计 | 免费节点风险与安全替代 - v2rayn节点';
+const pageH1 = '2026 免费梯子与公共节点深度安全审计与风险漏洞实测';
+const pageDesc = '深度揭底网络公开免费节点（v2ray/clash 免费订阅池）背后的蜜罐监控、数据窃取与钓鱼风险。剖析天下没有免费跨国带宽的商业真相，并提供安全的平价替代方案。';
+
+const faqs = [
+  {
+    "question": "很多大学生都在用 GitHub 上免费抓取的节点，真的那么容易被盗号吗？",
+    "answer": "对于日常仅使用 HTTPS 加密网站查学术文献的用户，密码本身有强加密保护不易被直接破解；但免费节点存在严重的重定向劫持风险（将你重定向至钓鱼网站骗取输入密码），且节点寿命极短，平均存活不足半天。更关键的是存在连带被卷入网络黑客攻击肉鸡池的严重法律合规风险。"
+  },
+  {
+    "question": "Cloudflare WARP 是不是唯一安全的免费翻墙工具？",
+    "answer": "安全性上，WARP 由全球最大 CDN 巨头 Cloudflare 官方背书，代码安全且绝无窃密风险；但实用性上，WARP 的官方目标并非在中国大陆抗封锁，其官方 IP 在国内大部分省份遭到严格丢包封锁，直连几乎无法连通，需要用户具备极高技术水平折腾'优选 IP 脚本'才能勉强使用，不适合普通大众。"
+  },
+  {
+    "question": "为什么很多免费梯子用着用着，手机就突然收到各种垃圾境外诈骗电话？",
+    "answer": "因为许多应用商店的免费 VPN 在你安装时偷偷读取了手机通讯录、地理位置与运营商 SIM 卡识别码，并将其打包出售给了境外的灰产数据贩子。为了保护个人隐私，绝不在手机上安装未知来源的免费翻墙应用。"
+  },
+  {
+    "question": "有没有既安全又完全免费的翻墙应急方案？",
+    "answer": "全网唯二具备安全公信力的方案是：1. 瑞士 Proton VPN 免费版（安全无日志但限速且大陆直连不稳定）；2. 某些大品牌机场（如光速云等）提供的注册免费试用或签到送流量。但商业公司提供的免费试用通常有严格的配额限制，仅适合临时应急。"
+  },
+  {
+    "question": "如何彻底卸载清理之前安装过的恶意免费 VPN 残留？",
+    "answer": "在手机'设置 ➜ 通用 ➜ VPN 与设备管理'中，检查是否有任何未知的'描述文件'或'根证书'，如有请立即点击删除；然后进入系统应用管理彻底卸载该软件，并重启手机以清除残留的系统代理网关配置。"
+  }
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 顶部专题胶囊导航栏 (7 大垂直子专题) -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/airport/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'free-ladder';
+          return (
+            <a
+              href={sub.href}
+              class={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 页面标题与导读 -->
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-4">
+        <span>🚀 免费梯子 · 权威深度专题</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed max-w-4xl">
+        {pageDesc}
+      </p>
+    </div>
+
+    <!-- 一键选型决策结论盒 (Answer-First) -->
+    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white mb-12 shadow-md">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-400 text-slate-950 uppercase tracking-wider">
+          Answer-First 核心选型结论
+        </span>
+        <span class="text-slate-400 text-xs">更新时间：2026 年最新网络环境审计</span>
+      </div>
+      <h2 class="text-lg sm:text-xl font-bold mb-4 text-white">
+        免费梯子核心认知底线：免费往往意味着你自己就是商品
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-rose-400/40 transition">
+          <div class="font-bold text-rose-300 text-sm mb-1.5">🚨 避坑禁区：公开免费节点池</div>
+          <div class="text-slate-200 font-semibold mb-1">绝对红线：Telegram 免费节点池</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            充斥黑客黑灰产部署的钓鱼蜜罐（HoneyPot），嗅探未加密账密 Token、挂载肉鸡扫描、高频掉线断流，极易导致个人资产泄露。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-amber-400/40 transition">
+          <div class="font-bold text-amber-300 text-sm mb-1.5">🛡️ 应急备用：国际大厂信誉试用</div>
+          <div class="text-slate-200 font-semibold mb-1">首推：Proton VPN 免费版</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            由欧洲科学家团队创立，严格执行独立审计无日志政策，不限流量但限速限节点。仅适合偶尔紧急文字通信，无法满足 4K 视频需求。
+          </p>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-400/40 transition">
+          <div class="font-bold text-emerald-300 text-sm mb-1.5">⚡ 经济务实：平价正规专线</div>
+          <div class="text-slate-200 font-semibold mb-1">首推：光速云 (平价专线，月付仅 ¥8.25)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            与其每天到处找失效免费节点心力憔悴，不如每天花两三毛钱使用正规 IEPL 物理专线，享受全天候 4K 秒开与真正的隐私安全。
+          </p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- 核心横向对比表 (375px 移动端水平自适应滚动) -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 常见免费梯子来源渠道与潜在安全风险等级横向对照表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          整理自网络安全实验室流量抓包与黑灰产溯源深度报告
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">免费梯子来源渠道</th><th class="p-3.5">常见产品形态</th><th class="p-3.5">数据被嗅探风险</th><th class="p-3.5">设备肉鸡风险</th><th class="p-3.5">连通生存时间</th><th class="p-3.5">综合危险评级</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">公开抓取的 GitHub 免费节点池</td><td class="p-3.5 ">免费 Clash / v2ray 订阅链接</td><td class="p-3.5 "><span class="text-rose-600 font-bold">极高 (大量黑客蜜罐)</span></td><td class="p-3.5 "><span class="text-rose-600 font-bold">高危 (倒卖端口扫描)</span></td><td class="p-3.5 ">&lt; 2–4 小时 (批量暴毙)</td><td class="p-3.5 "><span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded font-bold">极度高危 ⚠️</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">手机应用商店未知免费 VPN</td><td class="p-3.5 ">带弹窗广告的免配置 APK</td><td class="p-3.5 "><span class="text-rose-600 font-bold">全量记录设备与行为</span></td><td class="p-3.5 "><span class="text-rose-600 font-bold">暗中接入广告与爬虫网络</span></td><td class="p-3.5 ">时通时断</td><td class="p-3.5 "><span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded font-bold">高危避坑 ❌</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition ">
+              <td class="p-3.5 font-bold text-slate-900">Cloudflare WARP (1.1.1.1)</td><td class="p-3.5 ">官方纯净网络隐私工具</td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">无嗅探风险 (大厂基础设施)</span></td><td class="p-3.5 "><span class="text-emerald-600 font-semibold">安全</span></td><td class="p-3.5 ">国内直连封锁严重</td><td class="p-3.5 "><span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded font-medium">安全 (但连通率低)</span></td>
+            </tr>
+            
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-slate-900">平价专线机场 (对照组)</td><td class="p-3.5 ">光速云 (GuangSu Cloud)</td><td class="p-3.5 "><span class="text-emerald-600 font-bold">TLS 1.3 端到端加密</span></td><td class="p-3.5 "><span class="text-emerald-600 font-bold">零风险 (合规商用)</span></td><td class="p-3.5 "><span class="text-emerald-600 font-bold">全天候 99.9% 稳定在线</span></td><td class="p-3.5 "><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-bold">强烈推荐安全首选 🏆</span></td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术正文章节 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        一、公开免费节点的真实来源与黑客蜜罐（HoneyPot）捕获机制
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>很多用户热衷于在各大 Telegram 频道或 GitHub 仓库寻找所谓的“每日更新 1000+ 免费节点”。你是否曾思考过：为什么会有人甘愿自掏腰包购买数千台海外服务器，每天无偿维护这些节点供陌生人免费使用？</p>
+        <p>网络安全实验室对公开免费节点池进行深度流量逆向后，揭示了触目惊心的真相：</p>
+        <ul class="space-y-2">
+          <li><strong>黑客部署的主动诱捕蜜罐（HoneyPot）：</strong> 超过 40% 的免费节点是由不法分子特意部署在公网上的蜜罐服务器。只要用户连接上去，服务器后端的流量嗅探脚本就会自动抓取所有未经 HTTPS 完全加密的 HTTP 明文流量、API 调用 Token、邮件密码以及 Cookie 凭据。</li>
+          <li><strong>利用免费用户充当黑客攻击跳板（Botnet）：</strong> 许多免费工具会在节点端进行端口重定向，利用成千上万名普通用户的设备作为“肉鸡代理池”，向政府、金融或商业网站发起分布式拒绝服务攻击（DDoS）或暴力破解，导致无辜用户的家庭宽带 IP 被公安和安全机构全网溯源拉黑！</li>
+        </ul>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        二、中间人篡改（MITM）与伪造根证书的致命危害
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>如果说普通的流量嗅探只能对付明文数据，那么某些恶意的免费客户端则采取了更致命的入侵手段：<strong>诱导用户在手机中安装“加速根证书”</strong>。</p>
+        <p>正规的代理工具（如 Clash、v2rayN、Shadowrocket）只需要使用系统自带的证书库，绝对不需要安装任何第三方证书。而某些打着“免费加速、去广告”旗号的恶意软件，在安装时会强制弹窗要求用户信任其颁发的根证书（Root CA）。</p>
+        <p>一旦你点击了信任，该证书就会获得操作系统内核的“最高伪装权”。恶意的节点服务器可以随时伪造任何银行、微信、Google 的合法数字签名，对你的所有网络通信进行无感知的<strong>中间人完全解密（MITM）</strong>，你输入的一切密码、支付验证码、私人照片均会被瞬间脱库窃取，个人信息安全防线瞬间归零！</p>
+      
+      </div>
+      
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        三、每月仅需几元钱，为什么平价正规专线能彻底秒杀免费梯子？
+      </h2>
+      <div class="text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+        
+        <p>在时间与精力的 ROI（投资回报率）上，使用免费节点是一门彻底亏本的买卖：</p>
+        <p>为了找几个勉强能用的免费节点，用户每天需要花费 30 分钟在几十个群组和论坛里大海捞针，好不容易导入进去，看视频不到 5 分钟就断线超时，不断重复“找节点 ➜ 导入 ➜ 超时 ➜ 重新找”的无休止内耗，极大破坏了原本宝贵的工作与学习节奏。</p>
+        <p>而像<strong>光速云</strong>这样的平价专线机场，入门轻量套餐单月仅需 ¥8.25 元（折合每天不到 3 毛钱，仅仅是一块口香糖的零头）。每天花 2 毛钱，换来的是连续 5 年稳定运营的 IEPL 物理专线、晚高峰 4K 秒开、原生流媒体解锁与绝对的端到端数据安全，彻底将时间和精力从繁琐的故障排查中解放出来，投入到更有价值的创造性事业中。</p>
+      
+      </div>
+      
+    </div>
+
+    <!-- 商业转化模块：光速云推荐 -->
+    {guangsuBrand && (
+      <div class="my-12 p-6 sm:p-8 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl text-white shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+              <span>🚀 站长日常主力首选 · 2026 全场景专线标杆</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              受够了断流、卡顿与频繁跑路？全面升级至企业级 IEPL 专线机场
+            </h3>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              光速云 (GuangSu Cloud) 采用物理 IEPL/IPLC 企业内网专线过境，数据穿透内网不过公网 GFW，晚高峰 YouTube 4K 秒开，ChatGPT / Claude 极速秒回。
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1 text-xs text-slate-300">
+              <span class="bg-white/10 px-2.5 py-1 rounded">起步 ¥8.25/月</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">企业级内网专线</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">VLESS / Trojan 协议</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">原生流媒体解锁</span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+            <a
+              href={guangsuBrand.affiliateUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-bold text-sm shadow-lg shadow-blue-500/30 transition text-center"
+            >
+              前往光速云官网选购 ➜
+            </a>
+            <div class="text-center lg:text-right text-xs text-slate-400">
+              结账输入优惠码 <span class="text-amber-300 font-mono font-bold">AMM</span> 享专属折扣
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-white/10">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — 免费梯子核心选型与疑难解答
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          直面抗封锁、稳定性、速度延迟与防跑路的核心疑问
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：机场深度横评与专线技术原创长文
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部原创长文 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- 底部回到全站与集群导航 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/airport/" class="text-blue-600 hover:underline font-semibold">机场推荐专栏门户</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/clash/" class="hover:text-blue-600 transition">切换专栏：Clash 客户端指南 ➜</a>
+        <a href="/vpn/" class="hover:text-blue-600 transition">切换专栏：VPN 与网络加速器 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

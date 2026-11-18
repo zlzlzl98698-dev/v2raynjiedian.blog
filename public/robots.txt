@@ -1,0 +1,36 @@
+# ====================================================================
+# robots.txt for v2raynjiedian.blog (Pre-launch Search Engine Config)
+# ====================================================================
+
+User-agent: *
+Allow: /
+Disallow: /drafts/
+Disallow: /search/
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+Disallow: /drafts/
+Disallow: /search/
+
+# Bingbot
+User-agent: bingbot
+Allow: /
+Disallow: /drafts/
+Disallow: /search/
+
+# Baiduspider
+User-agent: Baiduspider
+Allow: /
+Disallow: /drafts/
+Disallow: /search/
+
+# Yisouspider (神马搜索 / UC浏览器 / 夸克搜索)
+User-agent: yisouspider
+Allow: /
+Disallow: /drafts/
+Disallow: /search/
+
+# XML Sitemaps (Index and Standard)
+Sitemap: https://v2raynjiedian.blog/sitemap.xml
+Sitemap: https://v2raynjiedian.blog/sitemap-index.xml

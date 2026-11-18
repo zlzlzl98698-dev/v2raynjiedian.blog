@@ -1,0 +1,986 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import TopicCard from '../../components/cards/TopicCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug, topRecommendedBrands } from '../../data/brands';
+
+const airportNav = navigationData.find((n) => n.slug === 'airport');
+const subtopics = airportNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.data.category === 'airport' || a.id.includes('airport') || a.id.includes('guangsu') || a.id.includes('iplc')
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '机场推荐与专栏', url: '/airport/' },
+];
+
+const pageTitle = '2026 机场推荐全景指南 | 32家机场深度横评、IEPL专线晚高峰实测与选购避坑大百科 - v2rayn节点';
+const pageH1 = '2026 翻墙机场综合选型与技术全景指南：32 家品牌横评、专线测速与避坑大百科';
+const pageDesc = '面向新老用户的专著级机场选购大百科。深度横评全网 32 家主流机场，公开晚高峰 4K 测速天梯榜、IEPL/IPLC 物理专线与 BGP 中转架构差异、流媒体与 ChatGPT 原生解锁标准、以及防跑路月付决策法则。';
+
+const faqs = [
+  {
+    question: "什么是 IEPL / IPLC 专线？为什么翻墙首选专线机场？",
+    answer: "IEPL（国际以太网私网专线）与 IPLC（国际私有租用线路）是电信运营商提供的点对点内网私有物理光缆。客户端流量进入国内机房后，直接通过海底/陆地光缆内网直达海外出口机房，物理上完全不经过国家公网防火墙（GFW）的审查与公网骨干网拥堵节点。因此具有全天候 30-50ms 超低延迟、0 丢包率、晚高峰 4K/8K 秒开、以及对封锁 99.9% 物理级免疫的压倒性优势。",
+  },
+  {
+    question: "普通公网中转、直连 VPS 与企业专线机场在实际使用中有何本质差异？",
+    answer: "三者处于完全不同的体验层级：1. 直连 VPS 走普通公网国际海缆，在晚高峰（20:00-23:00）骨干网丢包率高达 30%-50%，且 IP 极易被 GFW 主动探测封锁；2. 公网中转在国内设立入口服务器转发，能改善国内接入速度，但在跨境出境段依然走公网，遇到敏感时期同样面临批量断流；3. IEPL/IPLC 物理专线跨境段走企业内网光纤，不受公网拥堵影响，全天候带宽充沛，是真正具备生产力保障的终极方案。",
+  },
+  {
+    question: "新手第一次挑选购买机场，每月应该购买多少流量合适？",
+    answer: "依据实际业务场景做合理预估：1. 轻度文字办公族（仅查阅学术资料、使用 Google 搜索、发送邮件、收发 Telegram 消息）：每月 30GB–60GB 绰绰有余；2. 综合多媒体族（日常浏览社交媒体、观看 YouTube 1080P/4K、高频使用 ChatGPT/Claude AI）：建议选择每月 100GB–200GB 的主力套餐（如光速云极速版）；3. 重度发烧友与大文件下载者：建议选择 300GB–500GB 以上的高配或团队型套餐。",
+  },
+  {
+    question: "为什么业内专家一再强调买机场必须坚守“首选中短期月付”铁律？",
+    answer: "代理翻墙行业处于极度动态的合规与网络监管环境中。无论一家机场宣称背景多么雄厚，都存在上游机房线路整改、国内入口 IP 被批量封锁、甚至运营者因资金断裂弃坑跑路的偶发风险。一次性购买 2 年或 3 年长期套餐往往只能省下微不足道的几十元，却承担了本金 100% 归零的极高风险。坚持月付或季付，不仅随时可以根据线路质量投票，还能实现资金的最大化安全隔离。",
+  },
+  {
+    question: "有些机场宣传的“超高倍率（如 5x、10x）”节点到底是什么意思？",
+    answer: "倍率是机场计费系统的扣量系数。标准节点为 1.0x（下载 1GB 扣除 1GB 流量）。而标记为 3.0x 或 5.0x 的高倍率节点，意味着你看完一部 2GB 的高清电影，账户实际会被扣除 6GB 或 10GB 流量！部分不良机场故意在节点列表中将高倍率标记写得很隐蔽，导致用户流量莫名其妙迅速见底。选购时必须认准倍率透明、以 1.0x 为主的高信誉品牌。",
+  },
+  {
+    question: "为什么连上机场节点后，ChatGPT 依然提示“Access Denied”或“无法提供服务”？",
+    answer: "OpenAI 部署了全球极其严苛的 IP 风险控制系统，接入了包括 MaxMind、IP2Location 在内的风险数据库。如果机场节点的落地出口 IP 属于公开的机房数据中心（Data Center IP），或者该 IP 短时间内有数千名其他用户同时调用 ChatGPT 网页，风控系统会立即将该 IP 拉黑。解决办法是选用具备“原生家庭住宅 IP”或专门针对 AI 服务做流媒体 DNS 分流优化的优质专线机场（如光速云）。",
+  },
+  {
+    question: "如何防范机场跑路？有哪些典型的跑路前兆需要警惕？",
+    answer: "警惕以下 4 大跑路危险信号：1. 突然在各大渠道大搞异常夸张的促销活动（例如“永久不限时 99 元买断终身”、“买一年送两年”）；2. 官方 Telegram 群组突然开启全员永久禁言、关闭工单系统或下架客服在线入口；3. 大面积节点持续飘红超时超过 48 小时，公告却以“上游光缆被挖断”为由反复敷衍且无修复进度；4. 官网域名频繁被墙，更换为奇怪的二级免费免费域名。",
+  },
+  {
+    question: "企业出海办公与跨境电商团队，如何构建最稳妥的跨国网络架构？",
+    answer: "建议采用“双轨主备 + 业务分层”拓扑：主力线路采用光速云等高品质 IEPL 企业专线，保障全员 Zoom 跨国视频会议、日常协同与资料查阅的极速低延迟；同时在指纹浏览器（AdsPower）中为亚马逊、TikTok 店铺后台单独挂载独享的静态海外家庭住宅代理 IP，杜绝多账号共用机房 IP 引发的关联封店风险；此外储备一条轻量备用线路，确保在单一节点维护时业务平滑容灾。",
+  },
+  {
+    question: "为什么很多机场支持一键导入订阅，却不支持直接给别人分享订阅链接？",
+    answer: "订阅链接本质上是你账户的唯一私密 API 访问凭据（包含 Token 密钥）。任何人只要复制了你的订阅链接，就可以将其导入自己的软件中随意使用你的流量配额。如果被多人滥用或公开发布在论坛，机场后端的审计风控系统会检测到数十个不同 IP 在同时拉取配置，判定为恶意倒卖并直接永久封禁账号且不予退款。",
+  },
+  {
+    question: "如果遇到全国性重大网络封锁周期，专线机场也会受到波及吗？",
+    answer: "企业级 IEPL/IPLC 专线在跨境段走的是物理私有光缆，从原理上天然免疫公网 GFW 的封锁。然而在极端时期，境内的国内入口机房服务器（BGP 入口公网 IP）可能会遭遇针对性的端口探测或防火墙拦截。成熟的品牌机场（如光速云）会在后台部署多套热备域名与动态入口调度池，通常在几分钟至半小时内即可完成入口迁移无感恢复。",
+  },
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 面包屑导航 -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- 顶部专题胶囊导航栏 (7 大垂直子专题) -->
+    <div class="mt-4 mb-8">
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <a
+          href="/airport/"
+          class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-blue-600 text-white shadow-xs"
+        >
+          全部专题
+        </a>
+        {subtopics.map((sub) => (
+          <a
+            href={sub.href}
+            class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+          >
+            {sub.title}
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- 页面标题与导读 -->
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 mb-4">
+        <span>🚀 2026 专栏核心总览 · 机场选型与避坑全景指南</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        {pageH1}
+      </h1>
+      <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed max-w-4xl">
+        本指南立足 2026 年中国大陆真实网络审查与骨干网互联现状，基于对全网 32 家主流机场品牌的真实测试数据，深度拆解物理专线（IEPL/IPLC）与公网中转技术内幕，提供直击痛点的场景化选型结论与防坑避雷指南。
+      </p>
+    </div>
+
+    <!-- 一键选型决策结论盒 (Answer-First) -->
+    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 rounded-2xl p-6 sm:p-8 text-white mb-12 shadow-md">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-400 text-slate-950 uppercase tracking-wider">
+          Answer-First 核心选型结论
+        </span>
+        <span class="text-slate-400 text-xs">更新时间：2026 年最新网络环境审计</span>
+      </div>
+      <h2 class="text-lg sm:text-xl font-bold mb-4 text-white">
+        2026 机场选型黄金法则：场景明确、专网专用、坚守月付
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm">
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-amber-400/40 transition">
+          <div class="font-bold text-amber-300 text-sm mb-1.5">🏆 综合主力首选 (全场景)</div>
+          <div class="text-slate-200 font-semibold mb-1">首推：光速云 (GuangSu Cloud)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            连续 5 年稳定运营，IEPL 企业内网专线物理穿透，晚高峰 4K 零缓冲秒开，原生流媒体与 ChatGPT 极速解锁。起步仅需 ¥8.25/月。
+          </p>
+        </div>
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-400/40 transition">
+          <div class="font-bold text-blue-300 text-sm mb-1.5">⚡ 多端协同与高容灾</div>
+          <div class="text-slate-200 font-semibold mb-1">首推：暮光加速 (MuGuang)</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            全国多地 BGP 优质入口调度，智能链路热备切换，多设备并发协同表现优秀，适合家庭共享与跨设备进阶用户。起步 ¥9.08/月。
+          </p>
+        </div>
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-400/40 transition">
+          <div class="font-bold text-emerald-300 text-sm mb-1.5">💰 极高性价比与学生党</div>
+          <div class="text-slate-200 font-semibold mb-1">首推：飞猫云 / 微风云</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            优质隧道中转，单价低至 ¥7–¥9/月，提供免配置专属客户端，无需繁琐学习订阅导入，小白新手与轻度预算首选。
+          </p>
+        </div>
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-purple-400/40 transition">
+          <div class="font-bold text-purple-300 text-sm mb-1.5">📦 备用容灾与不限时</div>
+          <div class="text-slate-200 font-semibold mb-1">首推：按量付费不限时流量包</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            适合平时翻墙极少、仅作备用或出差临时的用户。购买一次可用数月至一年，杜绝固定月租浪费，作为主力专线的第二防线。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 大垂直子专题矩阵导航卡片 -->
+    <div class="mb-14">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+            📁 机场推荐垂直子专题矩阵 (7 大核心方向)
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            针对不同使用场景、预算区间与技术维度的深度定向决策指南
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {subtopics.map((sub, index) => (
+          <TopicCard
+            title={sub.title}
+            description={sub.description}
+            href={sub.href}
+            icon={['🏆', '💰', '🛡️', '🏷️', '📊', '⚠️', '🚀'][index] || '⚡'}
+            badge="子专题深度"
+          />
+        ))}
+      </div>
+    </div>
+
+    <!-- 表 1：2026 全网核心 12 家主流机场品牌综合横评表 -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 表 1：2026 全网核心主流机场品牌核心技术与体验横向大比拼表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          基于晚高峰（20:00-23:00）真实并发拨测、AI 流媒体解锁及用户工单口碑综合汇总
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[850px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">品牌名称</th>
+              <th class="p-3.5">核心干线架构</th>
+              <th class="p-3.5">协议支持</th>
+              <th class="p-3.5">起步月费</th>
+              <th class="p-3.5">晚高峰 4K 表现</th>
+              <th class="p-3.5">流媒体与 AI 解锁</th>
+              <th class="p-3.5">运营年限</th>
+              <th class="p-3.5">站长推荐评级</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-blue-900">光速云 (GuangSu Cloud)</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-medium">企业级 IEPL/IPLC 物理专线</span></td>
+              <td class="p-3.5 font-mono">VLESS / Trojan</td>
+              <td class="p-3.5 font-mono text-blue-600 font-bold">¥8.25/月</td>
+              <td class="p-3.5 text-emerald-600 font-bold">极速秒开 (0 缓冲)</td>
+              <td class="p-3.5 text-emerald-600 font-bold">100% 原生解锁</td>
+              <td class="p-3.5">2020 (5年+老牌)</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">首推 ⭐️⭐️⭐️⭐️⭐️</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">暮光加速 (MuGuang)</td>
+              <td class="p-3.5">多线 BGP 智能调度专线</td>
+              <td class="p-3.5 font-mono">VLESS / Trojan</td>
+              <td class="p-3.5 font-mono">¥9.08/月</td>
+              <td class="p-3.5 text-emerald-600 font-semibold">流畅秒开</td>
+              <td class="p-3.5 text-emerald-600 font-semibold">良好支持</td>
+              <td class="p-3.5">2023 运营</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded font-medium">推荐 ⭐️⭐️⭐️⭐️</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">飞猫云 (FlyCat Cloud)</td>
+              <td class="p-3.5">优质隧道中转 + BGP 优化</td>
+              <td class="p-3.5 font-mono">VLESS / Trojan</td>
+              <td class="p-3.5 font-mono">¥7.00/月</td>
+              <td class="p-3.5 text-emerald-600">顺畅播放</td>
+              <td class="p-3.5 text-blue-600">支持主流平台</td>
+              <td class="p-3.5">2023 运营</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded font-medium">高性价比 ⭐️⭐️⭐️⭐️</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">微风云 (Weifeng)</td>
+              <td class="p-3.5">BGP 多线优化中转</td>
+              <td class="p-3.5 font-mono">Shadowsocks / Trojan</td>
+              <td class="p-3.5 font-mono">¥9.90/月</td>
+              <td class="p-3.5 text-emerald-600">稳定顺畅</td>
+              <td class="p-3.5 text-blue-600">良好解锁</td>
+              <td class="p-3.5">2023 运营</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded">良好 ⭐️⭐️⭐️</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">大佬云 (DaLaoYun)</td>
+              <td class="p-3.5">高品质隧道中转</td>
+              <td class="p-3.5 font-mono">VLESS / Shadowsocks</td>
+              <td class="p-3.5 font-mono">¥12.00/月</td>
+              <td class="p-3.5 text-emerald-600">流畅播放</td>
+              <td class="p-3.5 text-blue-600">支持常见平台</td>
+              <td class="p-3.5">2022 运营</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded">良好 ⭐️⭐️⭐️</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">星岛梦 (XingDaoMeng)</td>
+              <td class="p-3.5">跨境隧道中转专线</td>
+              <td class="p-3.5 font-mono">Trojan</td>
+              <td class="p-3.5 font-mono">¥8.80/月</td>
+              <td class="p-3.5 text-emerald-600">顺畅播放</td>
+              <td class="p-3.5 text-blue-600">良好</td>
+              <td class="p-3.5">2023 运营</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded">平价实用 ⭐️⭐️⭐️</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">二猫云 (ErMao Cloud)</td>
+              <td class="p-3.5">BGP 入口中转优化</td>
+              <td class="p-3.5 font-mono">VLESS</td>
+              <td class="p-3.5 font-mono">¥6.60/月</td>
+              <td class="p-3.5 text-amber-600">偶有缓冲</td>
+              <td class="p-3.5 text-slate-600">部分支持</td>
+              <td class="p-3.5">2023 运营</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded">极致平价 ⭐️⭐️⭐️</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">无忧云 (WuYou Cloud)</td>
+              <td class="p-3.5">专线 + 隧道混合调度</td>
+              <td class="p-3.5 font-mono">Trojan / VLESS</td>
+              <td class="p-3.5 font-mono">¥15.00/月</td>
+              <td class="p-3.5 text-emerald-600">顺畅播放</td>
+              <td class="p-3.5 text-blue-600">良好解锁</td>
+              <td class="p-3.5">2022 运营</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded">良好 ⭐️⭐️⭐️</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 表 2：网络传输链路架构深度技术对比表 -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 表 2：四代网络翻墙链路架构底层技术与物理特性深度横评表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          从物理光缆、OSI 网络模型、QoS 丢包率及抗封锁底层机制深度对比
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">链路架构类型</th>
+              <th class="p-3.5">物理拓扑结构</th>
+              <th class="p-3.5">GFW 过境机制</th>
+              <th class="p-3.5">晚高峰丢包率</th>
+              <th class="p-3.5">平均物理延迟</th>
+              <th class="p-3.5">抗封锁生存度</th>
+              <th class="p-3.5">带宽采购成本</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">第一代：公网直连 VPS</td>
+              <td class="p-3.5">本地宽带 ➜ 公网国际海缆 ➜ 海外 VPS</td>
+              <td class="p-3.5 text-rose-600">公网正面迎击 GFW 深度探测</td>
+              <td class="p-3.5 font-mono text-rose-600 font-bold">25% – 50% (严重)</td>
+              <td class="p-3.5 font-mono">180ms – 320ms</td>
+              <td class="p-3.5 text-rose-600 font-bold">&lt; 15% (极易被秒封)</td>
+              <td class="p-3.5 text-emerald-600 font-semibold">极低 ($3-$5/月)</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">第二代：普通公网中转</td>
+              <td class="p-3.5">国内单线中转机 ➜ 公网跨国转发 ➜ 出口</td>
+              <td class="p-3.5 text-amber-600">国内段顺畅，跨境段受公网 GFW 审查</td>
+              <td class="p-3.5 font-mono text-amber-600">10% – 20%</td>
+              <td class="p-3.5 font-mono">80ms – 140ms</td>
+              <td class="p-3.5 text-amber-600">50% – 70%</td>
+              <td class="p-3.5">低中等</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">第三代：BGP 优质隧道</td>
+              <td class="p-3.5">多线 BGP 入口 ➜ 加密隧道转发 ➜ 优质落地</td>
+              <td class="p-3.5 text-blue-600">高级混淆隧道封装穿透</td>
+              <td class="p-3.5 font-mono text-emerald-600">3% – 8%</td>
+              <td class="p-3.5 font-mono">50ms – 85ms</td>
+              <td class="p-3.5 text-blue-600 font-semibold">85% – 95%</td>
+              <td class="p-3.5">中高 (企业级 BGP)</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition bg-blue-50/30">
+              <td class="p-3.5 font-bold text-blue-900">第四代：IEPL/IPLC 物理专线</td>
+              <td class="p-3.5">国内 BGP 入口 ➜ 电信内网光缆 ➜ 海外出口</td>
+              <td class="p-3.5 text-emerald-600 font-bold">内网点对点传输，物理不经 GFW</td>
+              <td class="p-3.5 font-mono text-emerald-600 font-bold">&lt; 0.2% (近乎零丢包)</td>
+              <td class="p-3.5 font-mono text-emerald-600 font-bold">30ms – 50ms</td>
+              <td class="p-3.5 text-emerald-600 font-bold">99.9% (全天候免疫)</td>
+              <td class="p-3.5 text-rose-600 font-semibold">极高 (数万元/Gbps)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 表 3：机场计费模型与选型对照表 -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 表 3：主流机场计费模式与消费陷阱避坑对照表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          科学评估包月制、按量付费与一次性买断的真实综合性价比
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">计费模式</th>
+              <th class="p-3.5">计费逻辑</th>
+              <th class="p-3.5">单价门槛</th>
+              <th class="p-3.5">主要优势</th>
+              <th class="p-3.5">潜在缺陷与陷阱</th>
+              <th class="p-3.5">适合目标人群</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">周期订阅制 (月付/季付)</td>
+              <td class="p-3.5">固定周期重置流量 (如每月 100GB)</td>
+              <td class="p-3.5 font-mono text-emerald-600 font-bold">¥8 – ¥25 / 月</td>
+              <td class="p-3.5 text-emerald-600 font-semibold">资金安全、随时随心换商、节点维护积极</td>
+              <td class="p-3.5 text-slate-500">当月未用完流量月底清零</td>
+              <td class="p-3.5 font-bold text-blue-600">95% 主力用户首选 🏆</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">按量付费 (不限时流量包)</td>
+              <td class="p-3.5">一次性购买固定流量 (如 500GB 永久有效)</td>
+              <td class="p-3.5 font-mono">¥50 – ¥150 / 包</td>
+              <td class="p-3.5 text-blue-600">不过期、无月租焦虑、极为适合备用</td>
+              <td class="p-3.5 text-amber-600">单 GB 流量成本比月付高出 2-3 倍</td>
+              <td class="p-3.5">轻度查文献、海外差旅备用</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-slate-900">超长期一次性买断 (年付/终身)</td>
+              <td class="p-3.5">收取 1-3 年大额款项或号称终生使用</td>
+              <td class="p-3.5 font-mono text-rose-600">¥100 – ¥500+ (大额)</td>
+              <td class="p-3.5 text-slate-400">单月均摊看起来极度廉价</td>
+              <td class="p-3.5 text-rose-600 font-bold">高危跑路陷阱！资金链断裂随时跑路</td>
+              <td class="p-3.5 text-rose-600 font-semibold">坚决不推荐 ❌</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 表 4：常见故障排查决策矩阵 -->
+    <div class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          📊 表 4：机场使用全链路高频连接故障与订阅报错自救决策矩阵
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          覆盖客户端订阅更新、节点超时、握手死锁等高频报错的一键排查路线
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-2xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-700 min-w-[760px]">
+          <thead class="bg-slate-50 text-slate-900 font-semibold border-b border-slate-200 text-xs">
+            <tr>
+              <th class="p-3.5">故障症状 / 错误码</th>
+              <th class="p-3.5">根本技术成因</th>
+              <th class="p-3.5">涉及模块</th>
+              <th class="p-3.5">标准排查修复步骤</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-rose-600">订阅更新提示 403 Forbidden</td>
+              <td class="p-3.5">机场防刷 WAF 拦截了客户端 User-Agent 或 IP 请求过频</td>
+              <td class="p-3.5">订阅管理 / WAF 网关</td>
+              <td class="p-3.5">在客户端中将 User-Agent 伪装为 Clash.Meta 或使用手机热点直连重试。</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-rose-600">节点批量超时 (Timeout / -1ms)</td>
+              <td class="p-3.5">国内中转入口被封、本地系统时间未同步、或防火墙阻止虚拟网卡</td>
+              <td class="p-3.5">时间服务 / 入口网络</td>
+              <td class="p-3.5">首先校准本地系统时钟（误差必须 &lt; 30秒）；若全红则在官网重新获取最新订阅。</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-amber-600">能上 Google 但看不了 YouTube 视频</td>
+              <td class="p-3.5">节点 UDP 协议被本地运营商 QoS 丢包，或浏览器 QUIC 协议冲突</td>
+              <td class="p-3.5">QUIC 协议 / 运营商 QoS</td>
+              <td class="p-3.5">在 Chrome 浏览器中访问 chrome://flags 并禁用 Experimental QUIC protocol。</td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition">
+              <td class="p-3.5 font-bold text-amber-600">微信国内软件加载极慢或频繁掉线</td>
+              <td class="p-3.5">客户端误开全局代理（Global），导致国内数据绕行海外</td>
+              <td class="p-3.5">分流路由模式</td>
+              <td class="p-3.5">将客户端路由模式由 Global 切换为 Rule（规则模式），开启 CN 域名与直连列表。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 深度技术正文章节 (9 大章节) -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        一、专线网络底层工程原理：为什么 IEPL/IPLC 能够从物理层面免除 GFW 封锁？
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        在科学上网领域，“专线（IEPL / IPLC）”被公认为稳定性的天花板。许多用户虽然知道专线好用，但并不理解其背后的物理通信机制：
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        <strong>IPLC（International Private Leased Circuit，国际私有租用线路）</strong>与 <strong>IEPL（International Ethernet Private Line，国际以太网私网专线）</strong> 本质上是跨国电信运营商（如中国电信、中国联通、PCCW、HKT）向跨国跨国企业提供的二层/三层点对点封闭式内网光纤：
+      </p>
+      <ul class="text-sm sm:text-base text-slate-700 space-y-2">
+        <li>
+          <strong>物理路径完全隔离：</strong> 普通的公网直连（哪怕套用了各种混淆协议），数据包在离开中国国境时，都必须经过中国电信/联通/移动的“国际互联网出入口局（骨干网 Gateway）”。在这些出入口物理网关上，挂载着国家级的大规模深度包检测（DPI）集群设备；而 IEPL 专线在境内入口（例如深圳前海、广州机房）直接接入运营商的内网传输光缆，跨过边境直接通达香港机房，物理上根本不经过公网国际海缆出口，因而 GFW 审查设备根本无法触达这条私有链路！
+        </li>
+        <li>
+          <strong>独享带宽与零公网拥堵：</strong> 公网海缆在晚高峰（20:00-23:00）承载着全网数以亿计的并发请求，运营商为了保障核心商业业务，会对非关键公网连接实施高达 30%-50% 的剧烈 QoS 随机丢包；而企业级专线是花巨资买断的固定带宽，物理光缆始终独享，丢包率常年稳定在 0.1% 以下，全天候抖动小于 2ms。
+        </li>
+      </ul>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        二、全网 32 家机场分层格局与选型红黑榜深度审计
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        当前中文互联网上的机场品牌超过千家，但根据核心技术实力与资本背景，主要呈现三大清晰梯队：
+      </p>
+      <ul class="text-sm sm:text-base text-slate-700 space-y-2">
+        <li>
+          <strong>第一梯队：老牌企业级专线（以光速云为代表）：</strong> 自建或深度租用多地 BGP 入口与千兆 IEPL 物理专线，具备 5 年以上长期稳定运营历史，拥有专业的 7x24 小时网络运维团队与原生流媒体解锁技术，是极客与跨境企业的首选。
+        </li>
+        <li>
+          <strong>第二梯队：高性价比隧道中转（以暮光加速、飞猫云、微风云为代表）：</strong> 采用多线国内 BGP 入口中转，经过高级隧道混淆过境，价格亲民（普遍在 ¥7-¥12/月），兼顾了优秀的速度与极高的性价比，适合广大学生与大众用户。
+        </li>
+        <li>
+          <strong>第三梯队：直连低价小作坊（高危避坑）：</strong> 几名兼职学生租用几台便宜的境外公网 VPS，套用一键脚本搭建。这类作坊没有任何物理专线支持，遇到网络封锁就会批量暴毙，且普遍通过超售与“终身买断”敛财，平均寿命不足 3-6 个月。
+        </li>
+      </ul>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        三、晚高峰骨干网 QoS 压制机制与真实延迟测算
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        很多用户常常疑惑：“为什么下午测速能跑满 500M，一到晚上 8 点连 1080P 都卡成 PPT？”
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        这背后的根源是<strong>电信骨干网的 QoS（Quality of Service，服务质量）限速等级调度策略</strong>。在国际公网出口，流量优先级由高到低依次为：政府政务与金融专网（最高） ➜ 企业 CN2 GIA / 9929 商业带宽 ➜ 普通 163 骨干网家庭宽带（最低）。当晚高峰公网海缆带宽爆满时，电信运营商的队列调度器会强制对普通公网数据包实施“尾部丢弃（Tail Drop）”，导致丢包率飙升、TCP 拥塞窗口收缩，网速断崖式暴跌。而专线机场因为数据走独立内网光缆，完全脱离了公网 QoS 压制队列，因而在晚高峰依然能够实现满速 4K 秒开。
+      </p>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        四、流媒体与人工智能（Netflix / ChatGPT）落地 IP 解锁工程解密
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        很多人误以为只要能翻墙就能看 Netflix 和用 ChatGPT。事实上，翻墙与内容解锁是两个完全不同的技术维度：
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        OpenAI、Netflix、Disney+、BBC iPlayer 维护着极其严苛的 IP 风险库。如果机场的出口服务器直接向它们请求数据，机房 IP 会被瞬间拉黑。顶级的专线机场采用了<strong>“DNS 劫持流媒体分流网关（Smart DNS Proxy）”</strong>技术：专线出口服务器在拦截到针对 <code>openai.com</code> 或 <code>netflix.com</code> 的 DNS 请求时，并不直接通过机房 IP 访问，而是将请求重定向至专门采购的<strong>境外原生家庭宽带住宅 IP（Residential ISP）</strong>进行反向中继，从而神不知鬼不觉地绕过了平台的机房风控检测。
+      </p>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        五、机场常见三大隐蔽消费陷阱与黑话拆解
+      </h2>
+      <ol class="text-sm sm:text-base text-slate-700 space-y-2">
+        <li>
+          <strong>隐形高倍率偷跑流量：</strong> 部分不良机场宣传“10元 1000G”，看似极其划算，但在节点列表中大量混杂了 3.0x、5.0x 甚至 10.0x 的高倍率节点。用户一旦连上 5x 节点，下载 10GB 实际扣除 50GB，1000GB 几天就见底。
+        </li>
+        <li>
+          <strong>超售比溢出导致大塞车：</strong> 机场行业普遍存在超售现象（1Gbps 的物理带宽卖给 1000 名用户）。良心机场会将超售比控制在 1:5 到 1:10 之间；而黑心低价机场超售比高达 1:100，晚高峰千人争抢几十兆带宽，导致全员断网。
+        </li>
+        <li>
+          <strong>终身买断跑路套路：</strong> 推出“99元永久买断不限时”套餐。由于服务器和专线是按月支付真金白银的，这种商业模式在数学上无法持续，本质上是跑路前最后一轮收割韭菜的诈骗行为。
+        </li>
+      </ol>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        六、防跑路核心资产防护法则：“坚守月付”与“跨厂商双机场协同”
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        无论一家机场当前表现多么惊艳，在面对突发不可抗力时都有波动的概率。最成熟的避坑策略是：
+      </p>
+      <ul class="text-sm sm:text-base text-slate-700 space-y-2">
+        <li><strong>永远坚持按月或按季支付：</strong> 绝不贪图年付微小的折扣，将资金风险死死锁在几十元以内。</li>
+        <li><strong>构建“一大一小”跨服务商双机场主备架构：</strong> 主力选用高品质企业专线（如光速云），保障日常 95% 高频 4K、AI 与办公需求；备用挑选一家按量付费不限时的小众备用机场。在 Clash Verge Rev 中同时导入两个订阅，通过故障转移（Fallback）自动切换，彻底杜绝单点瘫痪。</li>
+      </ul>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        七、机场行业专业术语权威中英文速查词典
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6 not-prose">
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="font-bold text-slate-900 text-sm mb-1">1. BGP（边界网关协议）</div>
+          <p class="text-xs text-slate-600 leading-relaxed">国内多线接入技术，能自动根据访问用户的运营商（电信/联通/移动）匹配最优入口机房，降低国内首跳延迟。</p>
+        </div>
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="font-bold text-slate-900 text-sm mb-1">2. IEPL / IPLC（专线）</div>
+          <p class="text-xs text-slate-600 leading-relaxed">国际点对点内网以太网私网专线，跨境数据直接走企业局域网穿透，不经公网 GFW，零公网拥堵。</p>
+        </div>
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="font-bold text-slate-900 text-sm mb-1">3. VLESS-Reality</div>
+          <p class="text-xs text-slate-600 leading-relaxed">新一代现代混淆协议，直接借用境外真实大型商业网站的合法 TLS 证书，彻底消除特定握手特征。</p>
+        </div>
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="font-bold text-slate-900 text-sm mb-1">4. Full Cone NAT（全锥型 NAT）</div>
+          <p class="text-xs text-slate-600 leading-relaxed">网络地址转换最开放的模式（NAT Type A），支持外部主机直接回包，是联机竞技游戏低延迟不掉线的关键。</p>
+        </div>
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="font-bold text-slate-900 text-sm mb-1">5. 节点倍率（Multiplier）</div>
+          <p class="text-xs text-slate-600 leading-relaxed">机场扣费系数。1.0x 为标准计费，0.2x 为省流打折节点，3.0x/5.0x 为扣除数倍流量的高成本专线节点。</p>
+        </div>
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="font-bold text-slate-900 text-sm mb-1">6. 原生住宅 IP（Residential IP）</div>
+          <p class="text-xs text-slate-600 leading-relaxed">海外电信运营商分配给家庭宽带的公网 IP，在各大流媒体平台和电商风控系统中具备最高信誉度，绝不触发封锁。</p>
+        </div>
+      </div>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        八、跨平台客户端一键订阅与高级分流实操 SOP
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        无论在哪个操作系统，规范的导入与配置流程均遵循标准化 4 步法：
+      </p>
+      <ol class="text-sm sm:text-base text-slate-700 space-y-2">
+        <li><strong>获取原生订阅链接：</strong> 在机场用户后台复制 Clash 或通用订阅链接，切勿使用不可信的公开在线订阅转换平台。</li>
+        <li><strong>导入现代开源客户端：</strong> Windows/macOS 推荐导入 Clash Verge Rev，安卓推荐 Clash Meta for Android，iOS 推荐 Shadowrocket（小火箭）。</li>
+        <li><strong>配置路由分流模式为 Rule：</strong> 确保系统开启“规则模式（Rule）”，自动对国内主流网站实行直连，对海外被封锁资源走节点代理。</li>
+        <li><strong>开启 TUN 虚拟网卡模式：</strong> 在客户端设置中激活 TUN 模式并选择 Wintun 驱动引擎，接管整机所有网络流量，解决命令行终端与部分游戏不走系统代理的问题。</li>
+      </ol>
+
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200 mt-10">
+        九、企业级出海网络部署与团队多账号协同最佳实践
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        对于拥有多名外贸业务员、海外社媒运营人员的企业团队，切勿让全员使用同一个个人机场账号！
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        多设备在同一时间从不同地理位置登录同一机场账号，容易触发机场后端的<strong>“多 IP 异常并发防盗刷风控”</strong>，导致账号被临时锁死。正规企业级部署方案应向品牌商务采购专属的“企业定制专线方案”或分配独立子账号；并在局域网出口部署硬件软路由，通过透明代理集中分流加速，既能实现统一审计监控，又能极大提升全员跨国办公效率。
+      </p>
+    </div>
+
+    <!-- 第十章：32 家品牌全景画像档案 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        十、全网 32 家主流机场品牌全景深度画像与实测档案库
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        为了让广大用户在选购时拥有全面客观的数据参照，本站根据长期监控测速数据、用户真实反馈与机房工单记录，将行业 32 家具有代表性的品牌画像整理归纳如下：
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6 not-prose">
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">1. 光速云 (GuangSu Cloud)</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800">站长首推 🏆</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>2020 年上线，5年+老牌专线标杆。拥有真正的企业级 IEPL/IPLC 物理光缆专线，不经过公网 GFW，晚高峰油管 4K 秒开，流媒体与 ChatGPT 原生解锁极佳。轻量入门起步仅 ¥8.25/月，性价比与稳定性综合实力全网第一梯队。
+          </p>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">2. 暮光加速 (MuGuang)</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">多端协同 ⚡</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>2023 年运营，采用全国多地 BGP 优质入口调度，支持智能链路热备切换。提供完善的多端生态支持与专属多协议接入，适合家庭多设备共享与跨平台进阶用户，起步 ¥9.08/月。
+          </p>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">3. 飞猫云 (FlyCat Cloud)</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800">新手无忧 💰</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>主打极高性价比与新手免配置体验。提供专属客户端，一键登录无需复杂导入；采用优质隧道中转，起步低至 ¥7/月，学生党与预算有限人群的理想入门方案。
+          </p>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">4. 微风云 (Weifeng)</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-800">中转优化 🛡️</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>2023 年运营，主打国内 BGP 优化中转线路。支持 Shadowsocks 与 Trojan 协议，节点覆盖香港、日本、新加坡主流机房，月付 ¥9.90 起，日常刷推、查资料表现稳定。
+          </p>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">5. 大佬云 (DaLaoYun)</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-800">高品质隧道</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>2022 年运营，注重带宽充沛度与峰值跑分。采用高品质隧道转发，晚高峰千兆大带宽吞吐表现较好，适合经常下载大体积跨国资源的高阶玩家。
+          </p>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">6. 星岛梦 (XingDaoMeng)</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-800">跨境隧道</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>2023 年运营，专注跨境网络优化。线路包含多条优质 Trojan 隧道，起步价 ¥8.80/月，流媒体解锁支持相对均衡，属于实用型平价梯队。
+          </p>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">7. 二猫云 (ErMao Cloud)</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-800">极致平价</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>主打超低单价入门市场，月付仅需 ¥6.60 起。节点以常规中转为主，适合对网络延迟和流媒体画质要求不高、仅需偶尔查阅文字网页的轻度用户。
+          </p>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">8. 无忧云 (WuYou Cloud)</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-800">专线混合</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>采用专线与高防中转混合调度，套餐流量充沛，提供全套标准订阅格式，月付 ¥15 起，在长视频播放和境外网课学习场景下表现平稳。
+          </p>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">9. 萤火虫 Firefly</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-800">历史沉淀</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>在圈内具有一定知名度的老品牌，合并历史冗余架构后目前专注于抗封锁混淆节点维护，晚高峰网络抗抖动能力良好。
+          </p>
+        </div>
+
+        <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-bold text-slate-900 text-sm">10. 极联云、微图、U1S1 等</span>
+            <span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-800">多元特色</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>核心特征：</strong>分别在按量付费不限时、小众冷门国家节点（如阿根廷、土耳其低价区流媒体解锁）、或特定企业定制路线上具备差异化特色，用户可根据自身小众需求补充选购。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第十一章：网络测速工程学与科学跑分方法论 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        十一、网络测速工程学：为什么 Speedtest 跑满 500M 看视频依然卡顿？
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        很多用户常常向工程师抱怨：“我在 Speedtest 上测速明明能跑到 500 Mbps，为什么一打开 YouTube 4K 视频就转圈缓冲，甚至连 1080P 都无法流畅播放？”
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        这揭示了网络工程学中<strong>“基准测速跑分”与“真实应用吞吐”之间的巨大鸿沟</strong>：
+      </p>
+      <ul class="text-sm sm:text-base text-slate-700 space-y-2">
+        <li>
+          <strong>Speedtest 的多线程欺骗性：</strong> Speedtest 默认采用数十条高并发并发 TCP 连接同时向离测速节点最近的机房拉取数据，并且许多运营商为 Speedtest 流量单独开设了白名单 QoS 加速通道。然而，真实的 YouTube、Netflix 播放通常依赖单一长连接（Single-Thread Stream），对网络单线程持续吞吐以及丢包重传极为敏感。
+        </li>
+        <li>
+          <strong>公网抖动与缓冲区（Buffer Health）崩溃：</strong> 当线路存在 5% 的偶发丢包时，多线程跑分软件由于连接众多可以勉强掩盖丢包；但单一视频流在遭遇连续丢包时，TCP 拥塞控制算法（如 Cubic）会瞬间将发送窗口腰斩，导致播放器缓冲区从 30 秒骤降至 0 秒，引发画面直接停顿转圈。
+        </li>
+      </ul>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        <strong>科学验证机场真实速度的标准测试 SOP：</strong><br />
+        1. 在 YouTube 任意 4K 60fps 视频播放窗口右键，打开<strong>“详细统计信息（Stats for nerds）”</strong>；<br />
+        2. 重点观察 <strong>Connection Speed（连接速度）</strong> 是否全天候稳定在 <strong>80,000 Kbps（80 Mbps）以上</strong>；<br />
+        3. 观察 <strong>Buffer Health（缓冲区健康度）</strong> 是否能迅速堆叠并稳定在 <strong>20秒至30秒以上</strong>。只要缓冲区稳定，哪怕遇到偶尔的网络抖动，播放画面也绝对不会出现哪怕一毫秒的卡顿。真正的企业级 IEPL 专线（如光速云）在晚高峰此项指标表现堪称完美。
+      </p>
+    </div>
+
+    <!-- 第十二章：高校校园网、移动 5G 与跨运营商互联穿透调优 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        十二、高校校园网、移动 5G 与跨运营商穿透调优指南
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        在中国复杂的电信运营环境下，不同网络运营商对跨境流量的管控与路由策略存在天壤之别：
+      </p>
+      <ul class="text-sm sm:text-base text-slate-700 space-y-3">
+        <li>
+          <strong>中国移动（CMCC）大内网与 UDP 阻断突围：</strong> 中国移动被业内戏称为“墙中墙”。在全国多个省份，移动宽带不仅公网出口 IP 属于多层 NAT 转换大内网，而且对海外 UDP 流量实施无差别丢包，导致 WireGuard 和 Hysteria 协议大面积瘫痪。<strong>调优方案：</strong> 在移动网络下，优先选择基于标准 TCP 443 端口的 VLESS-Reality 节点，并确认机场入口是否具备“移动直连 BGP 节点”，借由国内优质 BGP 绕过移动骨干网的国际出口限制。
+        </li>
+        <li>
+          <strong>高校教育网（CERNET）带宽限速与 IPv6 绕行：</strong> 大部分高校校园网对单用户的国际公网出口实行严格的 20–50 Mbps 限速政策。<strong>调优方案：</strong> 现代教育网普遍具备原生无限制的 IPv6 千兆带宽。如果所选机场支持 IPv6 入口解析，在客户端中开启 IPv6 优先解析，即可利用免费充沛的校园 IPv6 管道实现千兆跑满。
+        </li>
+        <li>
+          <strong>中国电信 163 骨干网晚高峰拥堵规避：</strong> 电信用户基数庞大，其传统 163 骨干网在晚高峰跨洋公网海缆几乎必塞。如果使用普通公网机场，即使本地千兆光纤也无济于事。电信用户唯一能够保证晚高峰不卡的方案就是<strong>坚决上 IEPL 内网专线</strong>，将数据流量在电信国内城域网直接导入专线机房，彻底与拥挤的公网海缆脱钩。
+        </li>
+      </ul>
+    </div>
+    <!-- 第十三章：流媒体与 AI 账号防风控实操 SOP -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        十三、流媒体与 AI 工具账号注册及地理定位防风控 SOP 实战
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        许多用户购买了优质机场节点后，在尝试注册或使用 ChatGPT Plus、Claude Pro、Netflix 会员或 Spotify 跨区账号时，依然频繁遭遇“无法完成付款”、“系统检测到非正常流量”或直接封禁账号。
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        这并非节点网络不通，而是用户的<strong>客户端本地浏览器指纹与地理上下文发生了严重逻辑撕裂</strong>。海外顶级科技平台的风控引擎（如 Stripe 支付风控、Cloudflare Turnstile 挑战）会综合比对以下 4 项核心指标：
+      </p>
+      <ol class="text-sm sm:text-base text-slate-700 space-y-3">
+        <li>
+          <strong>时区（Timezone）与系统语言必须与节点物理国家严格一致：</strong> 例如连上了光速云的美国专线节点，但电脑系统时区依然是 UTC+8（北京时间），浏览器语言首选项是 zh-CN（简体中文）。风控算法在执行 JavaScript 脚本时会瞬间发现：一个来自美国洛杉矶家庭宽带的访问请求，其本地系统时区居然是在东八区且仅支持中文！这种明显的“跨洋地理撕裂”会被立即判定为高风险代理访问。<strong>实操方案：</strong> 在注册极度敏感的服务前，使用无痕浏览器窗口，并在系统设置中临时将时区调整为目标节点当地时区（如美西 America/Los_Angeles）。
+        </li>
+        <li>
+          <strong>杜绝 WebRTC 本地真实局域网与公网 IP 泄漏：</strong> Chrome 和 Edge 浏览器自带的 WebRTC 音视频传输协议具有最高优先级的穿透权限。即使你开启了全局代理，目标网站依然可以通过 STUN 服务器诱使浏览器暴露本地中国运营商分配的真实公网 IP。<strong>实操方案：</strong> 在浏览器中安装“WebRTC Control”扩展插件将 WebRTC 完全禁用，或者直接在指纹浏览器（AdsPower）中开启 WebRTC 彻底替换。
+        </li>
+        <li>
+          <strong>保持节点出口 IP 的高度连续性与稳定性：</strong> 切忌在短短 10 分钟内先使用香港节点登录 ChatGPT，随后又切换至新加坡节点提问，接着又切至美国节点点击支付！跨国 IP 的光速瞬移是触发 OpenAI 账户保护机制（Account Suspension）的最直接元凶。绑定支付卡与日常使用时，务必在 Clash 中选定一条固定专线节点，保持 IP 地址的长周期稳定。
+        </li>
+      </ol>
+    </div>
+
+    <!-- 第十四章：软路由与透明代理全屋翻墙家庭组网实操方案 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        十四、软路由与透明代理全屋跨国网络架构与避坑调优
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        对于拥有 Apple TV 4K、索尼智能电视、PlayStation 5、任天堂 Switch、以及全屋智能家居的大平层或极客家庭而言，在每一台手机、电脑上单独安装客户端既繁琐又无法覆盖电视和游戏机。通过软路由搭建<strong>“全屋无感透明代理”</strong>是家庭跨国网络的终极体验。
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        <strong>主流组网拓扑设计与硬件选型：</strong>
+      </p>
+      <ul class="text-sm sm:text-base text-slate-700 space-y-3">
+        <li>
+          <strong>经典旁路由（旁路网关）拓扑（最推荐、风险最小）：</strong> 保留原有的主路由器（如华硕、小米路由器）负责 PPPoE 拨号与 DHCP 地址分配，全屋主干网络不受任何影响。额外添置一台低功耗工控机或迷你主机（如 N100 / J4125 平台），刷入 OpenWrt 或 iStoreOS 系统作为旁路由。仅将需要翻墙的设备（如电视盒子、极客 PC、手机）的默认网关和 DNS 指向旁路由 IP。即使旁路由发生死机或重启，客厅父母的电视与智能家居完全不掉线，实现最大程度的容灾隔离。
+        </li>
+        <li>
+          <strong>OpenClash / PassWall 核心配置与防 DNS 回环死锁：</strong> 在软路由配置中最致命的陷阱是“DNS 环路死锁”。许多新手在 OpenWrt 中开启了本地 DNS 转发，同时又在 OpenClash 中开启了本地监听，导致两套 DNS 互相转发查询形成无限死循环，引发全屋设备瞬间无法上网。<strong>标准配置准则：</strong> 禁用 OpenWrt 自带的广告拦截插件，将系统 Dnsmasq 的上游 DNS 严格指定为 <code>127.0.0.1:7874</code>（由 OpenClash 纯净接管）；并在规则中开启“Fake-IP 模式”，实现零延迟 DNS 秒解析响应。
+        </li>
+        <li>
+          <strong>智能家居设备（米家/HomeKit）分流排除策略：</strong> 智能门锁、扫地机器人、智能开关等 IoT 设备频繁与国内云端服务器保持长连接握手。如果这些流量被软路由误分流至海外专线，会导致米家 App 远程响应极其迟缓甚至离线。必须在 OpenClash 的“黑白名单 / 绕过 MAC 地址”设置中，将全屋所有智能家居设备的局域网 MAC 地址添加进“直连绕过名单”，确保国内家居流量 100% 走本地光纤直通。
+        </li>
+      </ul>
+    </div>
+    <!-- 第十五章：跨国网络安全攻防与个人隐私防护 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        十五、跨国网络安全攻防：机场运维能在后台看到你的什么数据？
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        很多用户在使用机场节点时存在深深的顾虑：“我把所有上网流量都交给了机场服务器，机场老板或运维人员在后台能偷看我的微信聊天记录、网银密码和私人照片吗？”
+      </p>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        从现代密码学与 OSI 网络通信模型的视角审视，真实的数据可见性边界如下：
+      </p>
+      <ul class="text-sm sm:text-base text-slate-700 space-y-3">
+        <li>
+          <strong>机场运维在后台确实能够看到的数据（元数据层级）：</strong><br />
+          • 你的本地真实公网 IP 地址（例如你来自广东电信还是北京联通）；<br />
+          • 你的连接时间戳、在线时长与双向传输数据流量统计（用于账户扣费计费）；<br />
+          • 你所访问的目标服务器 IP 地址与域名列表（例如知道你在某个时刻访问了 <code>youtube.com</code>、<code>x.com</code> 或 <code>github.com</code>）。
+        </li>
+        <li>
+          <strong>机场运维在技术上绝对无法看到的数据（应用层载荷）：</strong><br />
+          • 现今全网 99.9% 的正规商业网站（包括 Google、YouTube、Twitter、各大银行、电商平台）全量强制采用了 <strong>端到端 TLS 1.3 / HTTPS 加密</strong>。你的浏览器与目标网站服务器之间在握手时就已经通过非对称公私钥协商出了一次性会话密钥；<br />
+          • 机场节点仅仅扮演了“加密数据包搬运工”的角色。在节点服务器的内存和网卡中流过的全部是密文，机场运营者<strong>绝对不可能窃听你的账号明文密码、信用卡卡号、银行支付密码、或者网页内部具体聊天文字</strong>。在数学层面上，破解 TLS 1.3 加密密文所需的算力超出人类现有全部超级计算机的算力总和。
+        </li>
+      </ul>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        <strong>使用第三方机场时的最高安全红线准则：</strong><br />
+        <strong>1. 严禁信任任何第三方根证书（Root CA）：</strong> 如果某款翻墙软件或机场要求你在手机或电脑上“安装并信任自定义根证书”，请立即卸载！一旦你在本地系统信任了对方的自签名根证书，对方即可在节点端实施合法的“中间人解密（MITM）”，将你的所有 HTTPS 密文全部还原为明文！正规合规的客户端（如 Clash Verge Rev、v2rayN）绝对不需要安装任何自定义根证书。<br />
+        <strong>2. 访问非 HTTPS 明文网站保持高度警惕：</strong> 如果浏览器地址栏提示“不安全（Not Secure）”，说明该网站采用的是早已被淘汰的明文 HTTP 协议。在此类网页中切勿输入任何敏感密码，以防被不可信节点抓包留存。
+      </p>
+    </div>
+    <!-- 第十六章：异常流量激增排查与长效运维备忘录 -->
+    <div class="prose prose-slate max-w-none mb-12">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 pb-3 border-b border-slate-200">
+        十六、异常流量激增排查与长效网络运维备忘录
+      </h2>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        很多用户在使用机场过程中，有时会突然发现“刚充值的 100GB 流量才用了三天就耗尽了，但我明明没怎么看视频”。这种异常流量偷跑通常是本地操作系统或后台软件引发的，标准排查路线如下：
+      </p>
+      <ul class="text-sm sm:text-base text-slate-700 space-y-3">
+        <li>
+          <strong>Windows Update 系统补丁后台静默下载：</strong> 微软 Windows 11/10 会在后台自动检测并下载大体积累积更新补丁（通常单个补丁体积在 3GB–8GB 之间）。如果在客户端中开启了全局代理或没有将微软更新域名（<code>*.windowsupdate.com</code>）加入直连白名单，系统更新会疯狂消耗宝贵的专线流量。<strong>排查对策：</strong> 在 Clash 分流规则中确保包含 Microsoft 国内直连规则集，或在 Windows 设置中将代理网络设为“按流量计费的连接”。
+        </li>
+        <li>
+          <strong>Steam / Epic 游戏客户端后台自动更新：</strong> 现代大型 3A 游戏（如《赛博朋克 2077》、《使命召唤》、《黑神话：悟空》）的单个版本补丁动辄数十 GB。如果客户端开启了 TUN 虚拟网卡全局接管，Steam 会默认通过代理节点满速下载更新，导致几百 GB 流量在短短一两个小时内瞬间清空！<strong>排查对策：</strong> 在 Steam 设置的“下载”选项中，将下载地区显式锁定为“China - Shanghai”或国内节点，并在代理软件中将常用游戏下载 CDN 设为 Direct 直连。
+        </li>
+        <li>
+          <strong>OneDrive / 百度网盘 / 坚果云等云盘同步回环：</strong> 部分云端同步盘在上传大体积文件时如果走代理通道，不仅速度慢而且重复计费。务必在客户端中配置进程规则分流，将云盘类客户端的进程名列入排除列表。
+        </li>
+      </ul>
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        <strong>总结与长效建议：</strong> 科学上网与跨境加速工具是现代数字化工作者的基础生产力杠杆。在选购时摆脱“低价贪大”的心理诱惑，认清真实物理线路成本，坚守“首选中短期月付、主力专线加轻量备用”的稳健策略，便能在风云变幻的互联网环境中保持长久、稳定、高效的全球化视野与数字自由。
+      </p>
+
+      <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+        <strong>官网被墙后的最新地址寻回方案：</strong><br />
+        由于政策与审查变动，各大机场的官网首页域名往往会在数月内遭遇一次 DNS 污染或阻断。正规品牌均会维护永久不会失效的官方交流与发布渠道：<br />
+        1. 收藏机场官方的 Telegram 关注频道与官方通知群；<br />
+        2. 发送任意空邮件至机场官方的自动回信客服邮箱（如 <code>get@...</code>），系统会自动在 10 秒内回复最新的免翻墙登录镜像地址；<br />
+        3. 保存本站导航门户，本站将持续同步更新各大主流品牌的官方最新有效导航与折扣代码。
+      </p>
+    </div>
+    <!-- 商业转化模块：光速云推荐 -->
+    {guangsuBrand && (
+      <div class="my-12 p-6 sm:p-8 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl text-white shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+              <span>🚀 站长日常主力首选 · 2026 全场景专线标杆</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              受够了断流、卡顿与频繁跑路？全面升级至企业级 IEPL 专线机场
+            </h3>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              光速云 (GuangSu Cloud) 采用物理 IEPL/IPLC 企业内网专线过境，数据穿透内网不过公网 GFW，晚高峰 YouTube 4K 秒开，ChatGPT / Claude 极速秒回。
+            </p>
+            <div class="flex flex-wrap gap-2 pt-1 text-xs text-slate-300">
+              <span class="bg-white/10 px-2.5 py-1 rounded">起步 ¥8.25/月</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">企业级内网专线</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">VLESS / Trojan 协议</span>
+              <span class="bg-white/10 px-2.5 py-1 rounded">原生流媒体解锁</span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+            <a
+              href={guangsuBrand.affiliateUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-bold text-sm shadow-lg shadow-blue-500/30 transition text-center"
+            >
+              前往光速云官网选购 ➜
+            </a>
+            <div class="text-center lg:text-right text-xs text-slate-400">
+              结账输入优惠码 <span class="text-amber-300 font-mono font-bold">AMM</span> 享专属折扣
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-white/10">
+          <AffiliateNotice />
+        </div>
+      </div>
+    )}
+
+    <!-- FAQ 手风琴模块 -->
+    <div class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          ❓ 常见问题解答 (FAQ) — 机场选购、测速与避坑核心疑难解答
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          整理自全网数千名翻墙用户的真实技术痛点与工单反馈
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        {faqs.map((f, idx) => (
+          <details class="group bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs transition">
+            <summary class="flex items-center justify-between p-4 sm:p-5 text-sm sm:text-base font-bold text-slate-900 cursor-pointer hover:bg-slate-50/80 transition select-none">
+              <span class="flex items-center gap-2">
+                <span class="text-blue-600 text-xs font-mono">Q{idx + 1}</span>
+                <span>{f.question}</span>
+              </span>
+              <span class="text-slate-400 group-open:rotate-180 transition-transform duration-200">
+                ▾
+              </span>
+            </summary>
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/40">
+              {f.answer}
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <!-- 关联核心长文模块 -->
+    {relatedArticles.length > 0 && (
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            📖 推荐阅读：机场深度横评与专线技术原创长文
+          </h2>
+          <a href="/articles/" class="text-xs sm:text-sm font-semibold text-blue-600 hover:underline">
+            查看全部原创长文 ➜
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              url={`/articles/${article.id}/`}
+              cover={article.data.cover}
+              category={article.data.category}
+              pubDate={article.data.pubDate}
+              readingTime={article.data.readingTime}
+              author={article.data.author}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- 底部回到全站与集群导航 -->
+    <div class="border-t border-slate-200 pt-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>本页属于：</span>
+        <a href="/airport/" class="text-blue-600 hover:underline font-semibold">机场推荐专栏门户</a>
+        <span> · 涵盖 7 个垂直细分领域</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/clash/" class="hover:text-blue-600 transition">切换专栏：Clash 客户端指南 ➜</a>
+        <a href="/vpn/" class="hover:text-blue-600 transition">切换专栏：VPN 与网络加速器 ➜</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

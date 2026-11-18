@@ -1,0 +1,35 @@
+URL,主关键词,次级关键词1,次级关键词2,搜索意图,用户决策阶段,所属主题集群,上游入口,下游转化
+/airport/,机场推荐,2026机场推荐,稳定梯子,商业/信息搜索,了解与筛选,机场推荐总汇,首页,/airport/recommend/
+/airport/recommend/,2026机场推荐,最佳机场推荐,翻墙机场,商业搜索,对比决策,年度综合首选,/airport/,/brands/guangsu/
+/airport/rankings/,机场排行,机场天梯榜,测速排行,商业搜索,横向对比,晚高峰性能天梯,/airport/,/brands/
+/airport/value/,性价比机场,高性价比机场,便宜专线机场,交易搜索,预算筛选,月均10元档品质,/airport/,/brands/guangsu/
+/airport/stable/,稳定机场,防封锁机场,IPLC专线,信息/交易,求稳选购,物理专线深度,/airport/,/brands/shanyue/
+/airport/cheap/,便宜机场,5元机场,学生机场,交易搜索,低价选购,5.6元极限平价,/airport/,/brands/dalaoyun/
+/airport/free-ladder/,免费梯子,免费翻墙,免费科学上网,信息搜索,安全认知,免费翻墙风险,/airport/,/airport/cheap/
+/airport/guide/,科学上网,翻墙教程,翻墙原理,信息/导航,新手入门,翻墙认知扫盲,/airport/,/clash/verge/
+/vpn/,VPN推荐,海外VPN,网络加速器,信息/商业,品类认知,VPN总汇,首页,/vpn/recommend/
+/vpn/recommend/,2026VPN推荐,国外VPN,电脑VPN,商业搜索,横向对比,海外商业VPN,/vpn/,/vpn/comparison/
+/vpn/free/,免费VPN,永久免费VPN,免费翻墙App,信息/警示,风险排查,免费VPN漏洞,/vpn/,/vpn/recommend/
+/vpn/mobile/,手机VPN,苹果手机VPN,安卓VPN,交易/信息,设备落地,移动端配置,/vpn/,/clash/recommend/
+/vpn/reviews/,VPN软件评测,WireGuard性能,OpenVPN对比,技术调研,协议评估,底层协议基准,/vpn/,/clash/meta/
+/vpn/accelerator/,VPN加速器,游戏加速器,跨境电商加速,交易搜索,垂直场景,游戏/电商出海,/vpn/,/brands/wuyou/
+/vpn/comparison/,机场和VPN区别,加速器对比,梯子和VPN,信息/对比,决策判断,全景对决,/vpn/,/airport/recommend/
+/vpn/best/,好用的VPN,国内好用VPN,不被墙VPN,交易搜索,求稳选购,直连可用梯子,/vpn/,/brands/guangsu/
+/clash/,Clash客户端,Clash教程,Mihomo,导航/信息,软件选型,客户端总汇,首页,/clash/verge/
+/clash/recommend/,Clash推荐,开源代理软件,电脑翻墙软件,信息/对比,工具选择,开源客户端梯队,/clash/,/clash/verge/
+/clash/verge/,Clash Verge,Clash Verge教程,Mihomo客户端,信息/教程,实操配置,Verge核心特性,/clash/,/clash/verge-download/
+/clash/verge-download/,Clash Verge下载,Clash Verge官网,正版Clash,交易/导航,安装落地,纯净下载校验,/clash/,/clash/verge-subscribe/
+/clash/verge-subscribe/,Clash Verge订阅,Clash订阅导入,机场订阅,操作指导,连接上手,订阅导入排错,/clash/,/brands/guangsu/
+/clash/meta/,Clash Meta,Mihomo内核,VLESS Clash,技术调研,进阶配置,Mihomo新协议,/clash/,/clash/tutorials/
+/clash/tutorials/,Clash使用教程,Clash分流规则,Clash TUN模式,操作指导,规则优化,规则与策略组,/clash/,/clash/troubleshooting/
+/clash/troubleshooting/,Clash故障排查,Clash节点超时,Clash连不上,问题求助,故障修复,超时与网络阻断,/clash/,/resources/faq/
+/resources/,资源与情报,机场情报,翻墙知识库,信息/导航,认知提升,情报总汇,首页,/resources/intel/
+/resources/free-nodes/,免费节点,v2ray免费节点,clash节点池,信息搜索,应急寻找,公共节点池隐患,/resources/,/airport/cheap/
+/resources/runaway-warning/,跑路预警,机场跑路,机场倒闭名单,风险调研,资金避坑,跑路前兆识别,/resources/,/brands/guangsu/
+/resources/faq/,机场FAQ,机场怎么买,流媒体解锁,问题解答,日常答疑,购买与解锁疑问,/resources/,/brands/
+/resources/intel/,机场风险情报,GFW动态,专线割接,行业资讯,环境了解,封锁与海缆情报,/resources/,/airport/stable/
+/resources/node-check/,节点检测,真延迟检测,落地IP纯净度,技术实操,质量核验,测速欺骗与检测,/resources/,/brands/
+/resources/subscription-issues/,订阅失败,订阅403,订阅更新错误,问题求助,故障修复,HTTP状态码修复,/resources/,/clash/troubleshooting/
+/resources/beginner-guide/,新手帮助,梯子新手入门,什么是机场,入门教育,从零起步,黑话大白话扫盲,/resources/,/airport/guide/
+/brands/,机场品牌库,机场数据库,机场筛选,商业搜索,多维对比,品牌库总汇,首页,/brands/guangsu/
+/brands/guangsu/,光速云,光速云评测,光速云优惠码,品牌调研,购买决策,核心商业主推,/brands/,官网注册

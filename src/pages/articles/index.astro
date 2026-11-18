@@ -1,0 +1,157 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import { getBrandBySlug } from '../../data/brands';
+
+const allArticles = await getCollection('articles');
+const sortedArticles = allArticles.sort(
+  (a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime()
+);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '首页', url: '/' },
+  { name: '技术长文库', url: '/articles/' },
+];
+
+const seoTitle = '技术长文库与网络实操专栏 | 2026 机场评测、客户端调优与流媒体解锁 - v2rayn节点';
+const seoDescription = '收录 32 篇专著级长尾技术指南：覆盖 Apple TV 软路由旁路配置、Netflix 2026 全区解锁、Stripe 信用卡防风控实战、晚高峰骨干网 QoS 限速排障与三大运营商网络选型。';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  'name': seoTitle,
+  'description': seoDescription,
+  'url': 'https://v2raynjiedian.blog/articles/',
+  'hasPart': sortedArticles.map((art) => ({
+    '@type': 'Article',
+    'headline': art.data.title,
+    'url': `https://v2raynjiedian.blog/articles/${art.id}/`,
+    'datePublished': art.data.pubDate,
+  })),
+};
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDescription}
+  structuredData={jsonLd}
+>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Breadcrumb -->
+    <Breadcrumb items={breadcrumbs} />
+
+    <!-- Hero Header -->
+    <header class="mt-6 mb-10 text-center max-w-3xl mx-auto">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-4 border border-blue-200/80">
+        知识专著矩阵 • 共收录 {sortedArticles.length} 篇实测长文
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+        技术长文与实操指南专栏
+      </h1>
+      <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+        深度解析网络代理协议、软路由透明代理、晚高峰骨干网 QoS 拥塞规避、海外流媒体与 AI 服务防风控实战。
+      </p>
+    </header>
+
+    <!-- Answer-First 决策盒 -->
+    <section class="mb-12 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl relative overflow-hidden">
+      <div class="relative z-10 space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-500/20 text-blue-200 text-xs font-bold tracking-wider uppercase border border-blue-400/30">
+          ⚡ 快速检索指引 • 按需精准匹配
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold">
+          你当前遇到什么网络技术难题？
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+          <a href="/articles/apple-tv-router-proxy-guide/" class="p-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 transition group">
+            <div class="text-xs text-blue-300 font-semibold mb-1">家庭大屏观影 ➜</div>
+            <div class="text-sm font-bold group-hover:text-amber-300 transition">Apple TV 软路由配置</div>
+            <div class="text-xs text-slate-300 mt-1">杜比视界与 Fake-IP 避坑</div>
+          </a>
+          <a href="/articles/chatgpt-plus-payment-anti-fraud/" class="p-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 transition group">
+            <div class="text-xs text-blue-300 font-semibold mb-1">AI 工具防封 ➜</div>
+            <div class="text-sm font-bold group-hover:text-amber-300 transition">ChatGPT Plus 绑卡风控</div>
+            <div class="text-xs text-slate-300 mt-1">Stripe Radar 欺诈分破解</div>
+          </a>
+          <a href="/articles/why-night-slow-qos/" class="p-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 transition group">
+            <div class="text-xs text-blue-300 font-semibold mb-1">晚间拥堵排障 ➜</div>
+            <div class="text-sm font-bold group-hover:text-amber-300 transition">晚高峰骨干网 QoS 限速</div>
+            <div class="text-xs text-slate-300 mt-1">163 拥塞与 IEPL 专线抗压</div>
+          </a>
+          <a href="/articles/avoid-runaway-airports/" class="p-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 transition group">
+            <div class="text-xs text-blue-300 font-semibold mb-1">资金安全防坑 ➜</div>
+            <div class="text-sm font-bold group-hover:text-amber-300 transition">机场跑路前兆避坑指南</div>
+            <div class="text-xs text-slate-300 mt-1">财务崩塌预警与月付防线</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Articles Grid -->
+    <section class="mb-16">
+      <div class="flex items-center justify-between mb-8 pb-3 border-b border-slate-200">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">全部现役专著文章 ({sortedArticles.length})</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">严格按照发表与更新时间倒序排列</p>
+        </div>
+        <a href="/search/" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-600 text-xs font-semibold transition border border-slate-200">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          站内全文搜索
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {sortedArticles.map((art) => (
+          <ArticleCard
+            title={art.data.title}
+            description={art.data.description}
+            url={`/articles/${art.id}/`}
+            category={art.data.category}
+            pubDate={art.data.pubDate}
+            readingTime={art.data.readingTime}
+            author={art.data.author}
+          />
+        ))}
+      </div>
+    </section>
+
+    <!-- Commercial CTA Card (with valid affiliateUrl) -->
+    {guangsuBrand && (
+      <section class="mb-16 p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 max-w-2xl text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold">
+            🏆 全站实验室年度首选服务商
+          </div>
+          <h3 class="text-xl sm:text-2xl font-extrabold text-white">
+            光速云 (GuangSu Cloud) 工业级内网专线
+          </h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            全线 IEPL 物理专线与全球 IPLC 混合拓扑，晚高峰实测零丢包，Netflix 与 ChatGPT 100% 原生解锁。
+          </p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto shrink-0 justify-center">
+          <a
+            href={guangsuBrand.affiliateUrl}
+            target="_blank"
+            rel="nofollow sponsored noopener"
+            class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition text-center"
+          >
+            前往光速云官网选购 ➜
+          </a>
+          <a
+            href="/brands/guangsu/"
+            class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm border border-slate-700 transition text-center"
+          >
+            查看详评报告
+          </a>
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>

@@ -1,0 +1,427 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FeaturedArticleCard from '../components/cards/FeaturedArticleCard.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import CompactArticleCard from '../components/cards/CompactArticleCard.astro';
+import BrandCard from '../components/cards/BrandCard.astro';
+import TopicCard from '../components/cards/TopicCard.astro';
+import NetworkPerformanceReport from '../components/charts/NetworkPerformanceReport.astro';
+import StreamingAvailabilityMatrix from '../components/charts/StreamingAvailabilityMatrix.astro';
+import FAQSection from '../components/review/FAQSection.astro';
+import AffiliateNotice from '../components/review/AffiliateNotice.astro';
+import { brandsData, getTopBrands, getPrimaryBrand } from '../data/brands';
+import { navigationData } from '../data/navigation';
+import { siteConfig } from '../data/site';
+
+// Fetch articles from Content Collections
+const allArticles = await getCollection('articles');
+const sortedArticles = [...allArticles].sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+
+const featuredArticle = sortedArticles.find((a) => a.data.featured) || sortedArticles[0];
+const recentArticles = sortedArticles.slice(0, 9);
+const airportArticles = sortedArticles.filter((a) => a.data.category === 'airport').slice(0, 3);
+const clashArticles = sortedArticles.filter((a) => a.data.category === 'clash').slice(0, 3);
+const vpnArticles = sortedArticles.filter((a) => a.data.category === 'vpn').slice(0, 3);
+const resArticles = sortedArticles.filter((a) => a.data.category === 'resources').slice(0, 3);
+
+const topBrands = getTopBrands(6);
+const primaryBrand = getPrimaryBrand();
+
+const homeFaqs = [
+  {
+    question: "v2rayn节点评测实验室是如何对机场进行测试排名的？",
+    answer: "我们拒绝白天脱机跑分，坚持在每日 20:30–22:00 晚高峰骨干网最拥堵的时段，通过千兆对称专线发起持续 1000 次拨测。排名综合考量晚高峰丢包率、延迟抖动、Netflix 4K 非自制剧与 Claude/ChatGPT 真实解锁率，以及连续运营年限权重。",
+  },
+  {
+    question: "商业推广品牌与独立测试结论如何区分？",
+    answer: "本站完全公开商业合作关系，并在所有推荐位明确标注「商业推广/站长首推」徽章。推广位置绝不会篡改底层客观测速数据。对于存在数据缺口或未实测项，统一标注为待核实或品牌宣称，绝不虚构事实。",
+  },
+  {
+    question: "小白翻墙第一次该买哪个套餐？",
+    answer: "强烈建议首选光速云的「极速版」（¥25/月 168GB/月）进行月度体验，或者选择飞猫云（7元起步免配客户端）。如果平时用量很少仅做备用，推荐光速云的「致敬斯诺克147永久套餐」（¥147 247GB 永久有效不过期）。",
+  },
+  {
+    question: "为什么很多廉价机场会突然跑路倒闭？",
+    answer: "廉价小站没有资金租用正规物理专线机房，多采用低成本公网 VPS 跑庞氏资金池，一旦遭遇骨干网严查封锁便无力续费。我们坚持建议用户“首选中短期月付，主力选择 3 年以上老牌专线”。",
+  },
+];
+---
+
+<BaseLayout
+  title={siteConfig.title}
+  description={siteConfig.description}
+  schemaType="WebSite"
+  faq={homeFaqs}
+>
+  <!-- 1. Hero Section -->
+  <section class="relative bg-gradient-to-b from-blue-50/60 via-slate-50/40 to-white py-12 lg:py-20 border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        
+        <!-- Left: Brand Intro, H1, Value, Actions -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100/80 text-blue-800 text-xs font-bold uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+            <span>2026 中文代理机场与 VPN 评测实验室</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            以实测数据为基石的<br />
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+              网络工具知识与推荐媒体
+            </span>
+          </h1>
+
+          <p class="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
+            提供 30+ 品牌晚高峰延迟与丢包实测、AI 与流媒体解锁矩阵、Clash Verge Rev 与 v2rayN 客户端配置全指南。以原创深度内容打破信息差，拒绝虚假营销。
+          </p>
+
+          <!-- Search & Action Buttons -->
+          <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <a
+              href="/airport/recommend/"
+              class="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm sm:text-base text-center shadow-md shadow-blue-500/20 transition transform active:scale-95 flex items-center justify-center gap-2"
+            >
+              <span>查看 2026 机场推荐榜</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </a>
+            <a
+              href="/brands/"
+              class="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm sm:text-base text-center border border-slate-300 transition shadow-xs flex items-center justify-center gap-2"
+            >
+              <span>检索 30+ 品牌数据库</span>
+            </a>
+            <a
+              href="/airport/guide/"
+              class="px-5 py-3.5 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm text-center hover:bg-blue-100 transition"
+            >
+              新手入门指南
+            </a>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="pt-4 flex flex-wrap items-center gap-6 text-xs text-slate-500 border-t border-slate-200/60">
+            <div class="flex items-center gap-1.5">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span>晚高峰 20:00-22:00 真实压测</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span>30+ 品牌数据透明审计</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-emerald-500 font-bold">✓</span>
+              <span>全协议 (VLESS/Trojan/Hysteria2)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Primary Sponsored Spotlight Card (光速云) -->
+        <div class="lg:col-span-5">
+          <div class="bg-white rounded-3xl p-6 sm:p-7 border-2 border-blue-600 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-blue-600 text-white text-[11px] font-bold px-3 py-1 rounded-bl-xl shadow-xs uppercase tracking-wider">
+              2026 综合首选
+            </div>
+
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-500 text-white font-extrabold text-xl flex items-center justify-center shadow-md">
+                光
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-slate-900">{primaryBrand.name}</h3>
+                <span class="text-xs text-slate-400">{primaryBrand.established}稳定运营 • IEPL双专线</span>
+              </div>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+              {primaryBrand.summary}
+            </p>
+
+            <div class="p-3 rounded-xl bg-blue-50/80 border border-blue-200/80 text-xs space-y-1.5 mb-4">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500">入门年付轻量:</span>
+                <strong class="text-blue-700">¥99/年 (69GB/月，折合¥8.25/月)</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500">不限时永久套餐:</span>
+                <strong class="text-blue-700">¥147 一次性 247GB 永不过期</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500">主力极速版:</span>
+                <strong class="text-blue-700">¥25/月 (168GB/月)</strong>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 mb-5 font-semibold">
+              <span>专属优惠码: <code class="bg-white px-1.5 py-0.5 rounded border border-amber-300 text-amber-700 font-mono font-bold">AMM</code></span>
+              <span class="text-[11px] text-amber-700">新人专享特惠</span>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+              <a
+                href={primaryBrand.affiliateUrl}
+                target="_blank"
+                rel="nofollow sponsored noopener"
+                class="flex-1 text-center py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md transition"
+              >
+                前往官方注册直达
+              </a>
+              <a
+                href={`/brands/${primaryBrand.slug}/`}
+                class="flex-1 text-center py-2.5 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs sm:text-sm border border-slate-300 transition"
+              >
+                查看完整实测
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Four Main Topic Portals -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {navigationData.map((nav, index) => (
+        <a
+          href={nav.href}
+          class="group bg-white rounded-2xl p-5 border border-slate-200 shadow-md hover:shadow-xl hover:border-blue-400 transition transform hover:-translate-y-1 flex flex-col justify-between"
+        >
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-3 group-hover:bg-blue-600 group-hover:text-white transition">
+              {['✈️', '🛡️', '⚙️', '📡'][index]}
+            </div>
+            <h3 class="text-base font-bold text-slate-900 group-hover:text-blue-600 transition mb-1">
+              {nav.title}
+            </h3>
+            <p class="text-xs text-slate-500 leading-relaxed line-clamp-2">
+              {nav.description}
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-semibold text-blue-600 flex items-center justify-between">
+            <span>浏览 7 个垂直专题</span>
+            <span class="group-hover:translate-x-1 transition">➜</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- 3. Editorial Featured Article Spotlight (Magazine Layout) -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="flex items-center justify-between mb-8 pb-3 border-b border-slate-200">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          ⭐ 本周编辑部头条精选
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          深度调查、基准压测与独家选型分析
+        </p>
+      </div>
+      <a href="/airport/recommend/" class="text-xs sm:text-sm font-bold text-blue-600 hover:underline">
+        查看全部文章 ➜
+      </a>
+    </div>
+
+    <!-- Hero Magazine Card -->
+    {featuredArticle && (
+      <FeaturedArticleCard
+        title={featuredArticle.data.title}
+        description={featuredArticle.data.description}
+        url={`/articles/${featuredArticle.id}/`}
+        cover={featuredArticle.data.cover}
+        category={featuredArticle.data.category}
+        pubDate={featuredArticle.data.pubDate}
+        readingTime={featuredArticle.data.readingTime}
+      />
+    )}
+  </section>
+
+  <!-- 4. Top Recommended Brands Grid -->
+  <section class="bg-slate-50 py-16 border-y border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider mb-2">
+            <span>经数据审计精选</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            2026 稳定专线梯子精选推荐
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            涵盖综合老牌、不限设备、专属免配客户端与极低门槛平价套餐
+          </p>
+        </div>
+        <a
+          href="/brands/"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 hover:text-blue-600 hover:border-blue-400 text-xs sm:text-sm font-semibold transition shadow-xs"
+        >
+          <span>进入 30+ 品牌完整数据库</span>
+          <span>➜</span>
+        </a>
+      </div>
+
+      <!-- Brands Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {topBrands.map((b) => (
+          <BrandCard brand={b} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Network Performance Observatory Section (Dark Mode Benchmark) -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="mb-6">
+      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-slate-900 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">
+        <span>网络可观测性控制台</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        2026 晚高峰实测性能与解锁基准
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">
+        基于千兆骨干网真实压测采集。图表展现端到端延迟、峰值带宽与 AI/流媒体服务状态
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
+        <NetworkPerformanceReport
+          brandName="晚高峰第一梯队综合实测"
+          testDate="2026-10-19 21:00 晚高峰"
+        />
+      </div>
+      <div>
+        <StreamingAvailabilityMatrix brandName="原生住宅与专线双栈落地" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Multi-Column Topic Grid (Airport, Clash, VPN, Resources) -->
+  <section class="bg-white py-16 border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section 6.1: 机场推荐 & 性价比专题文章 -->
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-6 rounded-full bg-blue-600 inline-block"></span>
+            <h3 class="text-xl font-bold text-slate-900">机场推荐与性价比选型专栏</h3>
+          </div>
+          <a href="/airport/" class="text-xs font-bold text-blue-600 hover:underline">更多机场文章 ➜</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {airportArticles.map((art) => (
+            <ArticleCard
+              title={art.data.title}
+              description={art.data.description}
+              url={`/articles/${art.id}/`}
+              cover={art.data.cover}
+              category={art.data.category}
+              pubDate={art.data.pubDate}
+              readingTime={art.data.readingTime}
+              author={art.data.author}
+            />
+          ))}
+        </div>
+      </div>
+
+      <!-- Section 6.2: Clash 客户端与排错教程 -->
+      <div class="mb-14">
+        <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-6 rounded-full bg-indigo-600 inline-block"></span>
+            <h3 class="text-xl font-bold text-slate-900">Clash Verge Rev 客户端与排错专栏</h3>
+          </div>
+          <a href="/clash/" class="text-xs font-bold text-blue-600 hover:underline">更多客户端文章 ➜</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {clashArticles.map((art) => (
+            <ArticleCard
+              title={art.data.title}
+              description={art.data.description}
+              url={`/articles/${art.id}/`}
+              cover={art.data.cover}
+              category={art.data.category}
+              pubDate={art.data.pubDate}
+              readingTime={art.data.readingTime}
+              author={art.data.author}
+            />
+          ))}
+        </div>
+      </div>
+
+      <!-- Section 6.3: VPN 对比与风险情报 -->
+      <div>
+        <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-6 rounded-full bg-emerald-600 inline-block"></span>
+            <h3 class="text-xl font-bold text-slate-900">VPN 对比、跑路预警与行业情报</h3>
+          </div>
+          <a href="/resources/" class="text-xs font-bold text-blue-600 hover:underline">更多情报文章 ➜</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {resArticles.concat(vpnArticles).slice(0, 3).map((art) => (
+            <ArticleCard
+              title={art.data.title}
+              description={art.data.description}
+              url={`/articles/${art.id}/`}
+              cover={art.data.cover}
+              category={art.data.category}
+              pubDate={art.data.pubDate}
+              readingTime={art.data.readingTime}
+              author={art.data.author}
+            />
+          ))}
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 7. Recent Articles Stream -->
+  <section class="bg-slate-50 py-16 border-t border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-8 pb-3 border-b border-slate-200">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            📰 最新发布与技术解析
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            动态同步 56 个三级集群规划中已上线的核心文章
+          </p>
+        </div>
+        <span class="text-xs font-semibold text-slate-500">
+          共收录 {allArticles.length} 篇精选长文
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {recentArticles.map((art) => (
+          <ArticleCard
+            title={art.data.title}
+            description={art.data.description}
+            url={`/articles/${art.id}/`}
+            cover={art.data.cover}
+            category={art.data.category}
+            pubDate={art.data.pubDate}
+            readingTime={art.data.readingTime}
+            author={art.data.author}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. FAQ Section -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <FAQSection faqs={homeFaqs} title="常见问题解答 (FAQ) - 关于评测与选型" />
+    <AffiliateNotice />
+  </section>
+</BaseLayout>

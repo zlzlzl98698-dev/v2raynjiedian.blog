@@ -1,0 +1,38 @@
+---
+import Header from '../components/navigation/Header.astro';
+import Footer from '../components/common/Footer.astro';
+import SEOHead from '../components/seo/SEOHead.astro';
+import '../styles/global.css';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  type?: 'website' | 'article';
+  image?: string;
+  pubDate?: Date;
+  updatedDate?: Date;
+  author?: string;
+  breadcrumbs?: { name: string; url: string }[];
+  schemaType?: 'WebSite' | 'Article' | 'FAQPage' | 'ItemList';
+  faq?: { question: string; answer: string }[];
+  noindex?: boolean;
+}
+
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <SEOHead {...props} />
+    <slot name="head" />
+  </head>
+  <body class="bg-white text-slate-800 antialiased flex flex-col min-h-screen selection:bg-blue-600 selection:text-white">
+    <Header />
+    <main class="flex-grow">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

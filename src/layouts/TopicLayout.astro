@@ -1,0 +1,175 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumb from '../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../components/cards/ArticleCard.astro';
+import BrandCard from '../components/cards/BrandCard.astro';
+import FAQSection from '../components/review/FAQSection.astro';
+import { getTopBrands } from '../data/brands';
+import { navigationData, type NavSubItem } from '../data/navigation';
+
+export interface Props {
+  title: string;
+  description: string;
+  categorySlug: 'airport' | 'vpn' | 'clash' | 'resources';
+  currentTopicSlug?: string;
+  articles?: any[];
+  faqs?: { question: string; answer: string }[];
+  showBrands?: boolean;
+}
+
+const {
+  title,
+  description,
+  categorySlug,
+  currentTopicSlug,
+  articles = [],
+  faqs = [],
+  showBrands = true,
+} = Astro.props;
+
+const currentNav = navigationData.find((n) => n.slug === categorySlug);
+const currentSub = currentTopicSlug
+  ? currentNav?.children.find((s) => s.slug === currentTopicSlug)
+  : null;
+
+const breadcrumbs = [
+  { name: currentNav?.title || '专题', url: currentNav?.href || '/' },
+];
+
+if (currentSub) {
+  breadcrumbs.push({ name: currentSub.title, url: currentSub.href });
+}
+
+const topBrands = getTopBrands(3);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  breadcrumbs={breadcrumbs}
+  schemaType="ItemList"
+  faq={faqs}
+>
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-b from-blue-50/70 via-slate-50/50 to-white border-b border-slate-200/80 py-10 lg:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Breadcrumb items={breadcrumbs} />
+
+      <div class="mt-4 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-100/70 text-blue-700 text-xs font-bold uppercase tracking-wider mb-3">
+          <span>{currentNav?.title} 专题矩阵</span>
+          {currentSub && <span>• {currentSub.title}</span>}
+        </div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+          {title}
+        </h1>
+        <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+          {description}
+        </p>
+      </div>
+
+      <!-- Secondary Navigation Pills -->
+      {currentNav?.children && (
+        <div class="mt-8 pt-6 border-t border-slate-200/70 flex flex-wrap gap-2">
+          <a
+            href={currentNav.href}
+            class={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition ${
+              !currentTopicSlug
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600'
+            }`}
+          >
+            全部专题
+          </a>
+          {currentNav.children.map((sub) => {
+            const isSubActive = currentTopicSlug === sub.slug;
+            return (
+              <a
+                href={sub.href}
+                class={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition ${
+                  isSubActive
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600'
+                }`}
+              >
+                {sub.title}
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Main Content Area -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    
+    <!-- Optional: Top Brand Highlights for Relevant Topics -->
+    {showBrands && (
+      <section class="mb-14">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+              ⚡ 适合该专题的优质专线品牌推荐
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+              基于晚高峰测试、流媒体与 AI 解锁表现严格筛选
+            </p>
+          </div>
+          <a href="/brands/" class="text-xs sm:text-sm font-bold text-blue-600 hover:underline">
+            查看全部 30+ 品牌 ➜
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {topBrands.map((b) => (
+            <BrandCard brand={b} />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Articles Section -->
+    <section>
+      <div class="flex items-center justify-between mb-8 pb-3 border-b border-slate-200">
+        <h2 class="text-2xl font-bold text-slate-900">
+          📚 原创深度文章与指南
+        </h2>
+        <span class="text-xs text-slate-500 font-medium">
+          共收录 {articles.length} 篇精选文章
+        </span>
+      </div>
+
+      {articles.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {articles.map((art) => (
+            <ArticleCard
+              title={art.data.title}
+              description={art.data.description}
+              url={`/articles/${art.id}/`}
+              cover={art.data.cover}
+              category={art.data.category}
+              pubDate={art.data.pubDate}
+              readingTime={art.data.readingTime}
+              author={art.data.author}
+              featured={art.data.featured}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="p-12 text-center rounded-2xl bg-slate-50 border border-slate-200">
+          <p class="text-slate-500 text-sm">该专题文章正在定期测试与排期发布中，请参考上方推荐品牌及相关专题。</p>
+        </div>
+      )}
+    </section>
+
+    <!-- Slot for additional content -->
+    <div class="mt-12">
+      <slot />
+    </div>
+
+    <!-- FAQ Section -->
+    {faqs.length > 0 && <FAQSection faqs={faqs} title={`${title} - 常见问题与解答`} />}
+
+  </div>
+</BaseLayout>

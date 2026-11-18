@@ -1,0 +1,50 @@
+---
+import type { Brand } from '../../data/brands';
+
+export interface Props {
+  brand: Brand;
+}
+
+const { brand } = Astro.props;
+---
+
+<div class="my-8 rounded-2xl bg-[#0B1120] border border-[#1E293B] shadow-2xl p-5 sm:p-6 text-slate-200 font-mono text-sm">
+  <div class="flex items-center justify-between pb-4 border-b border-[#1E293B]">
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+        基础设施快照 • 节点拓扑与服务规格控制台
+      </span>
+    </div>
+    <span class="text-xs text-emerald-400 font-bold">STATUS: OPERATIONAL</span>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-5">
+    <div class="p-3.5 rounded-xl bg-[#0F172A] border border-[#1E293B]">
+      <span class="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">线路类别</span>
+      <span class="text-base font-bold text-white block truncate">{brand.lineTypes.join(' / ')}</span>
+    </div>
+    <div class="p-3.5 rounded-xl bg-[#0F172A] border border-[#1E293B]">
+      <span class="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">主打协议</span>
+      <span class="text-base font-bold text-cyan-400 block truncate">{brand.protocols.join(', ')}</span>
+    </div>
+    <div class="p-3.5 rounded-xl bg-[#0F172A] border border-[#1E293B]">
+      <span class="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">客户端兼容</span>
+      <span class="text-base font-bold text-indigo-400 block truncate">{brand.clientSupport}</span>
+    </div>
+    <div class="p-3.5 rounded-xl bg-[#0F172A] border border-[#1E293B]">
+      <span class="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">起步资费</span>
+      <span class="text-base font-bold text-emerald-400 block">¥{brand.minPriceMonthly} /月起</span>
+    </div>
+  </div>
+
+  <div class="p-4 rounded-xl bg-[#0F172A] border border-[#1E293B] text-xs text-slate-300 space-y-2">
+    <div class="text-slate-400 font-semibold">节点部署区域分布:</div>
+    <div class="flex flex-wrap gap-2">
+      {brand.nodeRegions.map((region) => (
+        <span class="px-2.5 py-1 rounded bg-[#1E293B] text-slate-200 border border-slate-700">
+          📍 {region}
+        </span>
+      ))}
+    </div>
+  </div>
+</div>

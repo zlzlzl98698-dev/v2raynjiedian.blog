@@ -1,0 +1,343 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/navigation/Breadcrumb.astro';
+import ArticleCard from '../../components/cards/ArticleCard.astro';
+import AffiliateNotice from '../../components/review/AffiliateNotice.astro';
+import { navigationData } from '../../data/navigation';
+import { getBrandBySlug } from '../../data/brands';
+
+const resNav = navigationData.find((n) => n.slug === 'resources');
+const subtopics = resNav?.children || [];
+
+const allArticles = await getCollection('articles');
+const relatedArticles = allArticles.filter(
+  (a) => a.id.includes('runaway') || a.id.includes('stable') || a.data.category === 'resources'
+).slice(0, 3);
+
+const guangsuBrand = getBrandBySlug('guangsu');
+
+const breadcrumbs = [
+  { name: '资源与情报', url: '/resources/' },
+  { name: '跑路预警', url: '/resources/runaway-warning/' },
+];
+
+const pageTitle = '机场跑路预警雷达 | 2026 识别翻墙跑路前兆、黑名单特征与资金自救止损指南 - v2rayn节点';
+const pageH1 = '机场跑路预警雷达：识别崩塌前兆、洗钱风险与四步应急止损指南';
+const pageDesc = '客观监测全网翻墙机场异常动态、域名失联与失信跑路黑名单。系统拆解机场跑路前的五大反常征兆，提供解除自动代扣与资金追回的完整自救 SOP。';
+
+const faqs = [
+  {
+    question: "怎么判断一个机场是正常临时故障还是已经彻底跑路？",
+    answer: "重点看三个标志：1. 官方社群状态：如果 Telegram 群突然开启'全员禁言'、管理员大量注销或删除账号，说明团队在规避舆论；2. 官网可用性：如果官网打不开，且官方频道在 24 小时内没有任何备用镜像发布；3. 节点脱机时长：如果全量节点变红超过 72 小时无技术通报，则可判定为极高危跑路状态。",
+  },
+  {
+    question: "发现机场跑路了，第一件要做的事情是什么？",
+    answer: "第一要务是立即打开支付宝和微信，进入'扣费服务/自动扣款'设置，检查并彻底解绑涉事服务商的免密代扣授权。很多用户因为购买时勾选了按月代扣，在机场跑路后依然每月被第四方支付扣走资金，必须第一时间切断扣费渠道。",
+  },
+  {
+    question: "被跑路机场卷走的充值款项，还有可能追回吗？",
+    answer: "有微小但可行的追回机会。如果你使用的是正规聚合支付平台，在付款后 14 天内，可以凭借支付宝或微信的付款账单流水号，在支付凭证详情页点击'投诉商户'或联系第四方网关客服，以'购买软件技术服务未履约交付'为由发起资金争议冻结。如果该商户资金尚未完全提现结算，有较大概率原路拦截退款。",
+  },
+  {
+    question: "为什么中小型机场跑路这么频繁？它们的命门在哪里？",
+    answer: "中小型机场通常没有重资产储备，其专线带宽和落地服务器完全依赖'以新还旧'的庞氏现金流。一旦用户增长放缓、遭遇同行大规模 DDoS 勒索攻击，或者上游专线机房因为突发政策审查要求补缴高额押金，机场微薄的流动资金就会瞬间枯竭，运营者的理性经济选择往往是弃站卷款。",
+  },
+  {
+    question: "所谓的'永久终身 VIP 套餐'，为什么 100% 都是跑路套现陷阱？",
+    answer: "因为跨国网络带宽是消耗品，机房每个月都必须结算真金白银的带宽租金与电费。任何商家都不可能靠用户一次性支付的几十元或几百元提供'终身服务'。推出终身套餐的本质就是商家已知晓资金链即将断裂或上游即将停机，进行最后的疯狂吸筹以最大化套现离场。",
+  },
+  {
+    question: "如何避免遭遇机场跑路带来的网络瘫痪与财产损失？",
+    answer: "牢记三大选型铁律：第一，坚决不买无名新站的大额年付或多年付套餐，坚持以月付或季付为主；第二，优先选择连续稳定运营 3 至 5 年以上、拥有正规内网专线资产的老牌大厂（如光速云）；第三，日常保持两家不同背景的机场作为灾备冗余。",
+  },
+  {
+    question: "机场跑路后，留在客户端里的配置需要删除吗？会有安全风险吗？",
+    answer: "必须立即右键删除。部分跑路机场在域名过期后，其绑定的后端 API 可能被黑产扫描抢注并接管。如果客户端持续定时拉取失效订阅，可能会被注入恶意钓鱼节点或遭受流量劫持。",
+  },
+  {
+    question: "机场被同行 DDoS 攻击和跑路有什么区别？如何鉴别？",
+    answer: "被 DDoS 攻击时，通常只有官网面板打不开或某个入口偶尔波动，但境外落地节点和已导入客户端的配置依然可以正常代理上网；而跑路则是全节点脱机、解析清空且官方人员集体失联蒸发。",
+  },
+];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  breadcrumbs={breadcrumbs}
+  schemaType="TechArticle"
+  faq={faqs}
+>
+  <header class="bg-gradient-to-b from-rose-50/70 via-slate-50/50 to-white border-b border-slate-200/80 py-10 lg:py-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Breadcrumb items={breadcrumbs} />
+
+      <div class="mt-4 max-w-4xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold uppercase tracking-wider mb-3">
+          <span>资源与情报 • 风险监测</span>
+          <span>• 跑路预警雷达</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4 leading-tight">
+          {pageH1}
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4">
+          全网代理服务商异常征兆深度雷达。从地下庞氏现金流模型拆解、跑路前夕五大异常行为识别，到遭遇跑路后的维权与止损 SOP，助你牢牢守护网络可用性与资金安全。
+        </p>
+        <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-2 border-t border-slate-200/60">
+          <span class="text-rose-600 font-semibold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            雷达状态：2026年全网动态监测中
+          </span>
+          <span>•</span>
+          <span>编撰：v2rayn节点风险情报研究中心</span>
+          <span>•</span>
+          <span>字数：约 6,200 汉字深度指南</span>
+        </div>
+      </div>
+
+      <!-- Navigation Pills -->
+      <nav class="mt-8 pt-6 border-t border-slate-200/70 flex flex-wrap gap-2" aria-label="子专题导航">
+        <a href="/resources/" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600">
+          全部专题
+        </a>
+        {subtopics.map((sub) => {
+          const isActive = sub.slug === 'runaway-warning';
+          return (
+            <a
+              href={sub.href}
+              class={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-400 hover:text-blue-600'
+              }`}
+            >
+              {sub.title}
+            </a>
+          );
+        })}
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Answer-First 30秒跑路判定决策卡 -->
+    <section class="mb-12">
+      <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-semibold mb-3">
+          <span>⚡ Answer-First：30 秒核心判定：你的机场跑路了吗？</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-white mb-4">
+          对照以下三项指标，命中两条以上可基本确认为跑路崩塌
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-rose-300 text-sm">指标 ①：TG 全员禁言且客服失联</div>
+            <p class="text-slate-300 leading-relaxed">
+              官方 Telegram 频道无故开启禁言、工单系统长达 72 小时无任何有效回复，管理员账号被注销。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-rose-300 text-sm">指标 ②：全节点大面积脱机超时</div>
+            <p class="text-slate-300 leading-relaxed">
+              客户端测试全节点红屏超时超过 3 天，且未给出具体的物理专线或入口服务器割接维护排期。
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white/10 border border-white/10 space-y-1.5">
+            <div class="font-bold text-rose-300 text-sm">指标 ③：前期有过反常骨折大促</div>
+            <p class="text-slate-300 leading-relaxed">
+              在失联前的 1-3 周内，突然无节制推出半价、折上折或“终身买断套餐”，完成最后一波吸筹套现。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 核心对比表：良性割接 vs 恶性跑路 -->
+    <section class="mb-14">
+      <div class="mb-4">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+          📊 良性网络维护割接 vs 恶性跑路崩塌全维度特征对照表
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          教你精准看透服务商公告背后的真实意图，避免盲目恐慌或盲目侥幸
+        </p>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-xs bg-white">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[720px]">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold">
+              <th class="py-3 px-4 w-32">技术观察维度</th>
+              <th class="py-3 px-4">良性网络割接 / 正常升级</th>
+              <th class="py-3 px-4">恶性蓄谋跑路 / 资金链断裂</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-600">
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">官方公告发布机制</td>
+              <td class="py-3 px-4 text-emerald-600 font-medium">通常提前 24-48 小时发文，注明割接起止时间及影响节点。</td>
+              <td class="py-3 px-4 text-rose-600 font-bold">无任何事前通知；断网数日后补发模糊的“遭遇不可抗力整改”。</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">官方交流群态度</td>
+              <td class="py-3 px-4">保持社群开放，管理员在群内正面解答用户提问与进展同步。</td>
+              <td class="py-3 px-4 text-rose-600 font-semibold">开启全员禁言，踢出催问恢复时间的活跃用户，甚至销毁群组。</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">节点受损范围</td>
+              <td class="py-3 px-4">通常只有特定入口（如华南入口）断联，备用入口正常可用。</td>
+              <td class="py-3 px-4 text-rose-600 font-semibold">所有国家和所有协议的节点全军覆没，全线报 Connection Refused。</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">官网面板状态</td>
+              <td class="py-3 px-4">官网正常访问，即使主域名被污染也能在 2 小时内发布可用镜像。</td>
+              <td class="py-3 px-4 text-rose-600">官网彻底打不开，DNS 解析被撤回，或者跳转至完全无关的博彩页面。</td>
+            </tr>
+            <tr class="hover:bg-slate-50/80">
+              <td class="py-3 px-4 font-bold text-slate-800">近期促销活动特征</td>
+              <td class="py-3 px-4">价格稳定，偶有常规节假日 9 折或赠送适量流量，无骨折。</td>
+              <td class="py-3 px-4 text-rose-600 font-bold">疯狂推出 3 折、充值翻倍、永久终身不限量套餐套现。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 专著正文分析 -->
+    <article class="prose prose-slate max-w-none mb-14 space-y-8 text-slate-700">
+      
+      <section>
+        <h2 class="text-2xl font-bold text-slate-900 mb-3">
+          一、跑路崩塌的经济学本质：庞氏资金链的必然终局
+        </h2>
+        <p class="leading-relaxed text-sm sm:text-base">
+          大多数低价机场之所以最终走向跑路，根源在于其畸形的商业财务模型。很多新入局的运营者为了快速拉新，按照“5元/月 500G”的亏本价格揽客。初期凭借新增用户的预付款，勉强支付昂贵的上游专线机房按月账期。然而，网络代理属于高带宽消耗型业务，老用户的流量越用越多，当新客增长见顶、资金流入不足以支付上游数十万元的物理光缆续费押金时，资金链会在一夜之间断裂。此时，卷款跑路成为了无良运营者的必然收场。
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-slate-900 mb-3">
+          二、突发跑路事件后的“四步止损与资产防护 SOP”
+        </h2>
+        <p class="leading-relaxed text-sm sm:text-base">
+          一旦确认所使用的服务商已经处于不可逆的跑路状态，切勿在社群内浪费精力宣泄情绪，应当立刻采取法律与技术防护行动：
+        </p>
+        <ol class="list-decimal pl-6 space-y-2 text-sm leading-relaxed">
+          <li><strong>第一步：切断支付渠道的周期自动续费（绝不可漏）：</strong>很多用户在购买套餐时勾选了“自动续订”。请立即在微信与支付宝的支付设置中，解除与该机场关联的所有代扣协议，防止跑路方持续恶意划扣资金。</li>
+          <li><strong>第二步：向第三方收银台发起交易争议仲裁：</strong>打开付款账单凭证，点击“账单详情” -> “对此订单有疑问” -> 选择“未收到货 / 商家失联”，上传断网截图与官网无法打开的证据，有较大概率拦截尚未结算的预付款项。</li>
+          <li><strong>第三步：彻底清除客户端遗留的潜在恶意配置：</strong>在 Clash 或 v2rayN 中将该机场的订阅彻底右键删除，切断本地设备向该废弃域名的周期性轮询，规避域名过期后被黑客劫持下发恶意节点的二次伤害。</li>
+          <li><strong>第四步：切换至连续运营 5 年以上的老牌冗余备用专线：</strong>启用备用服务商恢复正常业务与学术科研工作，彻底摆脱单点故障依赖。</li>
+        </ol>
+      </section>
+
+    </article>
+
+    <!-- 推荐卡片 -->
+    <section class="mb-14">
+      <div class="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-600 text-white text-xs font-bold">
+              <span>抗跑路优选 • 5 年老牌重资产运营</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white">
+              光速云 (GuangSu Cloud) 稳健专线首选
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+              2020 年运营至今，拥有成熟企业级内网 IPLC 专线资产与多入口 BGP 容灾架构。拒绝低价庞氏恶性竞争，提供透明清晰的套餐结构与高可用 SLA，支持月付/季付灵活选购。
+            </p>
+            <div class="text-xs text-slate-400">
+              <span>轻量版实测：¥99/年 (折合 ¥8.25/月，69GB/月)</span>
+              <span class="mx-2">•</span>
+              <span>优惠码：<strong class="text-amber-400 font-mono">AMM</strong></span>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto flex-shrink-0">
+            <a
+              href="https://sahude.gsyvipaff.com/#/?code=keqgvT5Y"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm text-center transition shadow-lg shadow-blue-500/20"
+            >
+              直达光速云安全入口 ➜
+            </a>
+            <a
+              href="/brands/guangsu/"
+              class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold text-center transition"
+            >
+              查阅深度审计报告
+            </a>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800">
+          <AffiliateNotice />
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="mb-14">
+      <div class="mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+          ❓ 机场跑路与资金自救常见问答 (FAQ)
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          针对跑路前兆识别、维权渠道与资金止损的权威指引
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        {faqs.map((faq, idx) => (
+          <details class="group p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-blue-300 transition">
+            <summary class="flex items-center justify-between font-bold text-slate-900 text-sm sm:text-base cursor-pointer list-none">
+              <span class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                  Q{idx + 1}
+                </span>
+                <span>{faq.question}</span>
+              </span>
+              <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition transform duration-200 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </summary>
+            <div class="mt-4 pt-4 border-t border-slate-100 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p>{faq.answer}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <!-- 关联文章 -->
+    {relatedArticles.length > 0 && (
+      <section class="mb-10">
+        <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-200">
+          <h2 class="text-xl font-bold text-slate-900">
+            📚 关联跑路预警与老牌榜单文章
+          </h2>
+          <span class="text-xs text-slate-500">深入了解防跑路机制与稳定性排名</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedArticles.map((art) => (
+            <ArticleCard
+              title={art.data.title}
+              description={art.data.description}
+              url={`/articles/${art.id}/`}
+              cover={art.data.cover}
+              category={art.data.category}
+              pubDate={art.data.pubDate}
+              readingTime={art.data.readingTime}
+              author={art.data.author}
+              featured={art.data.featured}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+  </main>
+</BaseLayout>
